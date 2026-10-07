@@ -43,7 +43,6 @@ next-env.d.ts
 # scraped content, seeded into the database (not committed)
 /data/
 
-# tooling files
-AGENTS.md
-CLAUDE.md
-.claude/
+
+.vercel
+.env*

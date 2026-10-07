@@ -1,0 +1,74 @@
+{
+  "nav": [
+    {
+      "area": "header",
+      "en": "Events",
+      "hi": "कार्यक्रम",
+      "href": "/events"
+    },
+    {
+      "area": "header",
+      "en": "Grievance",
+      "hi": "शिकायत",
+      "href": "/grievance"
+    },
+    {
+      "area": "footer",
+      "en": "Events",
+      "hi": "कार्यक्रम",
+      "href": "/events"
+    },
+    {
+      "area": "footer",
+      "en": "Raise a grievance",
+      "hi": "शिकायत दर्ज करें",
+      "href": "/grievance"
+    },
+    {
+      "area": "footer",
+      "en": "Track a grievance",
+      "hi": "शिकायत ट्रैक करें",
+      "href": "/grievance/track"
+    }
+  ],
+  "quick": [
+    {
+      "en": "Raise a grievance",
+      "hi": "शिकायत दर्ज करें",
+      "href": "/grievance",
+      "icon": "shield"
+    },
+    {
+      "en": "Events & meetings",
+      "hi": "कार्यक्रम एवं बैठकें",
+      "href": "/events",
+      "icon": "building"
+    }
+  ],
+  "grievanceTypes": [
+    [
+      "Pay and allowances",
+      "वेतन और भत्ते"
+    ],
+    [
+      "Promotion and seniority",
+      "पदोन्नति और वरिष्ठता"
+    ],
+    [
+      "Transfer and posting",
+      "स्थानांतरण और तैनाती"
+    ],
+    [
+      "Leave, passes and medical",
+      "अवकाश, पास और चिकित्सा"
+    ],
+    [
+      "Disciplinary and service matters",
+      "अनुशासनात्मक और सेवा संबंधी"
+    ],
+    [
+      "Other",
+      "अन्य"
+    ]
+  ]
+}

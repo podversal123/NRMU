@@ -1,0 +1,386 @@
+{
+  "address": {
+    "en": "Address",
+    "hi": "पता"
+  },
+  "allCategories": {
+    "en": "All categories",
+    "hi": "सभी श्रेणियाँ"
+  },
+  "allYears": {
+    "en": "All years",
+    "hi": "सभी वर्ष"
+  },
+  "attachments": {
+    "en": "Attachments",
+    "hi": "संलग्न फ़ाइलें"
+  },
+  "backToOrders": {
+    "en": "Back to all orders",
+    "hi": "सभी आदेशों पर लौटें"
+  },
+  "branchSecretaries": {
+    "en": "Branch Secretaries",
+    "hi": "शाखा सचिव"
+  },
+  "branches": {
+    "en": "Branches",
+    "hi": "शाखाएँ"
+  },
+  "call": {
+    "en": "Call",
+    "hi": "फ़ोन करें"
+  },
+  "category": {
+    "en": "Category",
+    "hi": "श्रेणी"
+  },
+  "clear": {
+    "en": "Clear filters",
+    "hi": "फ़िल्टर हटाएँ"
+  },
+  "contrast": {
+    "en": "High contrast",
+    "hi": "उच्च कंट्रास्ट"
+  },
+  "download": {
+    "en": "Download",
+    "hi": "डाउनलोड"
+  },
+  "errDivision": {
+    "en": "Please select your division.",
+    "hi": "कृपया अपना मंडल चुनें।"
+  },
+  "errEmail": {
+    "en": "Please enter a valid email address.",
+    "hi": "कृपया सही ईमेल पता लिखें।"
+  },
+  "errGeneric": {
+    "en": "Something went wrong. Please try again.",
+    "hi": "कुछ गड़बड़ हो गई। कृपया पुनः प्रयास करें।"
+  },
+  "errLimit": {
+    "en": "Too many requests from this number today. Please try again tomorrow.",
+    "hi": "आज इस नंबर से बहुत अनुरोध आ चुके हैं। कृपया कल पुनः प्रयास करें।"
+  },
+  "errMobile": {
+    "en": "Please enter a valid 10-digit mobile number.",
+    "hi": "कृपया 10 अंकों का सही मोबाइल नंबर लिखें।"
+  },
+  "errName": {
+    "en": "Please enter your full name.",
+    "hi": "कृपया अपना पूरा नाम लिखें।"
+  },
+  "filters": {
+    "en": "Filters",
+    "hi": "फ़िल्टर"
+  },
+  "formDesignation": {
+    "en": "Designation (optional)",
+    "hi": "पदनाम (वैकल्पिक)"
+  },
+  "formDivision": {
+    "en": "Division",
+    "hi": "मंडल"
+  },
+  "formDivisionPick": {
+    "en": "Select your division",
+    "hi": "अपना मंडल चुनें"
+  },
+  "formEmail": {
+    "en": "Email (optional)",
+    "hi": "ईमेल (वैकल्पिक)"
+  },
+  "formEmployeeId": {
+    "en": "Employee / HRMS ID (optional)",
+    "hi": "कर्मचारी / HRMS आईडी (वैकल्पिक)"
+  },
+  "formMessage": {
+    "en": "Message (optional)",
+    "hi": "संदेश (वैकल्पिक)"
+  },
+  "formMobile": {
+    "en": "Mobile number",
+    "hi": "मोबाइल नंबर"
+  },
+  "formName": {
+    "en": "Full name",
+    "hi": "पूरा नाम"
+  },
+  "goHome": {
+    "en": "Go to home page",
+    "hi": "मुख्य पृष्ठ पर जाएँ"
+  },
+  "home": {
+    "en": "Home",
+    "hi": "मुख्य पृष्ठ"
+  },
+  "live": {
+    "en": "LIVE",
+    "hi": "लाइव"
+  },
+  "menu": {
+    "en": "Menu",
+    "hi": "मेनू"
+  },
+  "next": {
+    "en": "Next",
+    "hi": "अगला"
+  },
+  "noItems": {
+    "en": "Nothing here yet.",
+    "hi": "अभी यहाँ कुछ नहीं है।"
+  },
+  "noPhoto": {
+    "en": "Photo not available",
+    "hi": "फ़ोटो उपलब्ध नहीं"
+  },
+  "noResults": {
+    "en": "No orders found",
+    "hi": "कोई आदेश नहीं मिला"
+  },
+  "noResultsHint": {
+    "en": "Try a different word, or clear the filters.",
+    "hi": "कोई दूसरा शब्द आज़माएँ या फ़िल्टर हटाएँ।"
+  },
+  "notFoundText": {
+    "en": "The page you are looking for does not exist or has moved.",
+    "hi": "आप जो पृष्ठ खोज रहे हैं वह मौजूद नहीं है या हटा दिया गया है।"
+  },
+  "notFoundTitle": {
+    "en": "Page not found",
+    "hi": "पृष्ठ नहीं मिला"
+  },
+  "of": {
+    "en": "of",
+    "hi": "में से"
+  },
+  "page": {
+    "en": "Page",
+    "hi": "पृष्ठ"
+  },
+  "pdf": {
+    "en": "PDF",
+    "hi": "पीडीएफ"
+  },
+  "popular": {
+    "en": "Popular",
+    "hi": "लोकप्रिय"
+  },
+  "previous": {
+    "en": "Previous",
+    "hi": "पिछला"
+  },
+  "read": {
+    "en": "Read",
+    "hi": "पढ़ें"
+  },
+  "result": {
+    "en": "result",
+    "hi": "परिणाम"
+  },
+  "results": {
+    "en": "results",
+    "hi": "परिणाम"
+  },
+  "search": {
+    "en": "Search",
+    "hi": "खोजें"
+  },
+  "searchOrders": {
+    "en": "Search orders",
+    "hi": "आदेश खोजें"
+  },
+  "skip": {
+    "en": "Skip to main content",
+    "hi": "मुख्य सामग्री पर जाएँ"
+  },
+  "submit": {
+    "en": "Submit",
+    "hi": "जमा करें"
+  },
+  "submitting": {
+    "en": "Submitting…",
+    "hi": "जमा हो रहा है…"
+  },
+  "textDefault": {
+    "en": "Default text size",
+    "hi": "सामान्य अक्षर आकार"
+  },
+  "textLarger": {
+    "en": "Increase text size",
+    "hi": "अक्षर बड़े करें"
+  },
+  "textSize": {
+    "en": "Text size",
+    "hi": "अक्षर आकार"
+  },
+  "textSmaller": {
+    "en": "Decrease text size",
+    "hi": "अक्षर छोटे करें"
+  },
+  "thanksText": {
+    "en": "Your request has been received. A representative of the union will contact you.",
+    "hi": "आपका अनुरोध प्राप्त हो गया है। यूनियन का प्रतिनिधि आपसे संपर्क करेगा।"
+  },
+  "thanksTitle": {
+    "en": "Thank you!",
+    "hi": "धन्यवाद!"
+  },
+  "update": {
+    "en": "Update",
+    "hi": "सूचना"
+  },
+  "viewAll": {
+    "en": "View all",
+    "hi": "सभी देखें"
+  },
+  "year": {
+    "en": "Year",
+    "hi": "वर्ष"
+  },
+  "langSwitch": {
+    "en": "हिंदी",
+    "hi": "English"
+  },
+  "navPrimary": {
+    "en": "Primary menu",
+    "hi": "मुख्य मेनू"
+  },
+  "navMobile": {
+    "en": "Mobile menu",
+    "hi": "मोबाइल मेनू"
+  },
+  "breadcrumb": {
+    "en": "Breadcrumb",
+    "hi": "ब्रेडक्रम्ब"
+  },
+  "pagination": {
+    "en": "Pagination",
+    "hi": "पृष्ठ क्रम"
+  },
+  "when": {
+    "en": "When",
+    "hi": "कब"
+  },
+  "where": {
+    "en": "Where",
+    "hi": "कहाँ"
+  },
+  "agenda": {
+    "en": "Agenda",
+    "hi": "कार्यसूची"
+  },
+  "minutes": {
+    "en": "Minutes",
+    "hi": "कार्यवृत्त"
+  },
+  "upcoming": {
+    "en": "Upcoming",
+    "hi": "आगामी"
+  },
+  "past": {
+    "en": "Past events",
+    "hi": "पिछले कार्यक्रम"
+  },
+  "noUpcoming": {
+    "en": "No upcoming events.",
+    "hi": "कोई आगामी कार्यक्रम नहीं।"
+  },
+  "gSubject": {
+    "en": "Subject",
+    "hi": "विषय"
+  },
+  "gDetails": {
+    "en": "Describe your grievance",
+    "hi": "अपनी शिकायत विस्तार से लिखें"
+  },
+  "gType": {
+    "en": "Type of grievance",
+    "hi": "शिकायत का प्रकार"
+  },
+  "gTypePick": {
+    "en": "Select a type",
+    "hi": "प्रकार चुनें"
+  },
+  "gSubmit": {
+    "en": "Submit grievance",
+    "hi": "शिकायत दर्ज करें"
+  },
+  "gThanksTitle": {
+    "en": "Grievance registered",
+    "hi": "शिकायत दर्ज हो गई"
+  },
+  "gThanksText": {
+    "en": "Your grievance has been registered. Keep the ticket number below to track it.",
+    "hi": "आपकी शिकायत दर्ज हो गई है। इसे ट्रैक करने के लिए नीचे दिया टिकट नंबर संभालकर रखें।"
+  },
+  "gTicket": {
+    "en": "Ticket number",
+    "hi": "टिकट नंबर"
+  },
+  "gKeepTicket": {
+    "en": "Save this number. You will need it, with your mobile number, to track the grievance.",
+    "hi": "यह नंबर सहेज लें। शिकायत ट्रैक करने के लिए इसकी और आपके मोबाइल नंबर की ज़रूरत होगी।"
+  },
+  "gTrackTitle": {
+    "en": "Track a grievance",
+    "hi": "शिकायत ट्रैक करें"
+  },
+  "gTrackText": {
+    "en": "Enter your ticket number and the mobile number you gave.",
+    "hi": "अपना टिकट नंबर और वही मोबाइल नंबर लिखें जो आपने दिया था।"
+  },
+  "gTrackButton": {
+    "en": "Track",
+    "hi": "देखें"
+  },
+  "gNotFound": {
+    "en": "No grievance found for these details.",
+    "hi": "इन विवरणों से कोई शिकायत नहीं मिली।"
+  },
+  "gStatus": {
+    "en": "Status",
+    "hi": "स्थिति"
+  },
+  "gLevel": {
+    "en": "Currently with",
+    "hi": "अभी किसके पास"
+  },
+  "gTimeline": {
+    "en": "Progress",
+    "hi": "प्रगति"
+  },
+  "gOpenForm": {
+    "en": "Raise a new grievance",
+    "hi": "नई शिकायत दर्ज करें"
+  },
+  "gStatus_open": {
+    "en": "Open",
+    "hi": "खुली"
+  },
+  "gStatus_in_progress": {
+    "en": "In progress",
+    "hi": "कार्यवाही में"
+  },
+  "gStatus_resolved": {
+    "en": "Resolved",
+    "hi": "निपटाई गई"
+  },
+  "gStatus_closed": {
+    "en": "Closed",
+    "hi": "बंद"
+  },
+  "errSubject": {
+    "en": "Please enter a subject.",
+    "hi": "कृपया विषय लिखें।"
+  },
+  "errDetails": {
+    "en": "Please describe the grievance (at least 20 characters).",
+    "hi": "कृपया शिकायत विस्तार से लिखें (कम से कम 20 अक्षर)।"
+  },
+  "errTicket": {
+    "en": "Enter the ticket number and the mobile number.",
+    "hi": "टिकट नंबर और मोबाइल नंबर लिखें।"
+  }
+}

@@ -1,85 +1,107 @@
 @import "tailwindcss";
 
+/* NRMU palette (from the approved "Demo 4" template). Gold and oxblood are small accents only. */
 :root {
-  --ink: #0b0b0c;
-  --coal: #151517;
-  --coal-2: #202024;
-  --red: #e31e24;
-  --red-deep: #b5121a;
-  --signal: #ffe600;
-  --paper: #f6f4ef;
+  --ink: #15161a;
+  --coal: #15161a;
+  --coal-2: #1e2025;
+  --gold: #c8a45a;
+  --gold-soft: #e6d3a2;
+  --oxblood: #8a211d;
+  --oxblood-deep: #6f1a17;
+  --paper: #f2f0eb;
   --card: #ffffff;
-  --line: #e4e0d6;
-  --muted: #5d5b57;
+  --line: #d9d6cc;
+  --muted: #64665f;
+  --light: #efece3;
+  --dim: #b2afa3;
+
+  --red: var(--oxblood);
+  --red-deep: var(--oxblood-deep);
+  --signal: var(--gold);
 }
 
 @theme inline {
   --color-ink: var(--ink);
   --color-coal: var(--coal);
   --color-coal2: var(--coal-2);
-  --color-brand: var(--red);
-  --color-brand-deep: var(--red-deep);
-  --color-signal: var(--signal);
+  --color-brand: var(--oxblood);
+  --color-brand-deep: var(--oxblood-deep);
+  --color-signal: var(--gold);
+  --color-soft: var(--gold-soft);
   --color-paper: var(--paper);
   --color-line: var(--line);
   --color-muted: var(--muted);
-  --font-display: var(--font-poppins), var(--font-mukta), sans-serif;
-  --font-sans: var(--font-mukta), system-ui, sans-serif;
+  --color-light: var(--light);
+  --color-dim: var(--dim);
+  --font-display: var(--font-cormorant), var(--font-tiro), "Times New Roman", Georgia, serif;
+  --font-sans: var(--font-jost), var(--font-tiro), "Segoe UI", Arial, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;
 }
 
 html {
   scroll-behavior: smooth;
+  background: var(--ink);
 }
 body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 1.0625rem;
-  line-height: 1.55;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
 }
+h1, h2, h3, h4, .font-display { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.012em; font-variant-numeric: lining-nums; font-feature-settings: "lnum"; }
+h3 { font-weight: 700; }
 
-/* Railway track motif: rails + sleepers */
+/* Buttons */
+.btn-gold, .btn-ghost {
+  display: inline-block;
+  border-radius: 9999px;
+  padding: 0.8rem 1.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.btn-gold { background: var(--gold); color: var(--ink); }
+.btn-gold:hover { background: var(--gold-soft); color: var(--ink); }
+.btn-ghost { border-color: #5b5e64; color: var(--light); background: transparent; font-weight: 500; }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold-soft); }
+
+/* Rule under headings */
+.rule { width: 4.5rem; height: 2px; background: var(--gold); }
+
+/* Railway track band between sections */
 .track {
-  height: 10px;
-  background:
-    linear-gradient(var(--signal), var(--signal)) top / 100% 2px no-repeat,
-    linear-gradient(var(--signal), var(--signal)) bottom / 100% 2px no-repeat,
-    repeating-linear-gradient(90deg, var(--signal) 0 3px, transparent 3px 18px) center / 100% 6px no-repeat;
+  height: 22px;
+  background: var(--ink);
+  position: relative;
 }
-.track-red {
-  height: 10px;
-  background:
-    linear-gradient(var(--red), var(--red)) top / 100% 2px no-repeat,
-    linear-gradient(var(--red), var(--red)) bottom / 100% 2px no-repeat,
-    repeating-linear-gradient(90deg, var(--red) 0 3px, transparent 3px 18px) center / 100% 6px no-repeat;
-}
-
-.grain::before {
+.track::before, .track::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
-  background-size: 22px 22px;
-  pointer-events: none;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(200, 164, 90, 0.55);
 }
+.track::before { top: 7px; }
+.track::after { top: 14px; }
+.track-red { height: 2px; background: var(--oxblood); }
 
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
-.marquee-track {
-  animation: marquee 90s linear infinite;
-  width: max-content;
-}
-.marquee:hover .marquee-track {
-  animation-play-state: paused;
-}
+.marquee-track { animation: marquee 90s linear infinite; width: max-content; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
 @keyframes rise {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: none; }
 }
-.rise { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.rise { animation: rise 1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 .rise-2 { animation-delay: 0.12s; }
 .rise-3 { animation-delay: 0.24s; }
 
@@ -88,21 +110,19 @@ body {
   html { scroll-behavior: auto; }
 }
 
-:focus-visible {
-  outline: 3px solid var(--signal);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 5px var(--ink);
-}
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 
-/* High-contrast mode (accessibility toggle) */
-html[data-contrast="high"] {
-  --paper: #000;
-  --card: #000;
-  --line: #fff;
-  --muted: #fff;
-  --ink: #fff;
-}
-html[data-contrast="high"] body { background: #000; color: #fff; }
-html[data-contrast="high"] a { text-decoration: underline; }
-html[data-contrast="high"] .bg-white,
-html[data-contrast="high"] .bg-paper { background: #000 !important; color: #fff !important; }
+/* Long-form content coming from the database (orders, pages) */
+.prose-nrmu { font-size: 1.05rem; line-height: 1.8; overflow-wrap: anywhere; }
+.prose-nrmu > * + * { margin-top: 1rem; }
+.prose-nrmu h2, .prose-nrmu h3, .prose-nrmu h4 { font-family: var(--font-display); font-weight: 700; line-height: 1.2; margin-top: 2rem; }
+.prose-nrmu h2 { font-size: 2.1rem; }
+.prose-nrmu h3 { font-size: 1.65rem; }
+.prose-nrmu a { color: var(--oxblood); font-weight: 500; text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 4px; }
+.prose-nrmu ul { list-style: disc; padding-left: 1.5rem; }
+.prose-nrmu ol { list-style: decimal; padding-left: 1.5rem; }
+.prose-nrmu img { max-width: 100%; height: auto; }
+.prose-nrmu table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+.prose-nrmu td, .prose-nrmu th { border: 1px solid var(--line); padding: 0.5rem 0.75rem; vertical-align: top; }
+.prose-nrmu th { background: var(--paper); text-align: left; }
+.prose-nrmu blockquote { border-left: 3px solid var(--gold); padding-left: 1rem; color: var(--muted); }

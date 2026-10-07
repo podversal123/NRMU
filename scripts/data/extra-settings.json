@@ -1,0 +1,52 @@
+{
+  "grievance.title": {
+    "en": "Raise a grievance",
+    "hi": "शिकायत दर्ज करें",
+    "group": "grievance"
+  },
+  "grievance.sub": {
+    "en": "Tell us your problem. It goes to your division first and is passed on automatically if it is not acted upon in time.",
+    "hi": "अपनी समस्या बताइए। शिकायत पहले आपके मंडल को जाती है और समय पर कार्यवाही न होने पर अपने-आप आगे भेज दी जाती है।",
+    "group": "grievance"
+  },
+  "grievance.ticket_prefix": {
+    "en": "NRMU",
+    "hi": "NRMU",
+    "group": "grievance"
+  },
+  "grievance.escalate_days": {
+    "en": "7",
+    "hi": "7",
+    "group": "grievance"
+  },
+  "grievance.level.1": {
+    "en": "Your division",
+    "hi": "आपका मंडल",
+    "group": "grievance"
+  },
+  "grievance.level.2": {
+    "en": "NRMU headquarters",
+    "hi": "एन.आर.एम.यू. मुख्यालय",
+    "group": "grievance"
+  },
+  "grievance.level.3": {
+    "en": "AIRF",
+    "hi": "AIRF",
+    "group": "grievance"
+  },
+  "events.sub": {
+    "en": "Meetings, conferences and programmes of the union.",
+    "hi": "यूनियन की बैठकें, सम्मेलन और कार्यक्रम।",
+    "group": "events"
+  },
+  "home.events_title": {
+    "en": "Upcoming events",
+    "hi": "आगामी कार्यक्रम",
+    "group": "home"
+  },
+  "home.events_sub": {
+    "en": "Meetings and programmes you can attend.",
+    "hi": "बैठकें और कार्यक्रम जिनमें आप शामिल हो सकते हैं।",
+    "group": "home"
+  }
+}

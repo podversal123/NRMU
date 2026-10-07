@@ -1,0 +1,1 @@
+ALTER TABLE "grievance_events" ADD COLUMN "value" text;
