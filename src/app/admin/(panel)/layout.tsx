@@ -34,7 +34,7 @@ async function Shell({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
   const items = NAV.filter((n) => n.roles.includes(admin.role));
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[17rem_1fr]">
+    <div className="min-h-screen lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
       <aside className="bg-coal text-light lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
         <div className="flex items-center gap-3 border-b border-white/10 px-5 py-5">
           <Image src="/logo.jpg" alt="" width={44} height={44} className="h-11 w-11 rounded-full ring-2 ring-signal" />
@@ -53,12 +53,14 @@ async function Shell({ children }: { children: React.ReactNode }) {
             View website ↗
           </Link>
         </nav>
-        <div className="border-t border-white/10 px-5 py-4 text-sm">
-          <p className="font-semibold">{admin.name}</p>
-          <p className="truncate text-xs text-dim">{admin.email}</p>
-          <p className="mt-0.5 text-xs uppercase tracking-wider text-signal">{admin.role.replace("_", " ")}</p>
-          <form action={logout} className="mt-3">
-            <button className="rounded-full border border-white/25 px-4 py-1.5 text-sm font-semibold hover:bg-white/10">Sign out</button>
+        <div className="flex items-center justify-between gap-3 border-t border-white/10 px-5 py-3 text-sm lg:block lg:py-4">
+          <div className="min-w-0">
+            <p className="truncate font-semibold">{admin.name}</p>
+            <p className="hidden truncate text-xs text-dim lg:block">{admin.email}</p>
+            <p className="mt-0.5 text-xs uppercase tracking-wider text-signal">{admin.role.replace("_", " ")}</p>
+          </div>
+          <form action={logout} className="shrink-0 lg:mt-3">
+            <button className="rounded-full border border-white/25 px-5 py-2.5 text-sm font-semibold hover:bg-white/10">Sign out</button>
           </form>
         </div>
       </aside>

@@ -39,14 +39,14 @@ export default async function GrievanceDetail({ params, searchParams }: { params
 
   return (
     <>
-      <PageTitle title={g.ticket} sub={g.subject} action={<Link href="/admin/grievances" className="text-sm font-semibold text-brand">← All grievances</Link>} />
+      <PageTitle title={g.ticket} sub={g.subject} action={<Link href="/admin/grievances" className="inline-block py-2 text-sm font-semibold text-brand">← All grievances</Link>} />
       {sp.saved && <Notice>Saved.</Notice>}
       {sp.denied && <Notice kind="err">This grievance has moved to a higher level; you can no longer change it.</Notice>}
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="space-y-6">
           <Card>
-            <dl className="grid gap-4 sm:grid-cols-2">
+            <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div><dt className="text-sm text-muted">Member</dt><dd className="font-semibold">{g.name}</dd></div>
               <div><dt className="text-sm text-muted">Mobile</dt><dd><a href={`tel:${g.mobile}`} className="font-semibold text-brand">{g.mobile}</a></dd></div>
               {g.email && <div><dt className="text-sm text-muted">Email</dt><dd>{g.email}</dd></div>}
@@ -112,7 +112,7 @@ export default async function GrievanceDetail({ params, searchParams }: { params
                 <form action={addNote} className="space-y-4">
                   <input type="hidden" name="id" value={g.id} />
                   <Field label="Add a note"><textarea name="message" rows={3} required className={inputCls} /></Field>
-                  <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="public" className="h-5 w-5" /> Show this note to the member</label>
+                  <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="public" className="h-6 w-6" /> Show this note to the member</label>
                   <SubmitButton className="rounded-full bg-ink px-6 py-2.5 font-semibold text-light hover:bg-brand">Add note</SubmitButton>
                 </form>
               </Card>

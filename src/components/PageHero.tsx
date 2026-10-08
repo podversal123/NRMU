@@ -28,7 +28,7 @@ export default async function PageHero({
               {crumbs.map((c, i) => (
                 <span key={i} className="flex items-center gap-2">
                   {c.href ? (
-                    <Link href={c.href} className="hover:text-soft">
+                    <Link href={c.href} className="-mx-1.5 -my-2.5 inline-block px-1.5 py-2.5 hover:text-soft">
                       {c.label}
                     </Link>
                   ) : (

@@ -25,7 +25,7 @@ const initialsOf = (name: string) =>
 
 export default function PersonCard({ p, lang, callLabel }: { p: Person; lang: Lang; callLabel: string }) {
   return (
-    <article className="flex gap-4 rounded-2xl border border-line bg-white p-5">
+    <article className="flex min-w-0 gap-4 rounded-2xl border border-line bg-white p-4 sm:p-5">
       {p.photoUrl ? (
         <Image src={p.photoUrl} alt="" width={64} height={64} className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-signal" />
       ) : (
@@ -33,7 +33,7 @@ export default function PersonCard({ p, lang, callLabel }: { p: Person; lang: La
           {initialsOf(p.nameEn)}
         </div>
       )}
-      <div className="min-w-0">
+      <div className="min-w-0 break-words">
         <h3 className="text-[1.05rem] font-semibold leading-snug">{pick(lang, p.nameEn, p.nameHi)}</h3>
         <p className="text-sm font-semibold text-brand">
           {pick(lang, p.designationEn, p.designationHi)}
@@ -41,7 +41,7 @@ export default function PersonCard({ p, lang, callLabel }: { p: Person; lang: La
         </p>
         {p.addressEn && <p className="mt-2 text-sm leading-relaxed text-muted">{p.addressEn}</p>}
         {p.phone && (
-          <a href={`tel:${p.phone.replace(/\s/g, "")}`} className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-ink hover:text-brand" aria-label={`${callLabel} ${p.phone}`}>
+          <a href={`tel:${p.phone.replace(/\s/g, "")}`} className="-mb-2 mt-1 inline-flex min-h-11 items-center gap-1.5 text-sm font-bold text-ink hover:text-brand" aria-label={`${callLabel} ${p.phone}`}>
             ☎ {p.phone}
           </a>
         )}

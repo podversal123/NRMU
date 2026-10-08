@@ -12,8 +12,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [posts, divisions, pages, nav] = await Promise.all([
     db.execute(sql`select '/orders/' || id as path, updated_at::text as at from posts where status = 'published'`),
     db.execute(sql`select '/divisions/' || slug as path, null as at from divisions where active`),
-    db.execute(sql`select '/pages/' || slug as path, updated_at::text as at from pages`),
-    db.execute(sql`select href as path, null as at from nav_items where area = 'header' and active`),
+    // a page with no text yet (privacy, terms...) is not worth indexing
+    db.execute(sql`select '/pages/' || slug as path, updated_at::text as at from pages where length(trim(content_html)) > 0 or length(trim(coalesce(content_html_hi, ''))) > 0`),
+    // dropdown parents have no page of their own (their link is "#")
+    db.execute(sql`select href as path, null as at from nav_items where area = 'header' and active and href like '/%' and href not like '%#%'`),
   ]);
   const all = [{ path: "", at: null }, ...rows(nav), ...rows(divisions), ...rows(pages), ...rows(posts), { path: "/join", at: null }, { path: "/grievance", at: null }];
   const seen = new Set<string>();

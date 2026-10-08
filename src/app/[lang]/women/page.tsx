@@ -27,7 +27,7 @@ export default async function WomenPage({ params }: { params: Promise<{ lang: st
   return (
     <>
       <PageHero lang={lang} title={title} sub={setting(s, "women.sub", lang)} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: title }]} />
-      <div className="mx-auto max-w-7xl space-y-16 px-4 py-14 sm:px-6">
+      <div className="mx-auto max-w-[1180px] space-y-16 px-5 py-14 sm:px-8">
         {pages.length > 0 && (
           <section>
             <div className="track-red mb-5 w-24" />

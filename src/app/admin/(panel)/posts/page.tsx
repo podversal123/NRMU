@@ -37,7 +37,7 @@ export default async function PostsAdmin({ searchParams }: { searchParams: Promi
           <option value="published">Published</option>
           <option value="draft">Drafts</option>
         </select>
-        <button className="rounded-full border-2 border-ink px-5 font-semibold hover:bg-ink hover:text-white">Filter</button>
+        <button className="rounded-full border-2 border-ink px-5 py-2.5 font-semibold hover:bg-ink hover:text-white">Filter</button>
       </form>
       <div className="overflow-x-auto rounded-none border border-line bg-white">
         <table className="w-full text-[0.95rem]">
@@ -61,9 +61,9 @@ export default async function PostsAdmin({ searchParams }: { searchParams: Promi
       </div>
       {pages > 1 && (
         <div className="mt-5 flex items-center justify-between text-sm">
-          {page > 1 ? <Link href={qs(page - 1)} className="font-semibold text-brand">← Previous</Link> : <span />}
+          {page > 1 ? <Link href={qs(page - 1)} className="inline-block py-2.5 font-semibold text-brand">← Previous</Link> : <span />}
           <span className="text-muted">Page {page} of {pages}</span>
-          {page < pages ? <Link href={qs(page + 1)} className="font-semibold text-brand">Next →</Link> : <span />}
+          {page < pages ? <Link href={qs(page + 1)} className="inline-block py-2.5 font-semibold text-brand">Next →</Link> : <span />}
         </div>
       )}
     </>

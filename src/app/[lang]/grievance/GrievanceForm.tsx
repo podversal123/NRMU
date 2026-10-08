@@ -62,7 +62,7 @@ export default function GrievanceForm({
         </label>
         <label className="block font-medium">
           {ui.formMobile}
-          <input name="mobile" required inputMode="numeric" autoComplete="tel" maxLength={13} defaultValue={v.mobile} className={input} />
+          <input name="mobile" required inputMode="tel" autoComplete="tel" maxLength={13} defaultValue={v.mobile} className={input} />
         </label>
         <label className="block font-medium">
           {ui.formEmail}
@@ -109,7 +109,7 @@ export default function GrievanceForm({
         <button type="submit" disabled={pending} className="btn-primary disabled:opacity-60">
           {pending ? ui.submitting : ui.gSubmit}
         </button>
-        <Link href={`/${lang}/grievance/track`} className="border-b border-signal pb-0.5 font-medium hover:text-brand">
+        <Link href={`/${lang}/grievance/track`} className="inline-block py-2.5 font-medium underline decoration-signal decoration-2 underline-offset-4 hover:text-brand">
           {ui.gTrackTitle} →
         </Link>
       </div>

@@ -29,7 +29,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     <>
       <PageTitle title={`Welcome, ${admin.name.split(" ")[0]}`} sub="Everything on the public website is managed from here." />
       {sp.denied && <p className="mb-6 rounded-lg border-2 border-brand bg-brand/10 px-4 py-3 text-sm font-semibold text-brand-deep">You do not have access to that section.</p>}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {tiles.map((t) => (
           <Link key={t.label} href={t.href} className="group rounded-none border border-line bg-white p-6 transition hover:border-ink">
             <p className={`text-4xl font-bold leading-none ${t.hot ? "text-brand" : ""}`}>{t.value}</p>

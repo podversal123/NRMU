@@ -34,16 +34,16 @@ export default async function EditPost({ params, searchParams }: { params: Promi
 
   return (
     <>
-      <PageTitle title={isNew ? "Add order / news" : "Edit order / news"} action={<Link href="/admin/posts" className="text-sm font-semibold text-brand">← All items</Link>} />
+      <PageTitle title={isNew ? "Add order / news" : "Edit order / news"} action={<Link href="/admin/posts" className="inline-block py-2 text-sm font-semibold text-brand">← All items</Link>} />
       {sp.saved && <Notice>Saved. The public website is updated.</Notice>}
       {sp.error === "title" && <Notice kind="err">Please enter a title.</Notice>}
-      <form action={savePost} className="grid gap-6 xl:grid-cols-[1fr_22rem]">
+      <form action={savePost} className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <input type="hidden" name="id" value={isNew ? "" : id} />
         <Card className="space-y-5">
           <Field label="Title (English)"><input name="titleEn" required defaultValue={post?.titleEn} className={inputCls} /></Field>
           <Field label="Title (Hindi)" hint="Optional. If empty, the English title is shown on the Hindi site."><input name="titleHi" defaultValue={post?.titleHi ?? ""} className={inputCls} /></Field>
           <Field label="Content" hint="Type plain text (blank line = new paragraph) or paste HTML.">
-            <textarea name="content" rows={16} defaultValue={post?.contentHtml} className={`${inputCls} font-mono text-sm`} />
+            <textarea name="content" rows={16} defaultValue={post?.contentHtml} className={`${inputCls} font-mono text-base lg:text-sm`} />
           </Field>
           <UploadField name="files" label="Attachments (PDF, Word, Excel, images)" kind="any" multiple folder="orders" initial={files.map((f) => f.url)} />
         </Card>

@@ -8,7 +8,7 @@ import { saveChips, saveNav } from "./actions";
 // Always depends on the signed-in admin, so it is rendered per request.
 export const instant = false;
 export const metadata = { title: "Menus & links" };
-const small = "w-full rounded-lg border-2 border-line bg-white px-2.5 py-1.5 text-sm focus:border-ink focus:outline-none";
+const small = "w-full rounded-lg border-2 border-line bg-white px-2.5 py-2.5 text-base focus:border-ink lg:py-1.5 lg:text-sm focus:outline-none";
 
 export default async function NavigationAdmin({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   await requireAdmin(["super_admin"]);
@@ -33,7 +33,7 @@ export default async function NavigationAdmin({ searchParams }: { searchParams: 
             <span>Where</span><span>English</span><span>हिंदी</span><span>Path</span><span>Under</span><span>Order</span><span>Show</span><span>Delete</span>
           </div>
           {nav.map((n) => (
-            <div key={n.id} className="grid items-center gap-2 lg:grid-cols-[5rem_1fr_1fr_9rem_8rem_4rem_4rem_4rem]">
+            <div key={n.id} className="grid grid-cols-1 items-center gap-2 lg:grid-cols-[5rem_1fr_1fr_9rem_8rem_4rem_4rem_4rem]">
               <span className="text-xs font-bold uppercase text-muted">{n.area}</span>
               <input name={`nav_labelEn_${n.id}`} defaultValue={n.labelEn} className={small} aria-label="English label" />
               <input name={`nav_labelHi_${n.id}`} defaultValue={n.labelHi ?? ""} className={small} aria-label="Hindi label" />
@@ -43,11 +43,11 @@ export default async function NavigationAdmin({ searchParams }: { searchParams: 
                 {nav.filter((p) => p.area === "header" && !p.parentId && p.id !== n.id).map((p) => <option key={p.id} value={p.id}>{p.labelEn}</option>)}
               </select>
               <input type="number" name={`nav_sort_${n.id}`} defaultValue={n.sort} className={small} aria-label="Order" />
-              <input type="checkbox" name={`nav_active_${n.id}`} defaultChecked={n.active} className="h-5 w-5" aria-label="Show" />
-              <input type="checkbox" name={`nav_delete_${n.id}`} className="h-5 w-5" aria-label="Delete" />
+              <input type="checkbox" name={`nav_active_${n.id}`} defaultChecked={n.active} className="h-6 w-6" aria-label="Show" />
+              <input type="checkbox" name={`nav_delete_${n.id}`} className="h-6 w-6" aria-label="Delete" />
             </div>
           ))}
-          <div className="grid items-center gap-2 rounded-lg bg-paper p-3 lg:grid-cols-[5rem_1fr_1fr_9rem_8rem_4rem]">
+          <div className="grid grid-cols-1 items-center gap-2 rounded-lg bg-paper p-3 lg:grid-cols-[5rem_1fr_1fr_9rem_8rem_4rem]">
             <select name="nav_area_new" className={small}><option value="header">header</option><option value="footer">footer</option><option value="links">links</option><option value="policy">policy</option></select>
             <input name="nav_labelEn_new" placeholder="New link (English)" className={small} />
             <input name="nav_labelHi_new" placeholder="हिंदी" className={small} />

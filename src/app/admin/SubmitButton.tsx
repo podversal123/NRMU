@@ -21,7 +21,7 @@ export function DeleteButton({ label = "Delete", confirmText }: { label?: string
       onClick={(e) => {
         if (!window.confirm(confirmText)) e.preventDefault();
       }}
-      className="rounded-full border-2 border-brand px-4 py-1.5 text-sm font-semibold text-brand hover:bg-brand hover:text-white disabled:opacity-60"
+      className="rounded-full border-2 border-brand px-4 py-2.5 text-sm font-semibold text-brand hover:bg-brand hover:text-white disabled:opacity-60"
     >
       {label}
     </button>

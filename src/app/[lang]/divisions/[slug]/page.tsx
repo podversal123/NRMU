@@ -49,7 +49,7 @@ async function DivisionPageContent({ params }: Props) {
         sub={pick(lang, data.division.descriptionEn, data.division.descriptionHi) || undefined}
         crumbs={[{ href: `/${lang}`, label: ui.home }, { href: `/${lang}/divisions`, label: divTitle }, { label: name }]}
       />
-      <div className="mx-auto max-w-7xl space-y-14 px-4 py-14 sm:px-6">
+      <div className="mx-auto max-w-[1180px] space-y-14 px-5 py-14 sm:px-8">
         {leaders.length > 0 && (
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {leaders.map((p) => (

@@ -25,7 +25,7 @@ export default async function RequestsAdmin({ searchParams }: { searchParams: Pr
       <PageTitle title="Join requests" sub="People who filled the “Join NRMU” form on the website." />
       <div className="mb-5 flex gap-2 text-sm font-semibold">
         {[["", "All"], ["new", "New"], ["contacted", "Contacted"], ["closed", "Closed"]].map(([k, v]) => (
-          <a key={k} href={k ? `?status=${k}` : "?"} className={`rounded-full border-2 px-4 py-1.5 ${(st ?? "") === k ? "border-ink bg-ink text-light" : "border-line hover:border-ink"}`}>{v}</a>
+          <a key={k} href={k ? `?status=${k}` : "?"} className={`rounded-full border-2 px-4 py-2.5 lg:py-1.5 ${(st ?? "") === k ? "border-ink bg-ink text-light" : "border-line hover:border-ink"}`}>{v}</a>
         ))}
       </div>
       <div className="overflow-x-auto rounded-none border border-line bg-white">
@@ -42,7 +42,7 @@ export default async function RequestsAdmin({ searchParams }: { searchParams: Pr
                 <td className={td}>
                   <form action={setRequestStatus} className="flex gap-2">
                     <input type="hidden" name="id" value={r.id} />
-                    <select name="status" defaultValue={r.status} className="rounded-lg border-2 border-line bg-white px-2 py-1 text-sm">
+                    <select name="status" defaultValue={r.status} className="rounded-lg border-2 border-line bg-white px-2 py-2 text-base lg:py-1 lg:text-sm">
                       <option value="new">New</option><option value="contacted">Contacted</option><option value="closed">Closed</option>
                     </select>
                     <button className="rounded-full bg-ink px-3 py-1 text-sm font-semibold text-light hover:bg-brand">Update</button>

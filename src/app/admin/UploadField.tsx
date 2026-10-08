@@ -98,8 +98,8 @@ export default function UploadField({
       ))}
       <ul className="mt-2 space-y-1.5">
         {urls.map((u) => (
-          <li key={u} className="flex items-center justify-between gap-3 rounded-lg border border-line bg-paper px-3 py-2 text-sm">
-            <a href={u} target="_blank" rel="noopener noreferrer" className="min-w-0 truncate font-medium text-brand underline-offset-2 hover:underline">
+          <li key={u} className="flex items-center justify-between gap-3 rounded-lg border border-line bg-paper px-3 py-0.5 text-sm">
+            <a href={u} target="_blank" rel="noopener noreferrer" className="min-w-0 truncate py-2.5 font-medium text-brand underline-offset-2 hover:underline">
               {shown(u)}
             </a>
             <button
@@ -108,7 +108,7 @@ export default function UploadField({
                 discard(u);
                 setUrls((x) => x.filter((y) => y !== u));
               }}
-              className="shrink-0 font-semibold text-brand hover:underline"
+              className="shrink-0 px-1 py-2.5 font-semibold text-brand hover:underline"
             >
               Remove
             </button>

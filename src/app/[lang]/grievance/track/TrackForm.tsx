@@ -35,7 +35,7 @@ export default function TrackForm({ lang, ui }: { lang: Lang; ui: Dict }) {
           </label>
           <label className="block font-medium">
             {ui.formMobile}
-            <input name="mobile" required inputMode="numeric" autoComplete="tel" maxLength={13} defaultValue={v?.mobile} className={input} />
+            <input name="mobile" required inputMode="tel" autoComplete="tel" maxLength={13} defaultValue={v?.mobile} className={input} />
           </label>
         </div>
         <button type="submit" disabled={pending} className="btn-primary disabled:opacity-60">

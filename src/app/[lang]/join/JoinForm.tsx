@@ -43,7 +43,7 @@ export default function JoinForm({ ui, divisions }: { ui: Dict; divisions: { id:
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block font-semibold">
           {ui.formMobile}
-          <input name="mobile" required inputMode="numeric" autoComplete="tel" maxLength={13} defaultValue={v.mobile} className={input} />
+          <input name="mobile" required inputMode="tel" autoComplete="tel" maxLength={13} defaultValue={v.mobile} className={input} />
         </label>
         <label className="block font-semibold">
           {ui.formEmail}

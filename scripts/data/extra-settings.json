@@ -113,5 +113,10 @@
     "en": "Become a member, stay informed and make your voice count.",
     "hi": "सदस्य बनें, जानकारी से जुड़े रहें और अपनी आवाज़ मज़बूत करें।",
     "group": "home"
+  },
+  "content.gone_image_hosts": {
+    "en": "nrmu.net,airfindia.org,airfindia.com",
+    "hi": "",
+    "group": "content"
   }
 }

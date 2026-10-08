@@ -16,7 +16,7 @@ export function PageTitle({ title, sub, action }: { title: string; sub?: string;
 }
 
 export function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <section className={`rounded-none border border-line bg-white p-6 ${className}`}>{children}</section>;
+  return <section className={`min-w-0 rounded-none border border-line bg-white p-5 sm:p-6 ${className}`}>{children}</section>;
 }
 
 export function Field({ label, hint, children, className = "" }: { label: string; hint?: string; children: React.ReactNode; className?: string }) {

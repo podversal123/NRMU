@@ -20,7 +20,7 @@ export default async function YouthPage({ params }: { params: Promise<{ lang: st
   return (
     <>
       <PageHero lang={lang} title={title} sub={setting(s, "youth.sub", lang)} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: title }]} />
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+      <div className="mx-auto max-w-[1180px] px-5 py-14 sm:px-8">
         {posts.length ? <PostGrid rows={posts} lang={lang} /> : <p className="text-muted">{ui.noItems}</p>}
       </div>
     </>

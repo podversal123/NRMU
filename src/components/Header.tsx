@@ -49,7 +49,10 @@ export default function Header({
   labels: Labels;
 }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const [openAt, setOpenAt] = useState<string | null>(null);
+  const open = openAt === pathname; // a menu opened on one page is closed on the next
+  const setOpen = (v: boolean | ((o: boolean) => boolean)) =>
+    setOpenAt((cur) => ((typeof v === "function" ? v(cur === pathname) : v) ? pathname : null));
   const [size, setSize] = useState(1);
   const [atFooter, setAtFooter] = useState(false);
   const [now, setNow] = useState<Date | null>(null);
@@ -93,7 +96,7 @@ export default function Header({
     const p = href.split("?")[0];
     return p === "" ? pathname === `/${lang}` : pathname.startsWith(full(p));
   };
-  const sizeBtn = "grid h-6 min-w-6 place-items-center px-1 text-xs font-semibold text-light/85 hover:text-signal";
+  const sizeBtn = "grid h-11 min-w-11 place-items-center px-1 text-xs font-semibold text-light/85 hover:text-signal lg:h-6 lg:min-w-6";
   const dateText = now
     ? new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "full", timeStyle: "short", timeZone: "Asia/Kolkata" }).format(now)
     : "";
@@ -102,16 +105,16 @@ export default function Header({
     <>
       {/* 1. utility bar */}
       <div className="bg-ink text-light">
-        <div className="mx-auto flex h-9 max-w-[1180px] items-center justify-between gap-3 px-5 text-xs sm:px-8">
+        <div className="mx-auto flex h-11 max-w-[1180px] items-center justify-between gap-3 px-5 text-xs sm:px-8 lg:h-9">
           <div className="flex items-center gap-5">
-            <a href="#main" className="font-medium text-soft underline-offset-2 hover:underline">
+            <a href="#main" className="sr-only font-medium text-soft underline-offset-2 hover:underline focus:not-sr-only sm:not-sr-only">
               {labels.skip}
             </a>
             <span className="hidden text-light/70 md:inline" suppressHydrationWarning>
               {dateText}
             </span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="ml-auto flex items-center gap-0.5 lg:gap-1.5">
             <span className="hidden text-light/70 sm:inline">{labels.textSize}</span>
             <button className={sizeBtn} aria-label={labels.textSmaller} onClick={() => choose(Math.max(0, size - 1))}>
               A−
@@ -122,14 +125,14 @@ export default function Header({
             <button className={sizeBtn} aria-label={labels.textLarger} onClick={() => choose(Math.min(SIZES.length - 1, size + 1))}>
               A+
             </button>
-            <span className="mx-1.5 h-3.5 w-px bg-white/25" />
+            <span className="mx-0.5 h-3.5 w-px bg-white/25 sm:mx-1.5" />
             <a
               href={swapped}
               hrefLang={other}
               onClick={() => {
                 document.cookie = `nrmu-lang=${other}; path=/; max-age=31536000`;
               }}
-              className="px-2 py-0.5 font-semibold text-light hover:text-signal"
+              className="grid h-11 place-items-center px-3 font-semibold text-light hover:text-signal lg:h-auto lg:px-2 lg:py-0.5"
             >
               {labels.langSwitch}
             </a>
@@ -212,14 +215,14 @@ export default function Header({
                 <path d="m20 20-3.5-3.5" />
               </svg>
             </Link>
-            <Link href={full("/join")} className="btn-gold !px-4 !py-1.5 text-sm lg:hidden">
+            <Link href={full("/join")} className="btn-gold !px-4 !py-2.5 text-sm lg:hidden">
               {join}
             </Link>
           </div>
         </div>
 
         {open && (
-          <div id="mobile-nav" aria-label={labels.navMobile} className="border-t border-[#2b2d33] lg:hidden">
+          <div id="mobile-nav" aria-label={labels.navMobile} className="max-h-[calc(100svh-3rem)] overflow-y-auto overscroll-contain border-t border-[#2b2d33] lg:hidden">
             <ul className="mx-auto max-w-[1180px] px-5 pb-5 sm:px-8">
               {menu.map((m) => (
                 <li key={m.id} className="border-b border-[#2b2d33]">

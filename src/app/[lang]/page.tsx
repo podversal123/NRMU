@@ -54,7 +54,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const heroImage = t("hero.image");
   const evDate = (iso: string) => new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "medium", timeZone: "Asia/Kolkata" }).format(new Date(iso));
   const more = (href: string) => (
-    <Link href={`/${lang}${href}`} className="shrink-0 text-sm font-medium text-brand hover:underline">
+    <Link href={`/${lang}${href}`} className="-my-2.5 shrink-0 py-2.5 text-sm font-medium text-brand hover:underline">
       {ui.viewAll} →
     </Link>
   );
@@ -70,7 +70,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         </div>
         <div className="pointer-events-none relative z-10 -mt-10 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center">
           <div className={`${wrap} w-full`}>
-            <div className="pointer-events-auto border border-line bg-white p-6 sm:p-8 lg:max-w-[33rem]">
+            <div className="pointer-events-auto border border-line bg-white p-5 sm:p-8 lg:max-w-[33rem]">
               <h1 className="text-[clamp(1.6rem,2.4vw,2rem)] font-medium leading-tight">
                 {t("hero.title_a")} <span className="text-brand">{t("hero.title_b")}</span>
               </h1>
@@ -79,7 +79,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 <label htmlFor="hero-q" className="mb-1.5 block text-sm font-medium">
                   {t("hero.search_title")}
                 </label>
-                <div className="flex">
+                <div className="flex flex-col sm:flex-row">
                   <input
                     id="hero-q"
                     name="q"
@@ -87,7 +87,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                     placeholder={t("hero.search_placeholder")}
                     className="min-w-0 flex-1 border border-ink bg-white px-4 py-3 text-base placeholder:text-muted/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-signal"
                   />
-                  <button type="submit" className="bg-brand px-5 font-medium text-white hover:bg-brand-deep">
+                  <button type="submit" className="bg-brand px-5 py-3 font-medium text-white hover:bg-brand-deep sm:py-0">
                     {ui.search}
                   </button>
                 </div>
@@ -95,7 +95,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <span className="text-sm text-muted">{ui.popular}:</span>
                 {chips.map((c) => (
-                  <Link key={c.id} href={`/${lang}/orders?q=${encodeURIComponent(c.term)}`} className="border border-line px-3 py-1 text-sm hover:border-ink">
+                  <Link key={c.id} href={`/${lang}/orders?q=${encodeURIComponent(c.term)}`} className="border border-line px-3 py-2 text-sm hover:border-ink lg:py-1">
                     {c.term}
                   </Link>
                 ))}
@@ -122,7 +122,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                         </span>
                       </time>
                       <span className="min-w-0">
-                        <span className="line-clamp-2 text-[0.98rem] font-medium leading-snug group-hover:text-brand">{pick(lang, p.titleEn, p.titleHi)}</span>
+                        <span className="line-clamp-3 text-[0.98rem] font-medium leading-snug group-hover:text-brand sm:line-clamp-2">{pick(lang, p.titleEn, p.titleHi)}</span>
                         {p.files > 0 && (
                           <span className="mt-1 inline-flex items-center gap-1 text-xs text-muted">
                             <Icon name="pdf" size={13} /> {ui.pdf}
@@ -207,9 +207,10 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             </div>
             {more("/divisions")}
           </div>
-          <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {/* phones: swipe sideways through the cards; larger screens: a grid */}
+          <div className="-mx-5 mt-9 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto overscroll-x-contain px-5 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
             {divisions.map((d) => (
-              <DivisionCard key={d.slug} d={d} lang={lang} labels={labels} />
+              <DivisionCard key={d.slug} d={d} lang={lang} labels={labels} className="w-[80%] shrink-0 snap-start sm:w-auto" />
             ))}
           </div>
         </div>

@@ -46,13 +46,13 @@ export default async function UsersAdmin({ searchParams }: { searchParams: Promi
                       <form action={setUserActive}>
                         <input type="hidden" name="id" value={u.id} />
                         <input type="hidden" name="active" value={u.active ? "0" : "1"} />
-                        <button className="rounded-full border-2 border-ink px-3 py-1 text-sm font-semibold hover:bg-ink hover:text-white">{u.active ? "Disable" : "Enable"}</button>
+                        <button className="rounded-full border-2 border-ink px-3 py-2 text-sm font-semibold lg:py-1 hover:bg-ink hover:text-white">{u.active ? "Disable" : "Enable"}</button>
                       </form>
                     )}
                     <form action={resetPassword} className="flex gap-2">
                       <input type="hidden" name="id" value={u.id} />
-                      <input type="password" name="password" placeholder="New password" minLength={10} autoComplete="new-password" className="w-36 rounded-lg border-2 border-line px-2 py-1 text-sm" />
-                      <button className="rounded-full bg-ink px-3 py-1 text-sm font-semibold text-light hover:bg-brand">Reset</button>
+                      <input type="password" name="password" placeholder="New password" minLength={10} autoComplete="new-password" className="w-36 rounded-lg border-2 border-line px-2 py-2 text-base lg:py-1 lg:text-sm" />
+                      <button className="rounded-full bg-ink px-3 py-2 text-sm font-semibold lg:py-1 text-light hover:bg-brand">Reset</button>
                     </form>
                   </div>
                 </td>
@@ -64,7 +64,7 @@ export default async function UsersAdmin({ searchParams }: { searchParams: Promi
 
       <Card className="mt-8">
         <h2 className="font-display text-2xl font-bold">Add an admin</h2>
-        <form action={addUser} className="mt-5 grid gap-5 sm:grid-cols-2">
+        <form action={addUser} className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Field label="Name"><input name="name" required className={inputCls} /></Field>
           <Field label="Email"><input name="email" type="email" required className={inputCls} /></Field>
           <Field label="Role" hint="Editor: orders, pages, people, divisions. Division admin: only their own division's people and join requests.">

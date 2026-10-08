@@ -29,12 +29,12 @@ export default async function EditEvent({ params, searchParams }: { params: Prom
 
   return (
     <>
-      <PageTitle title={isNew ? "Add event" : ev.titleEn} action={<Link href="/admin/events" className="text-sm font-semibold text-brand">← All events</Link>} />
+      <PageTitle title={isNew ? "Add event" : ev.titleEn} action={<Link href="/admin/events" className="inline-block py-2 text-sm font-semibold text-brand">← All events</Link>} />
       {sp.saved && <Notice>Saved. The public website is updated.</Notice>}
       {sp.error && <Notice kind="err">Title and start date are required.</Notice>}
-      <form action={saveEvent} className="grid gap-6 xl:grid-cols-[1fr_22rem]">
+      <form action={saveEvent} className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <input type="hidden" name="id" value={isNew ? "" : id} />
-        <Card className="grid gap-5 sm:grid-cols-2">
+        <Card className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Field label="Title (English)"><input name="titleEn" required defaultValue={ev?.titleEn} className={inputCls} /></Field>
           <Field label="Title (Hindi)"><input name="titleHi" defaultValue={ev?.titleHi ?? ""} className={inputCls} /></Field>
           <Field label="Starts (India time)"><input type="datetime-local" name="startsAt" required defaultValue={local(ev?.startsAt)} className={inputCls} /></Field>
@@ -53,7 +53,7 @@ export default async function EditEvent({ params, searchParams }: { params: Prom
               {divisions.map((d) => <option key={d.id} value={d.id}>{d.nameEn}</option>)}
             </select>
           </Field>
-          <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="published" defaultChecked={ev?.published ?? true} className="h-5 w-5" /> Show on website</label>
+          <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="published" defaultChecked={ev?.published ?? true} className="h-6 w-6" /> Show on website</label>
           <SubmitButton className="btn-primary w-full px-6 py-3">Save</SubmitButton>
         </Card>
       </form>

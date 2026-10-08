@@ -24,12 +24,12 @@ export default async function EditDivision({ params, searchParams }: { params: P
 
   return (
     <>
-      <PageTitle title={isNew ? "Add division" : d.nameEn} action={<Link href="/admin/divisions" className="text-sm font-semibold text-brand">← All divisions</Link>} />
+      <PageTitle title={isNew ? "Add division" : d.nameEn} action={<Link href="/admin/divisions" className="inline-block py-2 text-sm font-semibold text-brand">← All divisions</Link>} />
       {sp.saved && <Notice>Saved. The public website is updated.</Notice>}
       {sp.error && <Notice kind="err">Division name is required.</Notice>}
-      <form action={saveDivision} className="grid gap-6 xl:grid-cols-[1fr_20rem]">
+      <form action={saveDivision} className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <input type="hidden" name="id" value={isNew ? "" : id} />
-        <Card className="grid gap-5 sm:grid-cols-2">
+        <Card className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Field label="Name (English)"><input name="nameEn" required defaultValue={d?.nameEn} className={inputCls} /></Field>
           <Field label="Name (Hindi)"><input name="nameHi" defaultValue={d?.nameHi ?? ""} className={inputCls} /></Field>
           <Field label="Description (English)" hint="Optional, shown under the division title."><textarea name="descriptionEn" rows={3} defaultValue={d?.descriptionEn ?? ""} className={inputCls} /></Field>
@@ -37,7 +37,7 @@ export default async function EditDivision({ params, searchParams }: { params: P
         </Card>
         <Card className="space-y-5">
           <Field label="Display order" hint="Smaller numbers show first."><input type="number" name="sort" defaultValue={d?.sort ?? 0} className={inputCls} /></Field>
-          <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="active" defaultChecked={d?.active ?? true} className="h-5 w-5" /> Show on website</label>
+          <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="active" defaultChecked={d?.active ?? true} className="h-6 w-6" /> Show on website</label>
           <SubmitButton className="btn-primary w-full px-6 py-3">Save</SubmitButton>
         </Card>
       </form>
@@ -45,7 +45,7 @@ export default async function EditDivision({ params, searchParams }: { params: P
       {!isNew && (
         <Card className="mt-8">
           <h2 className="font-display text-2xl font-bold">Branches ({branches.length})</h2>
-          <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {branches.map((b) => (
               <li key={b.id} className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2">
                 <span className="font-medium">{b.nameEn}</span>

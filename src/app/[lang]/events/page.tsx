@@ -28,8 +28,8 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: s
       {(e.descriptionEn || e.descriptionHi) && <p className="mt-3 max-w-2xl whitespace-pre-line">{pick(lang, e.descriptionEn, e.descriptionHi)}</p>}
       {(e.agendaUrl || e.minutesUrl) && (
         <p className="mt-4 flex flex-wrap gap-5">
-          {e.agendaUrl && <a href={e.agendaUrl} target="_blank" rel="noopener noreferrer" className="border-b border-signal pb-0.5 font-medium hover:text-brand">{ui.agenda}</a>}
-          {e.minutesUrl && <a href={e.minutesUrl} target="_blank" rel="noopener noreferrer" className="border-b border-signal pb-0.5 font-medium hover:text-brand">{ui.minutes}</a>}
+          {e.agendaUrl && <a href={e.agendaUrl} target="_blank" rel="noopener noreferrer" className="inline-block py-2.5 font-medium underline decoration-signal decoration-2 underline-offset-4 hover:text-brand">{ui.agenda}</a>}
+          {e.minutesUrl && <a href={e.minutesUrl} target="_blank" rel="noopener noreferrer" className="inline-block py-2.5 font-medium underline decoration-signal decoration-2 underline-offset-4 hover:text-brand">{ui.minutes}</a>}
         </p>
       )}
     </article>

@@ -38,7 +38,7 @@ export default async function GrievancesAdmin({ searchParams }: { searchParams: 
     .orderBy(desc(schema.grievances.updatedAt))
     .limit(300);
 
-  const pill = (active: boolean) => `rounded-full border-2 px-4 py-1.5 text-sm font-semibold ${active ? "border-ink bg-ink text-light" : "border-line hover:border-ink"}`;
+  const pill = (active: boolean) => `rounded-full border-2 px-4 py-2.5 text-sm font-semibold lg:py-1.5 ${active ? "border-ink bg-ink text-light" : "border-line hover:border-ink"}`;
   const q = (o: Record<string, string | number | undefined>) => `?${new URLSearchParams(Object.entries({ status, level, ...o }).filter(([, v]) => v !== undefined && v !== "").map(([k, v]) => [k, String(v)]))}`;
 
   return (

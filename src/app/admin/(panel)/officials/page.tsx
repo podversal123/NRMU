@@ -43,7 +43,7 @@ export default async function OfficialsAdmin({ searchParams }: { searchParams: P
           <option value="">All roles</option>
           {Object.entries(SCOPE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
-        <button className="rounded-full border-2 border-ink px-5 font-semibold hover:bg-ink hover:text-white">Filter</button>
+        <button className="rounded-full border-2 border-ink px-5 py-2.5 font-semibold hover:bg-ink hover:text-white">Filter</button>
       </form>
       <div className="overflow-x-auto rounded-none border border-line bg-white">
         <table className="w-full text-[0.95rem]">

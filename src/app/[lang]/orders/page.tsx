@@ -23,7 +23,7 @@ export default async function OrdersPage({ params, searchParams }: { params: Pro
   return (
     <>
       <PageHero lang={lang} title={title} sub={setting(s, "orders.sub", lang)} crumbs={[{ href: `/${lang}`, label: (await getUi(lang)).home }, { label: title }]} />
-      <Suspense fallback={<div className="mx-auto max-w-7xl px-4 py-20 sm:px-6" aria-busy="true" />}>
+      <Suspense fallback={<div className="mx-auto max-w-[1180px] px-5 py-20 sm:px-8" aria-busy="true" />}>
         <Results lang={lang} searchParams={searchParams} />
       </Suspense>
     </>
@@ -71,76 +71,90 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
   const totalPages = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
   const filtered = Boolean(q || cat || year);
 
+  const filterCount = [cat, year].filter(Boolean).length;
+  const filterBody = (
+    <div className="space-y-6">
+      <div>
+        <h2 className="font-display text-xl text-ink">{ui.category}</h2>
+        <ul className="mt-3 space-y-1 text-[0.95rem]">
+          <li>
+            <Link href={href({ cat: undefined, page: undefined })} className={`block rounded px-2 py-2.5 hover:bg-paper lg:py-1.5 ${!cat ? "font-bold text-brand" : ""}`}>
+              {ui.allCategories}
+            </Link>
+          </li>
+          {roots.map((c) => (
+            <li key={c.id}>
+              <Link
+                href={href({ cat: c.slug, page: undefined })}
+                className={`flex items-center justify-between gap-2 rounded px-2 py-2.5 hover:bg-paper lg:py-1.5 ${activeRoot?.id === c.id ? "font-bold text-brand" : ""}`}
+              >
+                <span className="truncate">{pick(lang, c.nameEn, c.nameHi)}</span>
+                <span className="font-mono text-xs text-muted">{c.total}</span>
+              </Link>
+              {activeRoot?.id === c.id && children.length > 0 && (
+                <ul className="ml-3 mt-1 space-y-0.5 border-l-2 border-line pl-3">
+                  {children.map((k) => (
+                    <li key={k.id}>
+                      <Link
+                        href={href({ cat: k.slug, page: undefined })}
+                        className={`flex items-center justify-between gap-2 rounded px-2 py-2 text-sm hover:bg-paper lg:py-1 ${cat === k.slug ? "font-bold text-brand" : ""}`}
+                      >
+                        <span className="truncate">{pick(lang, k.nameEn, k.nameHi)}</span>
+                        <span className="font-mono text-xs text-muted">{k.total}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h2 className="font-display text-xl text-ink">{ui.year}</h2>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          <Link href={href({ year: undefined, page: undefined })} className={`rounded-full border px-3.5 py-2 text-sm lg:px-3 lg:py-1 ${!year ? "border-ink bg-ink text-light" : "border-line hover:border-ink"}`}>
+            {ui.allYears}
+          </Link>
+          {years.map((y) => (
+            <Link
+              key={y.y}
+              href={href({ year: y.y, page: undefined })}
+              className={`rounded-full border px-3.5 py-2 text-sm lg:px-3 lg:py-1 ${year === y.y ? "border-ink bg-ink text-light" : "border-line hover:border-ink"}`}
+            >
+              {y.y}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[18rem_1fr]">
-      <aside>
-        <details className="rounded-none border border-line bg-white lg:open:block" open>
-          <summary className="cursor-pointer list-none px-5 py-4 font-display text-lg font-bold lg:cursor-default">{ui.filters}</summary>
-          <div className="space-y-6 border-t border-line px-5 py-5">
-            <div>
-              <h2 className="font-display text-xl text-ink">{ui.category}</h2>
-              <ul className="mt-3 space-y-1 text-[0.95rem]">
-                <li>
-                  <Link href={href({ cat: undefined, page: undefined })} className={`block rounded px-2 py-1.5 hover:bg-paper ${!cat ? "font-bold text-brand" : ""}`}>
-                    {ui.allCategories}
-                  </Link>
-                </li>
-                {roots.map((c) => (
-                  <li key={c.id}>
-                    <Link
-                      href={href({ cat: c.slug, page: undefined })}
-                      className={`flex items-center justify-between gap-2 rounded px-2 py-1.5 hover:bg-paper ${activeRoot?.id === c.id ? "font-bold text-brand" : ""}`}
-                    >
-                      <span className="truncate">{pick(lang, c.nameEn, c.nameHi)}</span>
-                      <span className="font-mono text-xs text-muted">{c.total}</span>
-                    </Link>
-                    {activeRoot?.id === c.id && children.length > 0 && (
-                      <ul className="ml-3 mt-1 space-y-0.5 border-l-2 border-line pl-3">
-                        {children.map((k) => (
-                          <li key={k.id}>
-                            <Link
-                              href={href({ cat: k.slug, page: undefined })}
-                              className={`flex items-center justify-between gap-2 rounded px-2 py-1 text-sm hover:bg-paper ${cat === k.slug ? "font-bold text-brand" : ""}`}
-                            >
-                              <span className="truncate">{pick(lang, k.nameEn, k.nameHi)}</span>
-                              <span className="font-mono text-xs text-muted">{k.total}</span>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h2 className="font-display text-xl text-ink">{ui.year}</h2>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                <Link href={href({ year: undefined, page: undefined })} className={`rounded-full border px-3 py-1 text-sm ${!year ? "border-ink bg-ink text-light" : "border-line hover:border-ink"}`}>
-                  {ui.allYears}
-                </Link>
-                {years.map((y) => (
-                  <Link
-                    key={y.y}
-                    href={href({ year: y.y, page: undefined })}
-                    className={`rounded-full border px-3 py-1 text-sm ${year === y.y ? "border-ink bg-ink text-light" : "border-line hover:border-ink"}`}
-                  >
-                    {y.y}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
+    <div className="mx-auto grid max-w-[1180px] grid-cols-[minmax(0,1fr)] gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8 lg:py-10">
+      <aside className="min-w-0">
+        {/* phones: the filters are folded away so the orders come first; desktop: always open */}
+        <details className="border border-line bg-white lg:hidden">
+          <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 px-5 py-3 font-display text-lg font-bold">
+            {ui.filters}
+            {filterCount > 0 && <span className="grid h-6 min-w-6 place-items-center rounded-full bg-brand px-1.5 text-xs font-bold text-white">{filterCount}</span>}
+            <span aria-hidden className="ml-auto text-muted">▾</span>
+          </summary>
+          <div className="border-t border-line px-5 py-5">{filterBody}</div>
         </details>
+        <div className="hidden border border-line bg-white lg:block">
+          <p className="px-5 py-4 font-display text-lg font-bold">{ui.filters}</p>
+          <div className="border-t border-line px-5 py-5">{filterBody}</div>
+        </div>
       </aside>
 
-      <section>
+      <section className="min-w-0">
         <form action={`/${lang}/orders`} role="search" className="flex overflow-hidden rounded-none border-2 border-ink bg-white">
           {cat && <input type="hidden" name="cat" value={cat} />}
           {year && <input type="hidden" name="year" value={year} />}
           <label htmlFor="orders-q" className="sr-only">{ui.searchOrders}</label>
           <input id="orders-q" name="q" type="search" defaultValue={q} placeholder={ui.searchOrders} className="min-w-0 flex-1 bg-transparent px-4 py-3.5 text-base focus:outline-none" />
-          <button type="submit" className="bg-brand px-6 font-medium text-white hover:bg-brand-deep">{ui.search}</button>
+          <button type="submit" className="bg-brand px-5 font-medium text-white hover:bg-brand-deep sm:px-6">{ui.search}</button>
         </form>
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-muted">
@@ -150,7 +164,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
             {q && <> · “{q}”</>}
           </p>
           {filtered && (
-            <Link href={`/${lang}/orders`} className="font-semibold text-brand underline-offset-2 hover:underline">
+            <Link href={`/${lang}/orders`} className="-my-2.5 inline-block py-2.5 font-semibold text-brand underline-offset-2 hover:underline">
               {ui.clear}
             </Link>
           )}

@@ -53,7 +53,7 @@ async function OrderPageContent({ params }: Props) {
   return (
     <>
       <PageHero lang={lang} title={title} crumbs={[{ href: `/${lang}`, label: ui.home }, { href: `/${lang}/orders`, label: ordersTitle }, { label: formatDate(post.publishedAt, lang) }]} />
-      <article className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_20rem]">
+      <article className="mx-auto grid max-w-[1180px] gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0 rounded-none border border-line bg-white p-6 sm:p-10">
           <SafeHtml html={post.contentHtml} />
         </div>

@@ -13,7 +13,7 @@ export const metadata = { title: "Site text" };
 const GROUP_LABEL: Record<string, string> = {
   org: "Organisation", page: "Inner page banner", hero: "Home banner & intro", board: "Latest orders box", home: "Home page sections", cta: "Buttons",
   stats: "Numbers", footer: "Footer", site: "Website", orders: "Orders page", officials: "Office bearers page", division: "Division labels",
-  divisions: "Divisions page", women: "Women wing page", youth: "Youth page", gallery: "Gallery page", join: "Join page",
+  divisions: "Divisions page", women: "Women wing page", youth: "Youth page", gallery: "Gallery page", join: "Join page", content: "Content pictures",
 };
 
 export default async function SettingsAdmin({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
@@ -36,7 +36,7 @@ export default async function SettingsAdmin({ searchParams }: { searchParams: Pr
                 /[._]image$/.test(r.key) ? (
                   <UploadField key={r.key} name={`img:${r.key}`} label={`${r.key} (replace the photo)`} kind="image" folder="site" initial={r.valueEn ? [r.valueEn] : []} />
                 ) : (
-                  <div key={r.key} className="grid gap-3 md:grid-cols-2">
+                  <div key={r.key} className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     <label className="block text-sm font-semibold">
                       <span className="font-mono text-xs text-muted">{r.key}</span> · English
                       <textarea name={`en:${r.key}`} rows={r.valueEn.length > 90 ? 3 : 1} defaultValue={r.valueEn} className={inputCls} />

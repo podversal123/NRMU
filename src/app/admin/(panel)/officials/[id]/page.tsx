@@ -31,12 +31,12 @@ export default async function EditOfficial({ params, searchParams }: { params: P
   
   return (
     <>
-      <PageTitle title={isNew ? "Add person" : person.nameEn} action={<Link href="/admin/officials" className="text-sm font-semibold text-brand">← All people</Link>} />
+      <PageTitle title={isNew ? "Add person" : person.nameEn} action={<Link href="/admin/officials" className="inline-block py-2 text-sm font-semibold text-brand">← All people</Link>} />
       {sp.saved && <Notice>Saved. The public website is updated.</Notice>}
       {sp.error && <Notice kind="err">Name and designation are required.</Notice>}
-      <form action={saveOfficial} className="grid gap-6 xl:grid-cols-[1fr_22rem]">
+      <form action={saveOfficial} className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <input type="hidden" name="id" value={isNew ? "" : id} />
-        <Card className="grid gap-5 sm:grid-cols-2">
+        <Card className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Field label="Name (English)"><input name="nameEn" required defaultValue={person?.nameEn} className={inputCls} /></Field>
           <Field label="Name (Hindi)" hint="Optional"><input name="nameHi" defaultValue={person?.nameHi ?? ""} className={inputCls} /></Field>
           <Field label="Designation" hint="Titles are managed centrally, so spelling stays consistent.">
@@ -70,9 +70,9 @@ export default async function EditOfficial({ params, searchParams }: { params: P
             </Field>
           )}
           <Field label="Display order" hint="Smaller numbers show first."><input type="number" name="sort" defaultValue={person?.sort ?? 0} className={inputCls} /></Field>
-          <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="active" defaultChecked={person?.active ?? true} className="h-5 w-5" /> Show on website</label>
+          <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="active" defaultChecked={person?.active ?? true} className="h-6 w-6" /> Show on website</label>
           {admin.role !== "division_admin" && (
-            <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="featured" defaultChecked={person?.featured ?? false} className="h-5 w-5" /> Feature on home page</label>
+            <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="featured" defaultChecked={person?.featured ?? false} className="h-6 w-6" /> Feature on home page</label>
           )}
           <SubmitButton className="btn-primary w-full px-6 py-3">Save</SubmitButton>
         </Card>
