@@ -16,7 +16,7 @@ export async function saveNav(form: FormData) {
     const labelEn = s(form, `nav_labelEn_${id}`);
     if (id === "new") {
       if (labelEn && s(form, "nav_href_new")) {
-        await db.insert(schema.navItems).values({ area: s(form, "nav_area_new") === "footer" ? "footer" : "header", labelEn, labelHi: s(form, "nav_labelHi_new") || null, href: s(form, "nav_href_new"), sort: Number(s(form, "nav_sort_new")) || 99 });
+        await db.insert(schema.navItems).values({ area: ["footer", "links", "policy"].includes(s(form, "nav_area_new")) ? s(form, "nav_area_new") : "header", parentId: Number(s(form, "nav_parent_new")) || null, labelEn, labelHi: s(form, "nav_labelHi_new") || null, href: s(form, "nav_href_new"), sort: Number(s(form, "nav_sort_new")) || 99 });
       }
       continue;
     }
@@ -25,29 +25,7 @@ export async function saveNav(form: FormData) {
       continue;
     }
     if (!labelEn) continue;
-    await db.update(schema.navItems).set({ labelEn, labelHi: s(form, `nav_labelHi_${id}`) || null, href: s(form, `nav_href_${id}`), sort: Number(s(form, `nav_sort_${id}`)) || 0, active: form.get(`nav_active_${id}`) === "on" }).where(eq(schema.navItems.id, Number(id)));
-  }
-  updateTag("nav");
-  redirect("/admin/navigation?saved=1");
-}
-
-export async function saveQuick(form: FormData) {
-  await requireAdmin(["super_admin"]);
-  const db = getDb();
-  for (const id of [...idsOf(form, "quickIds"), "new"]) {
-    const labelEn = s(form, `q_labelEn_${id}`);
-    if (id === "new") {
-      if (labelEn && s(form, "q_href_new")) {
-        await db.insert(schema.quickLinks).values({ labelEn, labelHi: s(form, "q_labelHi_new") || null, href: s(form, "q_href_new"), icon: s(form, "q_icon_new") || "doc", sort: Number(s(form, "q_sort_new")) || 99 });
-      }
-      continue;
-    }
-    if (form.get(`q_delete_${id}`) === "on") {
-      await db.delete(schema.quickLinks).where(eq(schema.quickLinks.id, Number(id)));
-      continue;
-    }
-    if (!labelEn) continue;
-    await db.update(schema.quickLinks).set({ labelEn, labelHi: s(form, `q_labelHi_${id}`) || null, href: s(form, `q_href_${id}`), icon: s(form, `q_icon_${id}`) || "doc", sort: Number(s(form, `q_sort_${id}`)) || 0, active: form.get(`q_active_${id}`) === "on" }).where(eq(schema.quickLinks.id, Number(id)));
+    await db.update(schema.navItems).set({ labelEn, labelHi: s(form, `nav_labelHi_${id}`) || null, href: s(form, `nav_href_${id}`), parentId: Number(s(form, `nav_parent_${id}`)) && Number(s(form, `nav_parent_${id}`)) !== Number(id) ? Number(s(form, `nav_parent_${id}`)) : null, sort: Number(s(form, `nav_sort_${id}`)) || 0, active: form.get(`nav_active_${id}`) === "on" }).where(eq(schema.navItems.id, Number(id)));
   }
   updateTag("nav");
   redirect("/admin/navigation?saved=1");

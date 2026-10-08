@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import PageFallback from "@/components/PageFallback";
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import PersonCard from "@/components/PersonCard";
@@ -21,7 +23,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return d ? { title: pick(lang, d.division.nameEn, d.division.nameHi) } : {};
 }
 
-export default async function DivisionPage({ params }: Props) {
+export default function DivisionPage({ params }: Props) {
+  return (
+    <Suspense fallback={<PageFallback />}>
+      <DivisionPageContent params={params} />
+    </Suspense>
+  );
+}
+
+async function DivisionPageContent({ params }: Props) {
   const { lang, slug } = await params;
   if (!isLang(lang)) notFound();
   const [data, divTitle] = await Promise.all([getDivisionDetail(slug), navTitle(lang, "/divisions")]);

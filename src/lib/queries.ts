@@ -3,7 +3,7 @@ import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { UI_KEYS, type Dict, type Lang } from "./i18n";
 
-const { categories, designations, divisions, navItems, officeBearers, postCategories, posts, quickLinks, searchChips, siteSettings } = schema;
+const { categories, designations, divisions, navItems, officeBearers, postCategories, posts, searchChips, siteSettings } = schema;
 
 /** Pick the Hindi value when the language is Hindi and a translation exists. */
 export const pick = (lang: Lang, en: string | null | undefined, hi: string | null | undefined) =>
@@ -32,13 +32,6 @@ export async function getNav(area: "header" | "footer") {
     .from(navItems)
     .where(and(eq(navItems.area, area), eq(navItems.active, true)))
     .orderBy(asc(navItems.sort));
-}
-
-export async function getQuickLinks() {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("nav");
-  return getDb().select().from(quickLinks).where(eq(quickLinks.active, true)).orderBy(asc(quickLinks.sort));
 }
 
 export async function getSearchChips() {
@@ -139,28 +132,6 @@ export async function getLatestPosts(limit: number): Promise<PostCard[]> {
   });
 }
 
-export async function getArchiveStats() {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("posts");
-  const db = getDb();
-  const [[row], [b]] = await Promise.all([
-    db
-      .select({
-        total: sql<number>`count(*)::int`,
-        since: sql<string>`extract(year from min(${posts.publishedAt}))::int::text`,
-      })
-      .from(posts)
-      .where(eq(posts.status, "published")),
-    db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(schema.branches)
-      .innerJoin(divisions, eq(divisions.id, schema.branches.divisionId))
-      .where(eq(divisions.active, true)),
-  ]);
-  return { ...row, branches: b.n };
-}
-
 export function formatDate(iso: string, lang: Lang) {
   const d = new Date(iso + "T00:00:00");
   return new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(d);
@@ -175,4 +146,52 @@ export async function getUi(lang: Lang): Promise<Dict> {
   const out = {} as Dict;
   for (const k of UI_KEYS) out[k] = pick(lang, s[`ui.${k}`]?.en, s[`ui.${k}`]?.hi);
   return out;
+}
+
+/* ------------------------------ Portal layout ------------------------------ */
+
+export type MenuItem = { id: number; labelEn: string; labelHi: string | null; href: string; children: MenuItem[] };
+
+/** Header menu as a tree: top-level items, each with its dropdown entries. */
+export async function getMenu(): Promise<MenuItem[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("nav");
+  const rows = await getDb()
+    .select()
+    .from(navItems)
+    .where(and(eq(navItems.area, "header"), eq(navItems.active, true)))
+    .orderBy(asc(navItems.sort), asc(navItems.id));
+  const byParent = new Map<number | null, typeof rows>();
+  for (const r of rows) byParent.set(r.parentId, [...(byParent.get(r.parentId) ?? []), r]);
+  const build = (parent: number | null): MenuItem[] =>
+    (byParent.get(parent) ?? []).map((r) => ({ id: r.id, labelEn: r.labelEn, labelHi: r.labelHi, href: r.href, children: build(r.id) }));
+  return build(null);
+}
+
+/** "links" = important links (usually external), "policy" = footer legal links. Policy pages without content are left out. */
+export async function getFooterLinks(area: "links" | "policy") {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("nav", "pages");
+  const db = getDb();
+  const rows = await db
+    .select()
+    .from(navItems)
+    .where(and(eq(navItems.area, area), eq(navItems.active, true)))
+    .orderBy(asc(navItems.sort), asc(navItems.id));
+  if (area === "links") return rows;
+  const filled = new Set(
+    (await db.execute(sql`select slug from pages where length(trim(content_html)) > 0`)).rows.map((r) => String((r as { slug: string }).slug)),
+  );
+  return rows.filter((r) => !r.href.startsWith("/pages/") || filled.has(r.href.slice("/pages/".length)));
+}
+
+/** Most recent change to published content, shown as "Last updated" in the footer. */
+export async function getLastUpdated() {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("posts", "pages");
+  const r = await getDb().execute(sql`select greatest((select max(updated_at) from posts where status = 'published'), (select max(updated_at) from pages))::date::text as d`);
+  return String((r.rows[0] as { d: string | null } | undefined)?.d ?? "");
 }

@@ -264,9 +264,7 @@ type Pair = { en: string; hi: string };
 const SETTINGS: Record<string, Pair> = {
   "org.name": { en: "Northern Railway Men's Union", hi: "उत्तर रेलवे मेन्स यूनियन" },
   "org.short": { en: "NRMU", hi: "एन.आर.एम.यू." },
-  "org.tagline": { en: "For the Railwaymen of India", hi: "भारत के रेलकर्मियों के लिए" },
   "org.city": { en: "New Delhi", hi: "नई दिल्ली" },
-  "hero.kicker": { en: "Northern Railway Men's Union · New Delhi", hi: "उत्तर रेलवे मेन्स यूनियन · नई दिल्ली" },
   "hero.title_a": { en: "For the Railwaymen", hi: "भारत के" },
   "hero.title_b": { en: "of India.", hi: "रेलकर्मियों के लिए।" },
   "hero.sub": {
@@ -274,38 +272,19 @@ const SETTINGS: Record<string, Pair> = {
     hi: "रेलवे बोर्ड के हर आदेश, परिपत्र और यूनियन की हर सूचना — एक ही जगह, खोजने योग्य, हिंदी और अंग्रेज़ी में।",
   },
   "hero.search_placeholder": {
-    en: "Search orders, circulars, DOPT, pay commission, pension…",
-    hi: "आदेश, परिपत्र, DOPT, वेतन आयोग, पेंशन खोजें…",
+    en: "Search orders and circulars…",
+    hi: "आदेश और परिपत्र खोजें…",
   },
-  "board.title": { en: "Latest Orders", hi: "नवीनतम आदेश" },
-  "board.sub": { en: "Live from the NRMU archive", hi: "एन.आर.एम.यू. संग्रह से सीधे" },
-  "home.latest_title": { en: "Latest Orders & Updates", hi: "नवीनतम आदेश एवं सूचनाएँ" },
-  "home.latest_sub": { en: "Fresh from Railway Board, DOPT, Ministry of Finance and AIRF.", hi: "रेलवे बोर्ड, DOPT, वित्त मंत्रालय और AIRF से ताज़ा।" },
-  "home.services_title": { en: "Find what you need", hi: "अपनी ज़रूरत की जानकारी पाएँ" },
-  "home.services_sub": { en: "The most-used sections, one tap away.", hi: "सबसे ज़्यादा इस्तेमाल होने वाले अनुभाग, बस एक टैप दूर।" },
   "home.divisions_title": { en: "Our Divisions", hi: "हमारे मंडल" },
   "home.divisions_sub": { en: "NRMU stands in every division of Northern Railway.", hi: "उत्तर रेलवे के हर मंडल में एन.आर.एम.यू. आपके साथ है।" },
-  "home.leaders_title": { en: "Leadership", hi: "नेतृत्व" },
-  "home.leaders_sub": { en: "Central office bearers of the union.", hi: "यूनियन के केंद्रीय पदाधिकारी।" },
-  "home.cta_title": { en: "Stronger together.", hi: "एकजुट, तो मज़बूत।" },
-  "home.cta_text": {
-    en: "Become a member, raise your concern, stay informed — NRMU is your union.",
-    hi: "सदस्य बनें, अपनी बात रखें, जानकारी से जुड़े रहें — एन.आर.एम.यू. आपकी अपनी यूनियन है।",
-  },
   "cta.join": { en: "Join NRMU", hi: "सदस्य बनें" },
   "stats.divisions": { en: "Divisions", hi: "मंडल" },
-  "stats.branches": { en: "Branches", hi: "शाखाएँ" },
-  "stats.archive": { en: "Orders & updates archived", hi: "संग्रहीत आदेश एवं सूचनाएँ" },
-  "stats.since": { en: "Archive since", hi: "संग्रह का आरंभ" },
   "footer.about": {
     en: "Northern Railway Men's Union is a trade union of railway employees, affiliated to the All India Railwaymen's Federation (AIRF).",
     hi: "उत्तर रेलवे मेन्स यूनियन रेलवे कर्मचारियों की ट्रेड यूनियन है, जो अखिल भारतीय रेलवे कर्मचारी महासंघ (AIRF) से संबद्ध है।",
   },
   "footer.address": { en: "New Delhi, India", hi: "नई दिल्ली, भारत" },
-  "footer.airf_label": { en: "AIRF — airfindia.org", hi: "AIRF — airfindia.org" },
-  "footer.airf_url": { en: "https://www.airfindia.org", hi: "https://www.airfindia.org" },
   "footer.explore": { en: "Explore", hi: "देखें" },
-  "footer.contact": { en: "Contact", hi: "संपर्क" },
   "footer.rights": { en: "All rights reserved.", hi: "सर्वाधिकार सुरक्षित।" },
   "site.domain": { en: "nrmu.net", hi: "nrmu.net" },
   "orders.sub": { en: "Railway Board orders, DOPT circulars, pay commission and union letters — search the full archive.", hi: "रेलवे बोर्ड के आदेश, DOPT परिपत्र, वेतन आयोग और यूनियन के पत्र — पूरे संग्रह में खोजें।" },
@@ -320,7 +299,6 @@ const SETTINGS: Record<string, Pair> = {
   "officials.group.division_president": { en: "Divisional Presidents", hi: "मंडल अध्यक्ष" },
   "officials.group.division_secretary": { en: "Divisional Secretaries", hi: "मंडल सचिव" },
   "division.secretary_label": { en: "Divisional Secretary", hi: "मंडल सचिव" },
-  "division.president_label": { en: "Divisional President", hi: "मंडल अध्यक्ष" },
   "women.pages_title": { en: "Committees", hi: "समितियाँ" },
   "women.posts_title": { en: "Activities & Events", hi: "गतिविधियाँ एवं कार्यक्रम" },
 };
@@ -341,15 +319,6 @@ const NAV: { area: string; en: string; hi: string; href: string }[] = [
   { area: "footer", en: "Gallery", hi: "चित्र दीर्घा", href: "/gallery" },
 ];
 
-const QUICK: { en: string; hi: string; cat: string; icon: string }[] = [
-  { en: "Railway Board Orders", hi: "रेलवे बोर्ड आदेश", cat: "railway-board-orders", icon: "doc" },
-  { en: "Pay Commission", hi: "वेतन आयोग", cat: "pay-commission", icon: "rupee" },
-  { en: "Pension & NPS", hi: "पेंशन एवं एन.पी.एस.", cat: "new-pension-scheme", icon: "shield" },
-  { en: "DOPT & Finance", hi: "DOPT एवं वित्त", cat: "other-ministeries", icon: "building" },
-  { en: "Negotiating Forums", hi: "वार्ता मंच (NC-JCM)", cat: "negotiating-forums", icon: "people" },
-  { en: "AIRF Letters", hi: "AIRF पत्र", cat: "airf", icon: "mail" },
-];
-
 async function seedConfig() {
   const ui = JSON.parse(fs.readFileSync(path.join(__dirname, "data", "ui-strings.json"), "utf8")) as Record<string, { en: string; hi: string | null }>;
   const config: Record<string, Pair> = {
@@ -367,10 +336,40 @@ async function seedConfig() {
   const [{ n: navCount }] = (await db.execute(sql`select count(*)::int as n from nav_items`)).rows as { n: number }[];
   if (!Number(navCount)) {
     await db.insert(schema.navItems).values(NAV.map((n, i) => ({ area: n.area, labelEn: n.en, labelHi: n.hi, href: n.href, sort: i })));
-    await db.insert(schema.quickLinks).values(QUICK.map((q, i) => ({ labelEn: q.en, labelHi: q.hi, href: `/orders?cat=${q.cat}`, icon: q.icon, sort: i })));
     await db.insert(schema.searchChips).values(["DA", "MACP", "NPS", "7th CPC", "HRMS", "LDCE"].map((term, sort) => ({ term, sort })));
   }
-  console.log("settings", Object.keys(SETTINGS).length, "nav", NAV.length, "quick links", QUICK.length);
+  console.log("settings", Object.keys(SETTINGS).length, "nav", NAV.length);
+}
+
+/** Dropdown menu, important links, policy links and the (empty) policy pages. Replaces the header menu only once. */
+async function ensurePortalDefaults() {
+  const portal = JSON.parse(fs.readFileSync(path.join(__dirname, "data", "portal.json"), "utf8")) as {
+    menu: { en: string; hi: string; href: string; children?: { en: string; hi: string; href: string }[] }[];
+    links: { en: string; hi: string; href: string }[];
+    policy: { en: string; hi: string; href: string }[];
+    emptyPages: { slug: string; en: string; hi: string }[];
+  };
+  const [{ n: nested }] = (await db.execute(sql`select count(*)::int as n from nav_items where area = 'header' and parent_id is not null`)).rows as { n: number }[];
+  if (!Number(nested)) {
+    await db.execute(sql`delete from nav_items where area = 'header'`);
+    let sort = 0;
+    for (const m of portal.menu) {
+      const [row] = await db.insert(schema.navItems).values({ area: "header", labelEn: m.en, labelHi: m.hi, href: m.href, sort: sort++ }).returning({ id: schema.navItems.id });
+      for (const [i, c] of (m.children ?? []).entries()) {
+        await db.insert(schema.navItems).values({ area: "header", parentId: row.id, labelEn: c.en, labelHi: c.hi, href: c.href, sort: i });
+      }
+    }
+  }
+  for (const area of ["links", "policy"] as const) {
+    const [{ n }] = (await db.execute(sql`select count(*)::int as n from nav_items where area = ${area}`)).rows as { n: number }[];
+    if (!Number(n)) {
+      await db.insert(schema.navItems).values(portal[area].map((x, i) => ({ area, labelEn: x.en, labelHi: x.hi, href: x.href, sort: i })));
+    }
+  }
+  for (const p of portal.emptyPages) {
+    await db.insert(schema.pages).values({ slug: p.slug, titleEn: p.en, titleHi: p.hi, contentHtml: "" }).onConflictDoNothing();
+  }
+  console.log("portal defaults ensured");
 }
 
 /** Defaults for grievances, events and extra page text. Safe to run any time: it only adds what is missing. */
@@ -379,7 +378,6 @@ async function ensureFeatureDefaults() {
   const ui = JSON.parse(fs.readFileSync(path.join(__dirname, "data", "ui-strings.json"), "utf8")) as Record<string, { en: string; hi: string | null }>;
   const feat = JSON.parse(fs.readFileSync(path.join(__dirname, "data", "features.json"), "utf8")) as {
     nav: { area: string; en: string; hi: string; href: string }[];
-    quick: { en: string; hi: string; href: string; icon: string }[];
     grievanceTypes: [string, string][];
   };
   const settings = [
@@ -395,13 +393,6 @@ async function ensureFeatureDefaults() {
       await db.insert(schema.navItems).values({ area: n.area, labelEn: n.en, labelHi: n.hi, href: n.href, sort: Number(m.m) });
     }
   }
-  for (const q of feat.quick) {
-    const [row] = (await db.execute(sql`select count(*)::int as n from quick_links where href = ${q.href}`)).rows as { n: number }[];
-    if (!Number(row.n)) {
-      const [m] = (await db.execute(sql`select coalesce(max(sort), 0) + 1 as m from quick_links`)).rows as { m: number }[];
-      await db.insert(schema.quickLinks).values({ labelEn: q.en, labelHi: q.hi, href: q.href, icon: q.icon, sort: Number(m.m) });
-    }
-  }
   const [{ n: typeCount }] = (await db.execute(sql`select count(*)::int as n from grievance_types`)).rows as { n: number }[];
   if (!Number(typeCount)) {
     await db.insert(schema.grievanceTypes).values(feat.grievanceTypes.map(([en, hi], i) => ({ nameEn: en, nameHi: hi, sort: i })));
@@ -412,6 +403,7 @@ async function ensureFeatureDefaults() {
 async function main() {
   if (process.argv.includes("--config-only")) {
     await ensureFeatureDefaults();
+    await ensurePortalDefaults();
     return;
   }
   console.log("Resetting content tables…");
@@ -421,6 +413,7 @@ async function main() {
   await seedOfficials(divIds);
   await seedConfig();
   await ensureFeatureDefaults();
+  await ensurePortalDefaults();
   console.log("Done.");
 }
 

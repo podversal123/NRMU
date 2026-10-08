@@ -1,0 +1,190 @@
+{
+  "menu": [
+    {
+      "en": "Home",
+      "hi": "मुख्य पृष्ठ",
+      "href": ""
+    },
+    {
+      "en": "Orders & Circulars",
+      "hi": "आदेश एवं परिपत्र",
+      "href": "/orders",
+      "children": [
+        {
+          "en": "Railway Board Orders",
+          "hi": "रेलवे बोर्ड आदेश",
+          "href": "/orders?cat=railway-board-orders"
+        },
+        {
+          "en": "Pay Commission",
+          "hi": "वेतन आयोग",
+          "href": "/orders?cat=pay-commission"
+        },
+        {
+          "en": "Pension & NPS",
+          "hi": "पेंशन एवं एन.पी.एस.",
+          "href": "/orders?cat=new-pension-scheme"
+        },
+        {
+          "en": "DOPT & Finance",
+          "hi": "DOPT एवं वित्त",
+          "href": "/orders?cat=other-ministeries"
+        },
+        {
+          "en": "Negotiating Forums",
+          "hi": "वार्ता मंच (NC-JCM)",
+          "href": "/orders?cat=negotiating-forums"
+        },
+        {
+          "en": "AIRF Letters",
+          "hi": "AIRF पत्र",
+          "href": "/orders?cat=airf"
+        }
+      ]
+    },
+    {
+      "en": "Organisation",
+      "hi": "संगठन",
+      "href": "#",
+      "children": [
+        {
+          "en": "Office Bearers",
+          "hi": "पदाधिकारी",
+          "href": "/officials"
+        },
+        {
+          "en": "Divisions",
+          "hi": "मंडल",
+          "href": "/divisions"
+        }
+      ]
+    },
+    {
+      "en": "Wings",
+      "hi": "प्रकोष्ठ",
+      "href": "#",
+      "children": [
+        {
+          "en": "Women Wing",
+          "hi": "महिला प्रकोष्ठ",
+          "href": "/women"
+        },
+        {
+          "en": "Youth NRMU",
+          "hi": "युवा एन.आर.एम.यू.",
+          "href": "/youth"
+        }
+      ]
+    },
+    {
+      "en": "Media",
+      "hi": "मीडिया",
+      "href": "#",
+      "children": [
+        {
+          "en": "Photo Gallery",
+          "hi": "चित्र दीर्घा",
+          "href": "/gallery"
+        },
+        {
+          "en": "Events & Meetings",
+          "hi": "कार्यक्रम एवं बैठकें",
+          "href": "/events"
+        }
+      ]
+    },
+    {
+      "en": "Grievance",
+      "hi": "शिकायत",
+      "href": "/grievance",
+      "children": [
+        {
+          "en": "Raise a grievance",
+          "hi": "शिकायत दर्ज करें",
+          "href": "/grievance"
+        },
+        {
+          "en": "Track a grievance",
+          "hi": "शिकायत ट्रैक करें",
+          "href": "/grievance/track"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "en": "AIRF",
+      "hi": "AIRF",
+      "href": "https://www.airfindia.org"
+    },
+    {
+      "en": "Indian Railways",
+      "hi": "भारतीय रेल",
+      "href": "https://indianrailways.gov.in"
+    },
+    {
+      "en": "Department of Personnel & Training",
+      "hi": "कार्मिक एवं प्रशिक्षण विभाग",
+      "href": "https://dopt.gov.in"
+    },
+    {
+      "en": "National Portal of India",
+      "hi": "भारत का राष्ट्रीय पोर्टल",
+      "href": "https://www.india.gov.in"
+    },
+    {
+      "en": "IRCTC",
+      "hi": "IRCTC",
+      "href": "https://www.irctc.co.in"
+    }
+  ],
+  "policy": [
+    {
+      "en": "Privacy policy",
+      "hi": "गोपनीयता नीति",
+      "href": "/pages/privacy-policy"
+    },
+    {
+      "en": "Terms of use",
+      "hi": "उपयोग की शर्तें",
+      "href": "/pages/terms"
+    },
+    {
+      "en": "Accessibility statement",
+      "hi": "सुगम्यता वक्तव्य",
+      "href": "/pages/accessibility"
+    },
+    {
+      "en": "Contact us",
+      "hi": "संपर्क करें",
+      "href": "/pages/contact"
+    },
+    {
+      "en": "Sitemap",
+      "hi": "साइट मैप",
+      "href": "/sitemap"
+    }
+  ],
+  "emptyPages": [
+    {
+      "slug": "privacy-policy",
+      "en": "Privacy policy",
+      "hi": "गोपनीयता नीति"
+    },
+    {
+      "slug": "terms",
+      "en": "Terms of use",
+      "hi": "उपयोग की शर्तें"
+    },
+    {
+      "slug": "accessibility",
+      "en": "Accessibility statement",
+      "hi": "सुगम्यता वक्तव्य"
+    },
+    {
+      "slug": "contact",
+      "en": "Contact us",
+      "hi": "संपर्क करें"
+    }
+  ]
+}

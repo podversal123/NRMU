@@ -31,20 +31,6 @@
       "href": "/grievance/track"
     }
   ],
-  "quick": [
-    {
-      "en": "Raise a grievance",
-      "hi": "शिकायत दर्ज करें",
-      "href": "/grievance",
-      "icon": "shield"
-    },
-    {
-      "en": "Events & meetings",
-      "hi": "कार्यक्रम एवं बैठकें",
-      "href": "/events",
-      "icon": "building"
-    }
-  ],
   "grievanceTypes": [
     [
       "Pay and allowances",

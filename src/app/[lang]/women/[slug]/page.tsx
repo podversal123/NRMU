@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import PageFallback from "@/components/PageFallback";
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import SafeHtml from "@/components/SafeHtml";
@@ -21,7 +23,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return p ? { title: pick(lang, p.titleEn, p.titleHi) } : {};
 }
 
-export default async function WomenPageDetail({ params }: Props) {
+export default function WomenPageDetail({ params }: Props) {
+  return (
+    <Suspense fallback={<PageFallback />}>
+      <WomenPageDetailContent params={params} />
+    </Suspense>
+  );
+}
+
+async function WomenPageDetailContent({ params }: Props) {
   const { lang, slug } = await params;
   if (!isLang(lang)) notFound();
   const [page, section] = await Promise.all([getPage(slug), navTitle(lang, "/women")]);

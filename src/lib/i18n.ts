@@ -8,21 +8,22 @@ export type Lang = (typeof locales)[number];
 export const isLang = (v: string): v is Lang => (locales as readonly string[]).includes(v);
 
 export const UI_KEYS = [
-  "skip", "textSize", "textSmaller", "textDefault", "textLarger", "contrast", "menu", "search", "popular", "viewAll",
-  "pdf", "update", "live", "home", "category", "allCategories", "year", "allYears", "clear", "filters", "results", "result",
-  "noResults", "noResultsHint", "download", "read", "attachments", "previous", "next", "page", "of", "backToOrders",
-  "address", "call", "branches", "branchSecretaries", "noPhoto", "noItems", "formName", "formMobile", "formEmail",
+  "skip", "textSize", "textSmaller", "textDefault", "textLarger", "menu", "search", "popular", "viewAll",
+  "pdf", "home", "category", "allCategories", "year", "allYears", "clear", "filters", "results", "result",
+  "noResults", "noResultsHint", "download", "attachments", "previous", "next", "page", "of", "backToOrders",
+  "call", "branches", "branchSecretaries", "noItems", "formName", "formMobile", "formEmail",
   "formDivision", "formDivisionPick", "formDesignation", "formEmployeeId", "formMessage", "submit", "submitting",
   "thanksTitle", "thanksText", "errName", "errMobile", "errEmail", "errDivision", "errLimit", "errGeneric",
   "notFoundTitle", "notFoundText", "goHome", "searchOrders",
   // accessibility / navigation
   "navPrimary", "navMobile", "breadcrumb", "pagination", "langSwitch",
   // events
-  "when", "where", "agenda", "minutes", "upcoming", "past", "noUpcoming",
+  "agenda", "minutes", "upcoming", "past", "noUpcoming",
   // grievances
   "gSubject", "gDetails", "gType", "gTypePick", "gSubmit", "gThanksTitle", "gThanksText", "gTicket", "gKeepTicket",
   "gTrackTitle", "gTrackText", "gTrackButton", "gNotFound", "gStatus", "gLevel", "gTimeline", "gOpenForm",
   "gStatus_open", "gStatus_in_progress", "gStatus_resolved", "gStatus_closed", "errSubject", "errDetails", "errTicket",
-] as const;
+  // portal layout
+  "lastUpdated", "visitors", "print", "share", "copied", "sitemapTitle", ] as const;
 export type UiKey = (typeof UI_KEYS)[number];
 export type Dict = Record<UiKey, string>;

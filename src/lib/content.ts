@@ -241,14 +241,16 @@ export async function getDivisionCards() {
 
 export type CardRow ={ id: number; titleEn: string; titleHi: string | null; publishedAt: string; thumbUrl: string | null };
 
-export async function getPostsByCategory(slug: string, limit: number, withImage = false) {
+/** Newest posts of a category (and its sub-categories); `excludeIds` keeps a post from showing twice on the same page. */
+export async function getPostsByCategory(slug: string, limit: number, withImage = false, excludeIds: number[] = []) {
   "use cache";
   cacheLife("hours");
   cacheTag("posts");
   const rows = await getDb().execute(sql`
     select p.id, p.title_en as "titleEn", p.title_hi as "titleHi", p.published_at::text as "publishedAt", p.thumb_url as "thumbUrl"
     from posts p
-    where p.status = 'published' ${withImage ? sql`and p.thumb_url is not null` : sql``} and exists (
+    where p.status = 'published' ${withImage ? sql`and p.thumb_url is not null` : sql``}
+      ${excludeIds.length ? sql`and p.id not in (${sql.join(excludeIds.map((i) => sql`${i}`), sql`, `)})` : sql``} and exists (
       select 1 from post_categories pc where pc.post_id = p.id and pc.category_id in (
         with recursive tree as (
           select id from categories where slug = ${slug}

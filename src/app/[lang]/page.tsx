@@ -1,24 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import DivisionCard from "@/components/DivisionCard";
 import Icon from "@/components/Icon";
 import { isLang, type Lang } from "@/lib/i18n";
-import { getEvents, getGalleryPhotos } from "@/lib/content";
-import {
-  getArchiveStats,
-  getDivisions,
-  getFeaturedLeaders,
-  getLatestPosts,
-  getQuickLinks,
-  getSearchChips,
-  getSettings,
-  pick,
-  setting,
-  getUi,
-} from "@/lib/queries";
+import { getDivisionCards, getEvents, getGalleryPhotos, getPostsByCategory } from "@/lib/content";
+import { getFeaturedLeaders, getLatestPosts, getSearchChips, getSettings, getUi, pick, setting } from "@/lib/queries";
 
 const wrap = "mx-auto max-w-[1180px] px-5 sm:px-8";
-const h2 = "text-[clamp(1.8rem,3vw,2.5rem)] font-semibold leading-tight";
+const h2 = "text-[clamp(1.7rem,2.6vw,2.2rem)]";
 
 function dateParts(iso: string, lang: Lang) {
   const d = new Date(iso + "T00:00:00");
@@ -26,184 +16,214 @@ function dateParts(iso: string, lang: Lang) {
   return { day: d.getDate(), month: new Intl.DateTimeFormat(loc, { month: "short" }).format(d), year: d.getFullYear() };
 }
 
+/** A bordered panel with a title bar. */
+function Panel({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <section className="border border-line bg-white">
+      <header className="flex items-center justify-between gap-3 border-b-2 border-signal px-5 py-3">
+        <h2 className="text-[1.55rem] leading-none">{title}</h2>
+        {action}
+      </header>
+      {children}
+    </section>
+  );
+}
+
+/**
+ * Home page. Every block appears exactly once: the notice board lists the newest orders, the right column
+ * holds leaders and highlights, divisions get their own section, and photos/events show up only when the
+ * admin panel has some.
+ */
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
-  const ui = await getUi(lang);
 
-  const [s, latest, divisions, leaders, quick, chips, stats, photos, events] = await Promise.all([
+  const [s, ui, latest, leaders, chips, photos, events, divisions] = await Promise.all([
     getSettings(),
+    getUi(lang),
     getLatestPosts(8),
-    getDivisions(),
     getFeaturedLeaders(),
-    getQuickLinks(),
     getSearchChips(),
-    getArchiveStats(),
     getGalleryPhotos(7, true),
     getEvents(0, 3),
+    getDivisionCards(),
   ]);
   const t = (key: string) => setting(s, key, lang);
-  const num = (n: number | string) => Number(n).toLocaleString(lang === "hi" ? "hi-IN" : "en-IN");
+  const news = await getPostsByCategory(setting(s, "config.news.category", "en"), 4, false, latest.map((p) => p.id));
   const heroImage = t("hero.image");
-  const ctaImage = t("cta.image");
+  const evDate = (iso: string) => new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "medium", timeZone: "Asia/Kolkata" }).format(new Date(iso));
+  const more = (href: string) => (
+    <Link href={`/${lang}${href}`} className="shrink-0 text-sm font-medium text-brand hover:underline">
+      {ui.viewAll} →
+    </Link>
+  );
+  const labels = { secretary: t("division.secretary_label"), branches: ui.branches, branchSecretaries: ui.branchSecretaries };
 
   return (
     <>
-      {/* BANNER: full-screen photograph, nothing on top of it */}
-      <section className="relative h-[100svh] max-h-[62rem] min-h-[30rem] w-full overflow-hidden bg-ink">
-        {heroImage && (
-          <Image src={heroImage} alt={t("hero.image_alt")} fill priority sizes="100vw" quality={90} className="object-cover object-[30%_60%] lg:object-[40%_62%]" />
-        )}
-      </section>
-      <div className="track" aria-hidden="true" />
-
-      {/* STATS */}
-      <section className="bg-ink pb-12 pt-2 text-light">
-        <dl className={`${wrap} grid grid-cols-2 gap-y-7 lg:grid-cols-4`}>
-          {[
-            { v: num(divisions.length), l: t("stats.divisions") },
-            { v: num(stats.branches), l: t("stats.branches") },
-            { v: num(stats.total), l: t("stats.archive") },
-            { v: stats.since, l: t("stats.since") },
-          ].map((x, i) => (
-            <div key={x.l} className={`${i % 2 === 1 ? "border-l border-[#34363c] pl-6" : ""} ${i === 0 ? "lg:pl-0" : "lg:border-l lg:border-[#34363c] lg:pl-7"}`}>
-              <dd className="font-display text-[clamp(2.2rem,3.6vw,3rem)] font-semibold leading-none text-soft">{x.v}</dd>
-              <dt className="mt-2 text-[0.95rem] tracking-[0.02em] text-dim">{x.l}</dt>
-            </div>
-          ))}
-        </dl>
-      </section>
-
-      {/* INTRO + SEARCH */}
-      <section className="py-16 lg:py-20">
-        <div className={`${wrap} grid items-end gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16`}>
-          <div>
-            <p className="text-base font-medium text-brand">{t("hero.kicker")}</p>
-            <h1 className="mt-4 text-[clamp(2.1rem,4vw,3.4rem)] font-semibold leading-[1.05]">
-              {t("hero.title_a")} {t("hero.title_b")}
-            </h1>
-            <div className="rule mt-6" />
-          </div>
-          <div>
-            <p className="text-lg text-muted">{t("hero.sub")}</p>
-            <form action={`/${lang}/orders`} role="search" className="mt-6 flex border-b border-ink">
-              <label htmlFor="hero-q" className="sr-only">
-                {ui.search}
-              </label>
-              <input
-                id="hero-q"
-                name="q"
-                type="search"
-                placeholder={t("hero.search_placeholder")}
-                className="min-w-0 flex-1 bg-transparent py-3 text-lg placeholder:text-muted/80 focus:outline-none"
-              />
-              <button type="submit" className="px-1 py-3 text-[0.95rem] font-semibold tracking-[0.02em] text-brand hover:text-ink">
-                {ui.search} →
-              </button>
-            </form>
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="text-sm text-muted">{ui.popular}:</span>
-              {chips.map((c) => (
-                <Link key={c.id} href={`/${lang}/orders?q=${encodeURIComponent(c.term)}`} className="rounded-full border border-line px-3.5 py-1 text-sm hover:border-ink">
-                  {c.term}
-                </Link>
-              ))}
+      {/* BANNER with the search card */}
+      <section className="relative bg-paper">
+        <div className="relative h-56 w-full overflow-hidden bg-ink sm:h-[24rem] lg:h-[31rem]">
+          {heroImage && <Image src={heroImage} alt={t("hero.image_alt")} fill priority sizes="100vw" quality={85} className="object-cover object-[35%_60%]" />}
+          <div className="absolute inset-0 hidden bg-gradient-to-r from-ink/75 via-ink/25 to-transparent lg:block" />
+        </div>
+        <div className="pointer-events-none relative z-10 -mt-10 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center">
+          <div className={`${wrap} w-full`}>
+            <div className="pointer-events-auto border border-line bg-white p-6 sm:p-8 lg:max-w-[33rem]">
+              <h1 className="text-[clamp(1.7rem,2.6vw,2.2rem)] font-semibold leading-tight">
+                {t("hero.title_a")} <span className="text-brand">{t("hero.title_b")}</span>
+              </h1>
+              <p className="mt-3 text-[0.97rem] text-muted">{t("hero.sub")}</p>
+              <form action={`/${lang}/orders`} role="search" className="mt-5">
+                <label htmlFor="hero-q" className="mb-1.5 block text-sm font-medium">
+                  {t("hero.search_title")}
+                </label>
+                <div className="flex">
+                  <input
+                    id="hero-q"
+                    name="q"
+                    type="search"
+                    placeholder={t("hero.search_placeholder")}
+                    className="min-w-0 flex-1 border border-ink bg-white px-4 py-3 text-base placeholder:text-muted/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+                  />
+                  <button type="submit" className="bg-signal px-5 font-semibold text-ink hover:bg-soft">
+                    {ui.search}
+                  </button>
+                </div>
+              </form>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <span className="text-sm text-muted">{ui.popular}:</span>
+                {chips.map((c) => (
+                  <Link key={c.id} href={`/${lang}/orders?q=${encodeURIComponent(c.term)}`} className="border border-line px-3 py-1 text-sm hover:border-ink">
+                    {c.term}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SHORTCUTS */}
+      {/* NOTICE BOARD | LEADERS + HIGHLIGHTS */}
+      <section className="py-12 lg:py-14">
+        <div className={`${wrap} grid items-start gap-6 lg:grid-cols-[1.3fr_1fr]`}>
+          <Panel title={t("home.notice_title")} action={more("/orders")}>
+            <ul className="divide-y divide-line">
+              {latest.map((p) => {
+                const d = dateParts(p.publishedAt, lang);
+                return (
+                  <li key={p.id}>
+                    <Link href={`/${lang}/orders/${p.id}`} className="group flex gap-4 px-5 py-3.5 hover:bg-paper">
+                      <time dateTime={p.publishedAt} className="w-12 shrink-0 text-center leading-none">
+                        <span className="block font-display text-[1.6rem] font-bold text-brand">{d.day}</span>
+                        <span className="mt-0.5 block text-xs text-muted">
+                          {d.month} {d.year}
+                        </span>
+                      </time>
+                      <span className="min-w-0">
+                        <span className="line-clamp-2 text-[0.98rem] font-medium leading-snug group-hover:text-brand">{pick(lang, p.titleEn, p.titleHi)}</span>
+                        {p.files > 0 && (
+                          <span className="mt-1 inline-flex items-center gap-1 text-xs text-muted">
+                            <Icon name="pdf" size={13} /> {ui.pdf}
+                          </span>
+                        )}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </Panel>
+
+          <div className="space-y-6">
+            <Panel title={t("home.leaders_card")} action={more("/officials")}>
+              <ul className="divide-y divide-line">
+                {leaders.map((l) => {
+                  const initials = l.nameEn.replace(/^(Sh|Shri|Smt)\.?\s+/i, "").split(/[ .]+/).filter(Boolean).map((w) => w[0]).join("").slice(0, 2);
+                  return (
+                    <li key={l.id} className="flex items-center gap-4 px-5 py-4">
+                      {l.photoUrl ? (
+                        <Image src={l.photoUrl} alt="" width={72} height={72} className="h-[4.5rem] w-[4.5rem] shrink-0 object-cover" />
+                      ) : (
+                        <span className="grid h-[4.5rem] w-[4.5rem] shrink-0 place-items-center bg-ink font-display text-2xl font-bold text-signal" aria-hidden>
+                          {initials}
+                        </span>
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-brand">{pick(lang, l.designationEn, l.designationHi)}</p>
+                        <p className="mt-0.5 font-display text-[1.4rem] font-semibold leading-tight">{pick(lang, l.nameEn, l.nameHi)}</p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </Panel>
+
+            <Panel title={t("home.news_title")}>
+              {events.upcoming.length > 0 && (
+                <div className="border-b border-line bg-paper px-5 py-4">
+                  <p className="text-sm font-semibold text-brand">{t("home.events_title")}</p>
+                  <ul className="mt-2 space-y-1.5">
+                    {events.upcoming.map((e) => (
+                      <li key={e.id} className="text-[0.98rem]">
+                        <span className="font-medium">{evDate(e.startsAt)}</span> · {pick(lang, e.titleEn, e.titleHi)}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href={`/${lang}/events`} className="mt-2 inline-block text-sm font-medium text-brand hover:underline">
+                    {ui.viewAll} →
+                  </Link>
+                </div>
+              )}
+              <ul className="divide-y divide-line">
+                {news.map((p) => {
+                  const d = dateParts(p.publishedAt, lang);
+                  return (
+                    <li key={p.id}>
+                      <Link href={`/${lang}/orders/${p.id}`} className="group block px-5 py-3.5 hover:bg-paper">
+                        <span className="block text-xs text-muted">
+                          {d.day} {d.month} {d.year}
+                        </span>
+                        <span className="line-clamp-2 text-[0.98rem] font-medium leading-snug group-hover:text-brand">{pick(lang, p.titleEn, p.titleHi)}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </Panel>
+          </div>
+        </div>
+      </section>
+
+      {/* DIVISIONS */}
       <section className="bg-white py-14 lg:py-16">
         <div className={wrap}>
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-            <h2 className={h2}>{t("home.services_title")}</h2>
-            <p className="max-w-[34ch] text-muted">{t("home.services_sub")}</p>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className={h2}>{t("home.divisions_title")}</h2>
+              <div className="rule mt-4" />
+              <p className="mt-4 max-w-[52ch] text-muted">{t("home.divisions_sub")}</p>
+            </div>
+            {more("/divisions")}
           </div>
-          <div className="grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
-            {quick.map((q) => (
-              <Link key={q.id} href={`/${lang}${q.href}`} className="group flex items-center gap-4 bg-white px-6 py-5 transition hover:bg-paper">
-                <Icon name={q.icon} size={26} className="shrink-0 text-brand" />
-                <span className="text-[1.08rem] font-medium leading-snug">{pick(lang, q.labelEn, q.labelHi)}</span>
-                <span className="ml-auto text-lg text-muted transition group-hover:translate-x-1 group-hover:text-brand">→</span>
-              </Link>
+          <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {divisions.map((d) => (
+              <DivisionCard key={d.slug} d={d} lang={lang} labels={labels} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* NOTICES */}
-      <section className="py-16 lg:py-20">
-        <div className={`${wrap} grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16`}>
-          <div>
-            <h2 className={h2}>{t("home.latest_title")}</h2>
-            <p className="mt-4 max-w-[30ch] text-muted">{t("home.latest_sub")}</p>
-            <Link href={`/${lang}/orders`} className="mt-6 inline-block border-b border-signal pb-0.5 font-medium tracking-[0.02em] hover:text-brand">
-              {ui.viewAll} →
-            </Link>
-          </div>
-          <ul className="border-t border-ink">
-            {latest.map((p) => {
-              const d = dateParts(p.publishedAt, lang);
-              return (
-                <li key={p.id} className="grid grid-cols-[4rem_1fr] items-baseline gap-x-5 gap-y-1.5 border-b border-line py-4 sm:grid-cols-[4.5rem_1fr_auto]">
-                  <time dateTime={p.publishedAt} className="font-display text-[1.45rem] font-bold leading-none text-brand">
-                    {d.day} {d.month}
-                    <span className="mt-1 block font-sans text-xs font-normal tracking-[0.04em] text-muted">{d.year}</span>
-                  </time>
-                  <Link href={`/${lang}/orders/${p.id}`} className="text-[1.05rem] font-medium leading-snug hover:text-brand">
-                    {pick(lang, p.titleEn, p.titleHi)}
-                  </Link>
-                  <Link href={`/${lang}/orders/${p.id}`} className="col-start-2 w-fit border-b border-signal pb-0.5 text-sm font-medium tracking-[0.02em] hover:text-brand sm:col-start-3">
-                    {p.files > 0 ? ui.download : ui.read}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </section>
-
-      {/* UPCOMING EVENTS (only when there are some) */}
-      {events.upcoming.length > 0 && (
+      {/* PHOTOS (only when photos have been uploaded from the admin panel) */}
+      {photos.length > 0 && (
         <section className="py-14 lg:py-16">
           <div className={wrap}>
-            <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <h2 className={h2}>{t("home.events_title")}</h2>
-                <p className="mt-2 text-muted">{t("home.events_sub")}</p>
-              </div>
-              <Link href={`/${lang}/events`} className="border-b border-signal pb-0.5 font-medium tracking-[0.02em] hover:text-brand">
-                {ui.viewAll} →
-              </Link>
-            </div>
-            <div className="grid gap-x-10 gap-y-8 md:grid-cols-3">
-              {events.upcoming.map((e) => (
-                <article key={e.id} className="border-t border-ink pt-5">
-                  <p className="font-display text-xl font-bold text-brand">
-                    {new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "long", timeZone: "Asia/Kolkata" }).format(new Date(e.startsAt))}
-                  </p>
-                  <h3 className="mt-1 text-[1.5rem] leading-tight">{pick(lang, e.titleEn, e.titleHi)}</h3>
-                  <p className="mt-2 text-muted">{pick(lang, e.venueEn, e.venueHi)}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* PHOTOS FROM THE FIELD (only when photos have been uploaded from the admin panel) */}
-      {photos.length > 0 && (
-        <section className="bg-white py-14 lg:py-16">
-          <div className={wrap}>
-            <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className={h2}>{t("home.photos_title")}</h2>
                 <p className="mt-2 text-muted">{t("home.photos_sub")}</p>
               </div>
-              <Link href={`/${lang}/gallery`} className="border-b border-signal pb-0.5 font-medium tracking-[0.02em] hover:text-brand">
-                {ui.viewAll} →
-              </Link>
+              {more("/gallery")}
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {photos.map((p, i) => (
@@ -224,67 +244,29 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         </section>
       )}
 
-      {/* DIVISIONS */}
-      <section className="bg-ink py-16 text-light lg:py-20">
-        <div className={wrap}>
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-            <h2 className={h2}>{t("home.divisions_title")}</h2>
-            <p className="max-w-[36ch] text-dim">{t("home.divisions_sub")}</p>
-          </div>
-          <div className="grid border-t border-[#34363c] sm:grid-cols-2 lg:grid-cols-3">
-            {divisions.map((d) => (
-              <Link
-                key={d.slug}
-                href={`/${lang}/divisions/${d.slug}`}
-                className="group border-b border-[#34363c] py-7 pr-6 transition hover:bg-white/[0.03] sm:border-r sm:pl-8 sm:[&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n+1)]:pl-0 lg:[&:nth-child(2n)]:border-r lg:[&:nth-child(2n+1)]:pl-8 lg:[&:nth-child(3n)]:border-r-0 lg:[&:nth-child(3n+1)]:pl-0"
-              >
-                <h3 className="text-[1.9rem] leading-none group-hover:text-soft">{pick(lang, d.nameEn, d.nameHi)}</h3>
-                {d.nameHi && <p className="mt-1.5 text-dim">{lang === "hi" ? d.nameEn : d.nameHi}</p>}
+      {/* GRIEVANCE | JOIN: the only place on the page that asks the visitor to act */}
+      <section className="bg-ink py-14 text-light lg:py-16">
+        <div className={`${wrap} grid gap-10 md:grid-cols-2 md:gap-0`}>
+          <div className="md:pr-12">
+            <h2 className="text-[1.9rem] leading-tight">{t("home.grievance_title")}</h2>
+            <p className="mt-3 max-w-[40ch] text-light/80">{t("home.grievance_text")}</p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href={`/${lang}/grievance`} className="btn-gold">
+                {t("grievance.title")}
               </Link>
-            ))}
+              <Link href={`/${lang}/grievance/track`} className="btn-ghost">
+                {ui.gTrackTitle}
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
-
-      {/* LEADERSHIP */}
-      <section className="bg-white py-14 lg:py-16">
-        <div className={wrap}>
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-            <h2 className={h2}>{t("home.leaders_title")}</h2>
-            <Link href={`/${lang}/officials`} className="border-b border-signal pb-0.5 font-medium tracking-[0.02em] hover:text-brand">
-              {ui.viewAll} →
-            </Link>
-          </div>
-          <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
-            {leaders.map((l) => (
-              <article key={l.id} className="flex gap-5 border-t border-ink pt-5">
-                {l.photoUrl && <Image src={l.photoUrl} alt="" width={96} height={96} className="h-24 w-24 shrink-0 object-cover" />}
-                <div>
-                  <p className="text-base font-medium text-brand">{pick(lang, l.designationEn, l.designationHi)}</p>
-                  <h3 className="mt-1.5 text-[1.8rem] leading-[1.1]">{pick(lang, l.nameEn, l.nameHi)}</h3>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* JOIN */}
-      <section className="relative isolate overflow-hidden bg-ink py-20 text-light lg:py-24">
-        {ctaImage && <Image src={ctaImage} alt="" fill sizes="100vw" className="-z-10 object-cover" />}
-        <div className="absolute inset-0 -z-10 bg-ink/70" />
-        <div className={`${wrap} grid items-end gap-10 lg:grid-cols-[1.2fr_0.8fr]`}>
-          <div>
-            <h2 className={h2}>{t("home.cta_title")}</h2>
-            <p className="mt-4 max-w-[44ch] text-lg text-light/80">{t("home.cta_text")}</p>
-          </div>
-          <div className="flex flex-wrap gap-3.5 lg:justify-end">
-            <Link href={`/${lang}/join`} className="btn-gold">
-              {t("cta.join")}
-            </Link>
-            <Link href={`/${lang}/orders`} className="btn-ghost">
-              {ui.searchOrders}
-            </Link>
+          <div className="border-t border-white/15 pt-10 md:border-l md:border-t-0 md:pl-12 md:pt-0">
+            <h2 className="text-[1.9rem] leading-tight">{t("home.join_title")}</h2>
+            <p className="mt-3 max-w-[40ch] text-light/80">{t("home.join_text")}</p>
+            <div className="mt-6">
+              <Link href={`/${lang}/join`} className="btn-gold">
+                {t("cta.join")}
+              </Link>
+            </div>
           </div>
         </div>
       </section>

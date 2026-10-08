@@ -44,9 +44,74 @@
     "hi": "आगामी कार्यक्रम",
     "group": "home"
   },
-  "home.events_sub": {
-    "en": "Meetings and programmes you can attend.",
-    "hi": "बैठकें और कार्यक्रम जिनमें आप शामिल हो सकते हैं।",
+  "hero.search_title": {
+    "en": "Find an order or circular",
+    "hi": "आदेश या परिपत्र खोजें",
+    "group": "hero"
+  },
+  "home.notice_title": {
+    "en": "Notice board",
+    "hi": "सूचना पट्ट",
+    "group": "home"
+  },
+  "home.news_title": {
+    "en": "Highlights",
+    "hi": "मुख्य समाचार",
+    "group": "home"
+  },
+  "home.leaders_card": {
+    "en": "Our leaders",
+    "hi": "हमारे नेतृत्वकर्ता",
+    "group": "home"
+  },
+  "footer.important_links": {
+    "en": "Important links",
+    "hi": "महत्वपूर्ण लिंक",
+    "group": "footer"
+  },
+  "config.news.category": {
+    "en": "featured-1",
+    "hi": "featured-1",
+    "group": "config"
+  },
+  "contact.phone": {
+    "en": "",
+    "hi": "",
+    "group": "contact"
+  },
+  "contact.email": {
+    "en": "",
+    "hi": "",
+    "group": "contact"
+  },
+  "contact.address": {
+    "en": "",
+    "hi": "",
+    "group": "contact"
+  },
+  "contact.hours": {
+    "en": "",
+    "hi": "",
+    "group": "contact"
+  },
+  "home.grievance_title": {
+    "en": "Have a problem at work?",
+    "hi": "काम पर कोई समस्या है?",
+    "group": "home"
+  },
+  "home.grievance_text": {
+    "en": "Raise a grievance. It reaches your division and is passed up if no one acts on it.",
+    "hi": "शिकायत दर्ज करें। वह आपके मंडल तक पहुँचती है और कार्यवाही न होने पर आगे भेज दी जाती है।",
+    "group": "home"
+  },
+  "home.join_title": {
+    "en": "Join the union",
+    "hi": "यूनियन से जुड़ें",
+    "group": "home"
+  },
+  "home.join_text": {
+    "en": "Become a member, stay informed and make your voice count.",
+    "hi": "सदस्य बनें, जानकारी से जुड़े रहें और अपनी आवाज़ मज़बूत करें।",
     "group": "home"
   }
 }

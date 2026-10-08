@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import PageFallback from "@/components/PageFallback";
 import type { Metadata } from "next";
 import Icon from "@/components/Icon";
 import PageHero from "@/components/PageHero";
+import PageTools from "@/components/PageTools";
 import SafeHtml from "@/components/SafeHtml";
 import { isLang, locales } from "@/lib/i18n";
 import { getPost, getRecentPostIds } from "@/lib/content";
@@ -31,7 +34,15 @@ const fileName = (url: string) => {
   }
 };
 
-export default async function OrderPage({ params }: Props) {
+export default function OrderPage({ params }: Props) {
+  return (
+    <Suspense fallback={<PageFallback />}>
+      <OrderPageContent params={params} />
+    </Suspense>
+  );
+}
+
+async function OrderPageContent({ params }: Props) {
   const { lang, id } = await params;
   if (!isLang(lang) || !/^\d+$/.test(id)) notFound();
   const [post, ordersTitle] = await Promise.all([getPost(Number(id)), navTitle(lang, "/orders")]);
@@ -75,6 +86,7 @@ export default async function OrderPage({ params }: Props) {
               </ul>
             </div>
           )}
+          <PageTools print={ui.print} share={ui.share} copied={ui.copied} />
           <Link href={`/${lang}/orders`} className="block rounded-full border-2 border-ink px-5 py-2.5 text-center font-bold hover:bg-ink hover:text-white">
             ← {ui.backToOrders}
           </Link>

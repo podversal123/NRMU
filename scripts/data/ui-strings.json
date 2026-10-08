@@ -1,8 +1,4 @@
 {
-  "address": {
-    "en": "Address",
-    "hi": "पता"
-  },
   "allCategories": {
     "en": "All categories",
     "hi": "सभी श्रेणियाँ"
@@ -38,10 +34,6 @@
   "clear": {
     "en": "Clear filters",
     "hi": "फ़िल्टर हटाएँ"
-  },
-  "contrast": {
-    "en": "High contrast",
-    "hi": "उच्च कंट्रास्ट"
   },
   "download": {
     "en": "Download",
@@ -115,10 +107,6 @@
     "en": "Home",
     "hi": "मुख्य पृष्ठ"
   },
-  "live": {
-    "en": "LIVE",
-    "hi": "लाइव"
-  },
   "menu": {
     "en": "Menu",
     "hi": "मेनू"
@@ -130,10 +118,6 @@
   "noItems": {
     "en": "Nothing here yet.",
     "hi": "अभी यहाँ कुछ नहीं है।"
-  },
-  "noPhoto": {
-    "en": "Photo not available",
-    "hi": "फ़ोटो उपलब्ध नहीं"
   },
   "noResults": {
     "en": "No orders found",
@@ -170,10 +154,6 @@
   "previous": {
     "en": "Previous",
     "hi": "पिछला"
-  },
-  "read": {
-    "en": "Read",
-    "hi": "पढ़ें"
   },
   "result": {
     "en": "result",
@@ -227,10 +207,6 @@
     "en": "Thank you!",
     "hi": "धन्यवाद!"
   },
-  "update": {
-    "en": "Update",
-    "hi": "सूचना"
-  },
   "viewAll": {
     "en": "View all",
     "hi": "सभी देखें"
@@ -258,14 +234,6 @@
   "pagination": {
     "en": "Pagination",
     "hi": "पृष्ठ क्रम"
-  },
-  "when": {
-    "en": "When",
-    "hi": "कब"
-  },
-  "where": {
-    "en": "Where",
-    "hi": "कहाँ"
   },
   "agenda": {
     "en": "Agenda",
@@ -382,5 +350,29 @@
   "errTicket": {
     "en": "Enter the ticket number and the mobile number.",
     "hi": "टिकट नंबर और मोबाइल नंबर लिखें।"
+  },
+  "lastUpdated": {
+    "en": "Last updated",
+    "hi": "अंतिम अद्यतन"
+  },
+  "visitors": {
+    "en": "Visitors",
+    "hi": "आगंतुक"
+  },
+  "print": {
+    "en": "Print",
+    "hi": "प्रिंट करें"
+  },
+  "share": {
+    "en": "Copy link",
+    "hi": "लिंक कॉपी करें"
+  },
+  "copied": {
+    "en": "Link copied",
+    "hi": "लिंक कॉपी हो गया"
+  },
+  "sitemapTitle": {
+    "en": "Sitemap",
+    "hi": "साइट मैप"
   }
 }

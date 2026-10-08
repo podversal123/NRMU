@@ -5,7 +5,7 @@ import "../globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { isLang, locales } from "@/lib/i18n";
-import { getNav, getSettings, pick, setting, getUi } from "@/lib/queries";
+import { getMenu, getSettings, pick, setting, getUi } from "@/lib/queries";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -44,21 +44,25 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   const { lang } = await params;
   if (!isLang(lang)) notFound();
   const t = await getUi(lang);
-  const [s, nav] = await Promise.all([getSettings(), getNav("header")]);
+  const [s, menuTree] = await Promise.all([getSettings(), getMenu()]);
 
-  const items = nav.map((n) => ({
-    href: `/${lang}${n.href}`,
-    label: pick(lang, n.labelEn, n.labelHi),
+  const menu = menuTree.map((m) => ({
+    id: m.id,
+    href: m.href,
+    label: pick(lang, m.labelEn, m.labelHi),
+    children: m.children.map((c) => ({ href: c.href, label: pick(lang, c.labelEn, c.labelHi) })),
   }));
+  const other = lang === "en" ? "hi" : "en";
 
   return (
     <html lang={lang} className={`${cormorant.variable} ${jost.variable} ${tiro.variable} ${mono.variable} antialiased`}>
       <body className="flex min-h-screen flex-col">
         <Header
           lang={lang}
+          orgName={setting(s, "org.name", lang)}
+          orgAltName={setting(s, "org.name", other)}
           orgShort={setting(s, "org.short", lang)}
-          city={setting(s, "org.city", lang)}
-          items={items}
+          menu={menu}
           join={setting(s, "cta.join", lang)}
           labels={{
             skip: t.skip,

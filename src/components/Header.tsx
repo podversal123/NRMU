@@ -5,8 +5,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-type Item = { href: string; label: string };
-type Labels = { skip: string; textSize: string; textSmaller: string; textDefault: string; textLarger: string; menu: string; search: string; langSwitch: string; navPrimary: string; navMobile: string };
+type Child = { href: string; label: string };
+export type MenuNode = { id: number; href: string; label: string; children: Child[] };
+type Labels = {
+  skip: string; textSize: string; textSmaller: string; textDefault: string; textLarger: string;
+  menu: string; search: string; langSwitch: string; navPrimary: string; navMobile: string;
+};
 
 const SIZES = [92, 100, 112, 125];
 const read = (k: string) => {
@@ -23,47 +27,39 @@ const write = (k: string, v: string) => {
 };
 
 /**
- * Fixed header. On the home page it floats transparently over the full-screen banner and turns solid
- * once the page is scrolled; on every other page it is solid. The thin top strip holds accessibility
- * controls (text size) and the language switch.
+ * Three bands, like a government portal: a thin utility bar (date, text size, language), the
+ * organisation name, and a sticky menu bar with dropdowns. The menu bar slides away while the
+ * full-screen footer is in view.
  */
 export default function Header({
   lang,
+  orgName,
+  orgAltName,
   orgShort,
-  city,
-  items,
+  menu,
   join,
   labels,
 }: {
   lang: "en" | "hi";
+  orgName: string;
+  orgAltName: string;
   orgShort: string;
-  city: string;
-  items: Item[];
+  menu: MenuNode[];
   join: string;
   labels: Labels;
 }) {
   const pathname = usePathname();
-  const isHome = pathname === `/${lang}`;
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [size, setSize] = useState(1);
   const [atFooter, setAtFooter] = useState(false);
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const tick = () => setNow(new Date());
+    tick();
+    const t = setInterval(tick, 30000);
+    return () => clearInterval(t);
   }, []);
-
-  // The footer fills the whole screen, so the navigation bar slides away while it is in view.
-  useEffect(() => {
-    const footer = document.getElementById("site-footer");
-    if (!footer) return;
-    const io = new IntersectionObserver(([e]) => setAtFooter(e.isIntersecting), { threshold: 0.2 });
-    io.observe(footer);
-    return () => io.disconnect();
-  }, [pathname]);
 
   useEffect(() => {
     const s = Number(read("nrmu-size"));
@@ -75,25 +71,42 @@ export default function Header({
     write("nrmu-size", String(size));
   }, [size]);
 
-  const solid = !isHome || scrolled || open;
+  useEffect(() => {
+    const footer = document.getElementById("site-footer");
+    if (!footer) return;
+    const io = new IntersectionObserver(([e]) => setAtFooter(e.isIntersecting), { threshold: 0.2 });
+    io.observe(footer);
+    return () => io.disconnect();
+  }, [pathname]);
+
   const other = lang === "en" ? "hi" : "en";
   const swapped = pathname.replace(/^\/(en|hi)(?=\/|$)/, `/${other}`);
-  const isActive = (href: string) => (href === `/${lang}` ? pathname === href : pathname.startsWith(href));
-  const sizeBtn = "grid h-6 min-w-6 place-items-center rounded px-1 text-xs font-semibold text-light/80 hover:bg-white/10 hover:text-signal";
+  const full = (href: string) => `/${lang}${href}`;
+  const isActive = (href: string) => {
+    if (href === "#") return false;
+    const p = href.split("?")[0];
+    return p === "" ? pathname === `/${lang}` : pathname.startsWith(full(p));
+  };
+  const sizeBtn = "grid h-6 min-w-6 place-items-center px-1 text-xs font-semibold text-light/85 hover:text-signal";
+  const dateText = now
+    ? new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "full", timeStyle: "short", timeZone: "Asia/Kolkata" }).format(now)
+    : "";
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-40 text-light transition-[background-color,transform] duration-300 ${atFooter && !open ? "-translate-y-full" : "translate-y-0"} ${
-        solid ? "border-b border-[#2b2d33] bg-ink/95 backdrop-blur" : "border-b border-transparent bg-gradient-to-b from-ink/90 via-ink/55 to-transparent [text-shadow:0_1px_8px_rgba(0,0,0,0.55)]"
-      }`}
-    >
-      <div className={`overflow-hidden transition-all duration-300 ${scrolled ? "max-h-0 opacity-0" : "max-h-10 opacity-100"}`}>
-        <div className="mx-auto flex h-9 max-w-[1320px] items-center justify-between gap-3 px-5 text-xs sm:px-8">
-          <a href="#main" className="font-medium text-soft underline-offset-2 hover:underline">
-            {labels.skip}
-          </a>
+    <>
+      {/* 1. utility bar */}
+      <div className="bg-ink text-light">
+        <div className="mx-auto flex h-9 max-w-[1180px] items-center justify-between gap-3 px-5 text-xs sm:px-8">
+          <div className="flex items-center gap-5">
+            <a href="#main" className="font-medium text-soft underline-offset-2 hover:underline">
+              {labels.skip}
+            </a>
+            <span className="hidden text-light/70 md:inline" suppressHydrationWarning>
+              {dateText}
+            </span>
+          </div>
           <div className="flex items-center gap-1.5">
-            <span className="hidden text-dim sm:inline">{labels.textSize}</span>
+            <span className="hidden text-light/70 sm:inline">{labels.textSize}</span>
             <button className={sizeBtn} aria-label={labels.textSmaller} onClick={() => setSize((s) => Math.max(0, s - 1))}>
               A−
             </button>
@@ -110,7 +123,7 @@ export default function Header({
               onClick={() => {
                 document.cookie = `nrmu-lang=${other}; path=/; max-age=31536000`;
               }}
-              className="rounded px-2 py-0.5 font-semibold text-light hover:text-signal"
+              className="px-2 py-0.5 font-semibold text-light hover:text-signal"
             >
               {labels.langSwitch}
             </a>
@@ -118,62 +131,134 @@ export default function Header({
         </div>
       </div>
 
-      <div className="mx-auto flex h-[4.25rem] max-w-[1320px] items-center justify-between gap-6 px-5 sm:px-8">
-        <Link href={`/${lang}`} className="flex items-center gap-3.5" aria-label={orgShort}>
-          <Image src="/logo.jpg" alt="" width={46} height={46} priority className="h-[2.9rem] w-[2.9rem] rounded-full" />
-          <span className="leading-none">
-            <b className="block font-display text-[1.7rem] font-bold tracking-[0.04em]">{orgShort}</b>
-            <small className="mt-1 block text-xs font-medium uppercase tracking-[0.08em] text-soft">{city}</small>
-          </span>
-        </Link>
-
-        <nav aria-label={labels.navPrimary} className="hidden items-center gap-6 text-[0.95rem] font-medium tracking-[0.02em] min-[1340px]:flex">
-          {items.map((it) => (
-            <Link
-              key={it.href}
-              href={it.href}
-              aria-current={isActive(it.href) ? "page" : undefined}
-              className={`transition ${isActive(it.href) ? "text-soft opacity-100" : "opacity-85 hover:text-soft hover:opacity-100"}`}
-            >
-              {it.label}
-            </Link>
-          ))}
-          <Link href={`/${lang}/join`} className="rounded-full bg-signal px-5 py-2.5 font-semibold text-ink hover:bg-soft">
+      {/* 2. organisation name */}
+      <div className="border-b border-line bg-white">
+        <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-6 px-5 py-4 sm:px-8">
+          <Link href={`/${lang}`} className="flex items-center gap-4" aria-label={orgName}>
+            <Image src="/logo.jpg" alt="" width={72} height={72} priority className="h-14 w-14 rounded-full sm:h-[4.5rem] sm:w-[4.5rem]" />
+            <span className="leading-tight">
+              <b className="block font-display text-[1.45rem] font-bold sm:text-[2.1rem]">{orgName}</b>
+              <span className="block text-sm text-muted sm:text-base">{orgAltName}</span>
+            </span>
+          </Link>
+          <Link href={full("/join")} className="btn-gold hidden shrink-0 lg:inline-block">
             {join}
           </Link>
-        </nav>
-
-        <button
-          className="grid h-11 w-11 place-items-center rounded-full border border-[#55585e] min-[1340px]:hidden"
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          aria-label={labels.menu}
-          onClick={() => setOpen((o) => !o)}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none">
-            {open ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 8h16M4 16h16" />}
-          </svg>
-        </button>
+          <span className="sr-only">{orgShort}</span>
+        </div>
       </div>
 
-      {open && (
-        <nav id="mobile-nav" aria-label={labels.navMobile} className="border-t border-[#2b2d33] bg-ink min-[1340px]:hidden">
-          <ul className="mx-auto max-w-[1180px] px-5 pb-6 pt-2 sm:px-8">
-            {items.map((it) => (
-              <li key={it.href}>
-                <Link href={it.href} onClick={() => setOpen(false)} className="block border-b border-[#2b2d33] py-3.5 text-[1.05rem]">
-                  {it.label}
-                </Link>
+      {/* 3. menu bar */}
+      <nav
+        aria-label={labels.navPrimary}
+        className={`sticky top-0 z-40 bg-ink text-light transition-transform duration-300 ${atFooter && !open ? "-translate-y-full" : "translate-y-0"}`}
+      >
+        <div className="mx-auto flex max-w-[1180px] items-center justify-between px-5 sm:px-8">
+          <ul className="hidden items-stretch lg:flex">
+            {menu.map((m) => (
+              <li key={m.id} className="group relative">
+                {m.href === "#" ? (
+                  <span tabIndex={0} className="flex h-12 cursor-default items-center gap-1.5 px-4 text-[0.95rem] font-medium hover:text-soft focus:text-soft">
+                    {m.label}
+                    <Caret />
+                  </span>
+                ) : (
+                  <Link
+                    href={full(m.href)}
+                    aria-current={isActive(m.href) ? "page" : undefined}
+                    className={`flex h-12 items-center gap-1.5 border-b-2 px-4 text-[0.95rem] font-medium hover:text-soft ${isActive(m.href) ? "border-signal text-soft" : "border-transparent"}`}
+                  >
+                    {m.label}
+                    {m.children.length > 0 && <Caret />}
+                  </Link>
+                )}
+                {m.children.length > 0 && (
+                  <ul className="invisible absolute left-0 top-full z-50 min-w-[16rem] border border-line bg-white py-2 text-ink opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                    {m.children.map((c) => (
+                      <li key={c.href}>
+                        <Link href={full(c.href)} className="block px-5 py-2.5 text-[0.95rem] hover:bg-paper hover:text-brand">
+                          {c.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
-            <li>
-              <Link href={`/${lang}/join`} onClick={() => setOpen(false)} className="mt-5 inline-block rounded-full bg-signal px-6 py-3 font-semibold text-ink">
-                {join}
-              </Link>
-            </li>
           </ul>
-        </nav>
-      )}
-    </header>
+
+          <button
+            className="flex h-12 items-center gap-2 text-[0.95rem] font-medium lg:hidden"
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            onClick={() => setOpen((o) => !o)}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none" aria-hidden>
+              {open ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            </svg>
+            {labels.menu}
+          </button>
+
+          <div className="flex items-center gap-1">
+            <Link href={full("/orders")} aria-label={labels.search} className="grid h-12 w-12 place-items-center hover:text-soft">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.5-3.5" />
+              </svg>
+            </Link>
+            <Link href={full("/join")} className="btn-gold !px-4 !py-1.5 text-sm lg:hidden">
+              {join}
+            </Link>
+          </div>
+        </div>
+
+        {open && (
+          <div id="mobile-nav" aria-label={labels.navMobile} className="border-t border-[#2b2d33] lg:hidden">
+            <ul className="mx-auto max-w-[1180px] px-5 pb-5 sm:px-8">
+              {menu.map((m) => (
+                <li key={m.id} className="border-b border-[#2b2d33]">
+                  {m.children.length === 0 ? (
+                    <Link href={full(m.href)} onClick={() => setOpen(false)} className="block py-3.5 text-[1.05rem]">
+                      {m.label}
+                    </Link>
+                  ) : (
+                    <details>
+                      <summary className="flex cursor-pointer list-none items-center justify-between py-3.5 text-[1.05rem]">
+                        {m.label}
+                        <Caret />
+                      </summary>
+                      <ul className="pb-3 pl-4">
+                        {m.href !== "#" && (
+                          <li>
+                            <Link href={full(m.href)} onClick={() => setOpen(false)} className="block py-2 text-light/80">
+                              {m.label}
+                            </Link>
+                          </li>
+                        )}
+                        {m.children.map((c) => (
+                          <li key={c.href}>
+                            <Link href={full(c.href)} onClick={() => setOpen(false)} className="block py-2 text-light/80">
+                              {c.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </nav>
+    </>
+  );
+}
+
+function Caret() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+      <path d="m2 3.5 3 3 3-3" />
+    </svg>
   );
 }

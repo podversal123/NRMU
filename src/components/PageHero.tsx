@@ -22,7 +22,7 @@ export default async function PageHero({
       <section className="relative isolate overflow-hidden bg-ink text-light">
         {image && <Image src={image} alt="" fill priority sizes="100vw" className="-z-10 object-cover object-[50%_58%]" />}
         <div className="absolute inset-0 -z-10 bg-ink/75" />
-        <div className="mx-auto max-w-[1180px] px-5 pb-14 pt-36 sm:px-8 sm:pb-16 sm:pt-40">
+        <div className="mx-auto max-w-[1180px] px-5 pb-12 pt-12 sm:px-8 sm:pb-14 sm:pt-14">
           {crumbs && (
             <nav aria-label={ui.breadcrumb} className="mb-5 flex flex-wrap items-center gap-2 text-sm tracking-[0.02em] text-light/70">
               {crumbs.map((c, i) => (

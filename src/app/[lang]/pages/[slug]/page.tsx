@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import PageFallback from "@/components/PageFallback";
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import SafeHtml from "@/components/SafeHtml";
@@ -21,11 +23,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /** Any static page stored in the database (handbooks, results, committee lists …). */
-export default async function StaticPage({ params }: Props) {
+export default function StaticPage({ params }: Props) {
+  return (
+    <Suspense fallback={<PageFallback />}>
+      <StaticPageContent params={params} />
+    </Suspense>
+  );
+}
+
+async function StaticPageContent({ params }: Props) {
   const { lang, slug } = await params;
   if (!isLang(lang)) notFound();
   const page = await getPage(slug);
-  if (!page) notFound();
+  if (!page || !page.contentHtml.trim()) notFound();
   const ui = await getUi(lang);
   const title = pick(lang, page.titleEn, page.titleHi);
   return (

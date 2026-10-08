@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   customType,
   date,
   index,
@@ -172,20 +173,12 @@ export const siteSettings = pgTable("site_settings", {
 
 export const navItems = pgTable("nav_items", {
   id: serial("id").primaryKey(),
-  area: text("area").notNull(), // header | footer
+  area: text("area").notNull(), // header | footer | links (important links, may be external) | policy
+  /** A menu item with a parent appears in that item's dropdown. */
+  parentId: integer("parent_id").references((): AnyPgColumn => navItems.id, { onDelete: "cascade" }),
   labelEn: text("label_en").notNull(),
   labelHi: text("label_hi"),
   href: text("href").notNull(), // path without language prefix
-  sort: integer("sort").notNull().default(0),
-  active: boolean("active").notNull().default(true),
-});
-
-export const quickLinks = pgTable("quick_links", {
-  id: serial("id").primaryKey(),
-  labelEn: text("label_en").notNull(),
-  labelHi: text("label_hi"),
-  href: text("href").notNull(),
-  icon: text("icon").notNull().default("doc"),
   sort: integer("sort").notNull().default(0),
   active: boolean("active").notNull().default(true),
 });
@@ -335,3 +328,9 @@ export const grievanceEvents = pgTable(
   },
   (t) => [index("grievance_events_idx").on(t.grievanceId, t.createdAt)],
 );
+
+/** Page views per day, for the visitor counter shown in the footer. */
+export const visitCounts = pgTable("visit_counts", {
+  day: date("day").primaryKey(),
+  visits: integer("visits").notNull().default(0),
+});
