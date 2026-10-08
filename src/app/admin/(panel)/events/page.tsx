@@ -4,6 +4,8 @@ import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { LinkButton, Notice, PageTitle, td, th } from "../../ui";
 
+// Always depends on the signed-in admin, so it is rendered per request.
+export const instant = false;
 export const metadata = { title: "Events" };
 
 export default async function EventsAdmin({ searchParams }: { searchParams: Promise<{ deleted?: string }> }) {

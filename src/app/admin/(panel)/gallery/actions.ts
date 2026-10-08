@@ -3,9 +3,9 @@
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
-import { del } from "@vercel/blob";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import { deleteBlobs, isOwnBlobUrl } from "@/lib/blob";
 
 const str = (f: FormData, k: string, max = 300) => String(f.get(k) ?? "").trim().slice(0, max);
 const roles = ["super_admin", "editor"] as const;
@@ -13,7 +13,7 @@ const date = (v: string) => (/^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
 
 export async function addPhotos(form: FormData) {
   await requireAdmin([...roles]);
-  const urls = form.getAll("photos").map(String).filter((u) => /^https:\/\//.test(u));
+  const urls = form.getAll("photos").map(String).filter(isOwnBlobUrl);
   if (!urls.length) redirect("/admin/gallery?error=none");
   const caption = str(form, "captionEn");
   const captionHi = str(form, "captionHi");
@@ -50,11 +50,7 @@ export async function deletePhoto(form: FormData) {
   const id = Number(form.get("id"));
   if (id) {
     const [row] = await getDb().delete(schema.galleryPhotos).where(eq(schema.galleryPhotos.id, id)).returning({ url: schema.galleryPhotos.url });
-    if (row?.url.includes("blob.vercel-storage.com")) {
-      try {
-        await del(row.url);
-      } catch {}
-    }
+    await deleteBlobs([row?.url]);
     updateTag("gallery");
   }
   redirect("/admin/gallery?deleted=1");

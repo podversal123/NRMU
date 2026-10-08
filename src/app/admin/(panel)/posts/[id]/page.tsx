@@ -8,6 +8,8 @@ import { DeleteButton, SubmitButton } from "../../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls } from "../../../ui";
 import { deletePost, savePost } from "../actions";
 
+// Always depends on the signed-in admin, so it is rendered per request.
+export const instant = false;
 export const metadata = { title: "Edit order / news" };
 
 export default async function EditPost({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
@@ -43,7 +45,7 @@ export default async function EditPost({ params, searchParams }: { params: Promi
           <Field label="Content" hint="Type plain text (blank line = new paragraph) or paste HTML.">
             <textarea name="content" rows={16} defaultValue={post?.contentHtml} className={`${inputCls} font-mono text-sm`} />
           </Field>
-          <UploadField name="files" label="Attachments (PDF, Word, Excel, images)" accept=".pdf,.doc,.docx,.xls,.xlsx,image/*" multiple folder="orders" initial={files.map((f) => f.url)} />
+          <UploadField name="files" label="Attachments (PDF, Word, Excel, images)" kind="any" multiple folder="orders" initial={files.map((f) => f.url)} />
         </Card>
         <div className="space-y-6">
           <Card className="space-y-5">

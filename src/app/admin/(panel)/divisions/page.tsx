@@ -4,6 +4,8 @@ import { getDb } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { LinkButton, PageTitle, td, th } from "../../ui";
 
+// Always depends on the signed-in admin, so it is rendered per request.
+export const instant = false;
 export const metadata = { title: "Divisions & branches" };
 
 export default async function DivisionsAdmin() {

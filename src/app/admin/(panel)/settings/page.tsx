@@ -6,6 +6,8 @@ import { SubmitButton } from "../../SubmitButton";
 import { Card, Notice, PageTitle, inputCls } from "../../ui";
 import { saveSettings } from "./actions";
 
+// Always depends on the signed-in admin, so it is rendered per request.
+export const instant = false;
 export const metadata = { title: "Site text" };
 
 const GROUP_LABEL: Record<string, string> = {
@@ -32,7 +34,7 @@ export default async function SettingsAdmin({ searchParams }: { searchParams: Pr
             <div className="mt-5 space-y-6">
               {items.map((r) =>
                 /[._]image$/.test(r.key) ? (
-                  <UploadField key={r.key} name={`img:${r.key}`} label={`${r.key} (replace the photo)`} accept="image/*" folder="site" initial={r.valueEn ? [r.valueEn] : []} />
+                  <UploadField key={r.key} name={`img:${r.key}`} label={`${r.key} (replace the photo)`} kind="image" folder="site" initial={r.valueEn ? [r.valueEn] : []} />
                 ) : (
                   <div key={r.key} className="grid gap-3 md:grid-cols-2">
                     <label className="block text-sm font-semibold">

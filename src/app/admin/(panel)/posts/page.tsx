@@ -4,6 +4,8 @@ import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { Notice, PageTitle, LinkButton, inputCls, td, th } from "../../ui";
 
+// Always depends on the signed-in admin, so it is rendered per request.
+export const instant = false;
 export const metadata = { title: "Orders & news" };
 const SIZE = 25;
 

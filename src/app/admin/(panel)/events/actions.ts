@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import { deleteBlobs } from "@/lib/blob";
 
 const str = (f: FormData, k: string, max = 300) => String(f.get(k) ?? "").trim().slice(0, max);
 /** The form sends local India time ("2026-11-02T10:30"); store it as a real point in time. */
@@ -33,8 +34,11 @@ export async function saveEvent(form: FormData) {
   };
   const db = getDb();
   let id = Number(idRaw);
-  if (id) await db.update(schema.events).set(values).where(eq(schema.events.id, id));
-  else id = (await db.insert(schema.events).values(values).returning({ id: schema.events.id }))[0].id;
+  if (id) {
+    const [before] = await db.select({ agendaUrl: schema.events.agendaUrl, minutesUrl: schema.events.minutesUrl }).from(schema.events).where(eq(schema.events.id, id)).limit(1);
+    await db.update(schema.events).set(values).where(eq(schema.events.id, id));
+    if (before) await deleteBlobs([before.agendaUrl !== values.agendaUrl && before.agendaUrl, before.minutesUrl !== values.minutesUrl && before.minutesUrl].map((u) => u || null));
+  } else id = (await db.insert(schema.events).values(values).returning({ id: schema.events.id }))[0].id;
   updateTag("events");
   redirect(`/admin/events/${id}?saved=1`);
 }
@@ -43,7 +47,8 @@ export async function deleteEvent(form: FormData) {
   await requireAdmin(["super_admin", "editor"]);
   const id = Number(form.get("id"));
   if (id) {
-    await getDb().delete(schema.events).where(eq(schema.events.id, id));
+    const [row] = await getDb().delete(schema.events).where(eq(schema.events.id, id)).returning({ agendaUrl: schema.events.agendaUrl, minutesUrl: schema.events.minutesUrl });
+    await deleteBlobs([row?.agendaUrl, row?.minutesUrl]);
     updateTag("events");
   }
   redirect("/admin/events?deleted=1");

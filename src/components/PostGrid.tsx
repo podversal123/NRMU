@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Photo from "@/components/Photo";
 import type { Lang } from "@/lib/i18n";
 import { formatDate, pick } from "@/lib/queries";
 import type { CardRow } from "@/lib/content";
@@ -14,8 +15,9 @@ export default function PostGrid({ rows, lang, photos = false }: { rows: CardRow
             className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-1 hover:border-ink hover:shadow-[0_8px_0_var(--ink)]"
           >
             {photos && p.thumbUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={p.thumbUrl} alt="" loading="lazy" className="aspect-[4/3] w-full bg-paper object-cover" />
+              <div className="relative aspect-[4/3] w-full bg-paper">
+                <Photo src={p.thumbUrl} alt="" fill sizes="(min-width: 1280px) 25vw, (min-width: 640px) 33vw, 100vw" className="object-cover" />
+              </div>
             )}
             <div className="flex flex-1 flex-col p-5">
               <p className="font-mono text-xs font-bold text-muted">{formatDate(p.publishedAt, lang)}</p>

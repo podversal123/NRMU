@@ -8,6 +8,8 @@ import { DeleteButton, SubmitButton } from "../../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls } from "../../../ui";
 import { deleteOfficial, saveOfficial } from "../actions";
 
+// Always depends on the signed-in admin, so it is rendered per request.
+export const instant = false;
 export const metadata = { title: "Edit office bearer" };
 
 export default async function EditOfficial({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
@@ -56,7 +58,7 @@ export default async function EditOfficial({ params, searchParams }: { params: P
           </Field>
           <Field label="Address" className="sm:col-span-2"><textarea name="addressEn" rows={3} defaultValue={person?.addressEn ?? ""} className={inputCls} /></Field>
           <Field label="Phone"><input name="phone" defaultValue={person?.phone ?? ""} className={inputCls} /></Field>
-          <div className="sm:col-span-2"><UploadField name="photo" label="Photo" accept="image/*" folder="officials" initial={person?.photoUrl ? [person.photoUrl] : []} /></div>
+          <div className="sm:col-span-2"><UploadField name="photo" label="Photo" kind="image" folder="officials" initial={person?.photoUrl ? [person.photoUrl] : []} /></div>
         </Card>
         <Card className="space-y-5">
           {admin.role !== "division_admin" && (

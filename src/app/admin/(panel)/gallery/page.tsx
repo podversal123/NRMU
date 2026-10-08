@@ -6,6 +6,8 @@ import { DeleteButton, SubmitButton } from "../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls } from "../../ui";
 import { addPhotos, deletePhoto, updatePhoto } from "./actions";
 
+// Always depends on the signed-in admin, so it is rendered per request.
+export const instant = false;
 export const metadata = { title: "Photo gallery" };
 const small = "w-full border-2 border-line bg-white px-2.5 py-1.5 text-sm focus:border-ink focus:outline-none";
 
@@ -24,7 +26,7 @@ export default async function GalleryAdmin({ searchParams }: { searchParams: Pro
       <Card>
         <h2 className="font-display text-2xl font-bold">Add photos</h2>
         <form action={addPhotos} className="mt-5 grid gap-5 lg:grid-cols-2">
-          <div className="lg:col-span-2"><UploadField name="photos" label="Photos (you can select many at once)" accept="image/*" multiple folder="gallery" /></div>
+          <div className="lg:col-span-2"><UploadField name="photos" label="Photos (you can select many at once)" kind="image" multiple folder="gallery" /></div>
           <Field label="Caption (English)" hint="Applied to all photos selected above. You can edit each one later."><input name="captionEn" className={inputCls} /></Field>
           <Field label="Caption (Hindi)"><input name="captionHi" className={inputCls} /></Field>
           <Field label="Date of event"><input type="date" name="takenOn" className={inputCls} /></Field>

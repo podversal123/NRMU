@@ -4,6 +4,8 @@ import { getDb } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { Card, PageTitle } from "../ui";
 
+// Always depends on the signed-in admin, so it is rendered per request.
+export const instant = false;
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ denied?: string }> }) {
   const admin = await requireAdmin();
   const sp = await searchParams;

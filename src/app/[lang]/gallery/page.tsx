@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import PageHero from "@/components/PageHero";
+import Photo from "@/components/Photo";
 import { isLang } from "@/lib/i18n";
 import { getGalleryPhotos } from "@/lib/content";
 import { formatDate, getSettings, pick, setting, getUi } from "@/lib/queries";
@@ -24,8 +25,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ lang: 
             {photos.map((p) => (
               <figure key={p.id} className="mb-4 break-inside-avoid overflow-hidden bg-white">
                 <a href={p.url} target="_blank" rel="noopener noreferrer">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.url} alt={pick(lang, p.captionEn, p.captionHi)} loading="lazy" className="w-full" />
+                  <Photo src={p.url} alt={pick(lang, p.captionEn, p.captionHi)} width={900} height={675} sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="h-auto w-full" />
                 </a>
                 {(p.captionEn || p.takenOn) && (
                   <figcaption className="border-t border-line px-4 py-3 text-sm">

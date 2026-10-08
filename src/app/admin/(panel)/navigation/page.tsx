@@ -5,6 +5,8 @@ import { SubmitButton } from "../../SubmitButton";
 import { Card, Notice, PageTitle, inputCls } from "../../ui";
 import { saveChips, saveNav } from "./actions";
 
+// Always depends on the signed-in admin, so it is rendered per request.
+export const instant = false;
 export const metadata = { title: "Menus & links" };
 const small = "w-full rounded-lg border-2 border-line bg-white px-2.5 py-1.5 text-sm focus:border-ink focus:outline-none";
 

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import { deleteBlobs } from "@/lib/blob";
 
 const str = (f: FormData, k: string, max = 300) => String(f.get(k) ?? "").trim().slice(0, max);
 
@@ -46,7 +47,9 @@ export async function saveOfficial(form: FormData) {
   let id = Number(idRaw);
   if (id) {
     const cond = admin.role === "division_admin" ? and(eq(schema.officeBearers.id, id), eq(schema.officeBearers.divisionId, admin.divisionId ?? -1)) : eq(schema.officeBearers.id, id);
+    const [before] = await db.select({ photoUrl: schema.officeBearers.photoUrl }).from(schema.officeBearers).where(cond).limit(1);
     await db.update(schema.officeBearers).set(values).where(cond);
+    if (before && before.photoUrl !== values.photoUrl) await deleteBlobs([before.photoUrl]);
   } else {
     const [row] = await db.insert(schema.officeBearers).values(values).returning({ id: schema.officeBearers.id });
     id = row.id;
@@ -61,7 +64,8 @@ export async function deleteOfficial(form: FormData) {
   const id = Number(form.get("id"));
   if (id) {
     const cond = admin.role === "division_admin" ? and(eq(schema.officeBearers.id, id), eq(schema.officeBearers.divisionId, admin.divisionId ?? -1)) : eq(schema.officeBearers.id, id);
-    await getDb().delete(schema.officeBearers).where(cond);
+    const [row] = await getDb().delete(schema.officeBearers).where(cond).returning({ photoUrl: schema.officeBearers.photoUrl });
+    await deleteBlobs([row?.photoUrl]);
     updateTag("officials");
     updateTag("divisions");
   }

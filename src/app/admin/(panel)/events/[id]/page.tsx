@@ -8,6 +8,8 @@ import { DeleteButton, SubmitButton } from "../../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls } from "../../../ui";
 import { deleteEvent, saveEvent } from "../actions";
 
+// Always depends on the signed-in admin, so it is rendered per request.
+export const instant = false;
 export const metadata = { title: "Edit event" };
 
 /** "2026-11-02T10:30" in India time, for the datetime field. */
@@ -41,8 +43,8 @@ export default async function EditEvent({ params, searchParams }: { params: Prom
           <Field label="Venue (Hindi)"><input name="venueHi" defaultValue={ev?.venueHi ?? ""} className={inputCls} /></Field>
           <Field label="Details (English)"><textarea name="descriptionEn" rows={5} defaultValue={ev?.descriptionEn ?? ""} className={inputCls} /></Field>
           <Field label="Details (Hindi)"><textarea name="descriptionHi" rows={5} defaultValue={ev?.descriptionHi ?? ""} className={inputCls} /></Field>
-          <UploadField name="agenda" label="Agenda (PDF)" accept=".pdf,.doc,.docx" folder="events" initial={ev?.agendaUrl ? [ev.agendaUrl] : []} />
-          <UploadField name="minutes" label="Minutes (PDF), add after the meeting" accept=".pdf,.doc,.docx" folder="events" initial={ev?.minutesUrl ? [ev.minutesUrl] : []} />
+          <UploadField name="agenda" label="Agenda (PDF)" kind="document" folder="events" initial={ev?.agendaUrl ? [ev.agendaUrl] : []} />
+          <UploadField name="minutes" label="Minutes (PDF), add after the meeting" kind="document" folder="events" initial={ev?.minutesUrl ? [ev.minutesUrl] : []} />
         </Card>
         <Card className="space-y-5">
           <Field label="Division" hint="Leave empty for an event of the whole union.">

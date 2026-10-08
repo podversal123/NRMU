@@ -4,6 +4,9 @@ import { Suspense } from "react";
 import { requireAdmin, type Role } from "@/lib/auth";
 import { logout } from "../login/actions";
 
+// The panel always depends on the signed-in admin, so it is rendered per request and has no static shell.
+export const instant = false;
+
 const NAV: { href: string; label: string; roles: Role[] }[] = [
   { href: "/admin", label: "Dashboard", roles: ["super_admin", "editor", "division_admin"] },
   { href: "/admin/posts", label: "Orders & news", roles: ["super_admin", "editor"] },

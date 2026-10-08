@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import { deleteBlobs } from "@/lib/blob";
 import { htmlToText, slugify, toHtml } from "@/lib/text";
 
 const str = (f: FormData, k: string, max = 500) => String(f.get(k) ?? "").trim().slice(0, max);
@@ -45,6 +46,7 @@ export async function savePost(form: FormData) {
     await db.insert(schema.posts).values({ ...values, id, slug: `${slugify(titleEn) || "post"}-${id}` });
   }
 
+  const before = await db.select({ url: schema.postFiles.url }).from(schema.postFiles).where(eq(schema.postFiles.postId, id));
   await db.delete(schema.postFiles).where(eq(schema.postFiles.postId, id));
   if (files.length) {
     await db.insert(schema.postFiles).values(
@@ -63,6 +65,9 @@ export async function savePost(form: FormData) {
     await db.insert(schema.postCategories).values(catIds.map((c) => ({ postId: id, categoryId: c }))).onConflictDoNothing();
   }
 
+  // Attachments taken out of the order are removed from storage, unless the text still shows them.
+  await deleteBlobs(before.map((f) => f.url).filter((u) => !files.includes(u) && !html.includes(u)));
+
   updateTag("posts");
   updateTag(`post-${id}`);
   redirect(`/admin/posts/${id}?saved=1`);
@@ -72,7 +77,9 @@ export async function deletePost(form: FormData) {
   await requireAdmin(["super_admin", "editor"]);
   const id = Number(form.get("id"));
   if (id) {
+    const files = await getDb().select({ url: schema.postFiles.url }).from(schema.postFiles).where(eq(schema.postFiles.postId, id));
     await getDb().delete(schema.posts).where(inArray(schema.posts.id, [id]));
+    await deleteBlobs(files.map((f) => f.url));
     updateTag("posts");
     updateTag(`post-${id}`);
   }

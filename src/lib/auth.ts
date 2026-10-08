@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 
@@ -51,6 +52,7 @@ export async function getAdmin(): Promise<AdminSession | null> {
   } catch {
     return null;
   }
+  await connection(); // the expiry check reads the clock, which must happen at request time
   if (!data.uid || data.exp < Date.now()) return null;
   const [u] = await getDb().select().from(schema.adminUsers).where(eq(schema.adminUsers.id, data.uid)).limit(1);
   if (!u || !u.active) return null;

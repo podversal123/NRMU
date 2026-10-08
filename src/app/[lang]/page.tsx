@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import Photo from "@/components/Photo";
 import { notFound } from "next/navigation";
 import DivisionCard from "@/components/DivisionCard";
 import Icon from "@/components/Icon";
@@ -228,9 +229,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {photos.map((p, i) => (
                 <figure key={p.id} className={`group relative overflow-hidden bg-ink ${i === 0 ? "col-span-2 row-span-2" : ""}`}>
-                  <div className={i === 0 ? "aspect-square" : "aspect-[4/3]"}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={p.url} alt={pick(lang, p.captionEn, p.captionHi)} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
+                  <div className={`relative ${i === 0 ? "aspect-square" : "aspect-[4/3]"}`}>
+                    <Photo src={p.url} alt={pick(lang, p.captionEn, p.captionHi)} fill sizes={i === 0 ? "(min-width: 640px) 50vw, 100vw" : "(min-width: 640px) 25vw, 50vw"} className="object-cover transition duration-500 group-hover:scale-[1.03]" />
                   </div>
                   {p.captionEn && (
                     <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 to-transparent px-4 pb-3 pt-10 text-sm text-light">

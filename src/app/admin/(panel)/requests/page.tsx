@@ -4,6 +4,8 @@ import { requireAdmin } from "@/lib/auth";
 import { PageTitle, td, th } from "../../ui";
 import { setRequestStatus } from "./actions";
 
+// Always depends on the signed-in admin, so it is rendered per request.
+export const instant = false;
 export const metadata = { title: "Join requests" };
 
 export default async function RequestsAdmin({ searchParams }: { searchParams: Promise<{ status?: string }> }) {

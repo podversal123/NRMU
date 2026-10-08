@@ -6,6 +6,8 @@ import { SubmitButton } from "../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls, td, th } from "../../ui";
 import { addUser, resetPassword, setUserActive } from "./actions";
 
+// Always depends on the signed-in admin, so it is rendered per request.
+export const instant = false;
 export const metadata = { title: "Admin users" };
 const ERR: Record<string, string> = {
   details: "Enter a valid email and a name.",
