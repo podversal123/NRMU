@@ -2,7 +2,7 @@
 
 import { useFormStatus } from "react-dom";
 
-export function SubmitButton({ children, className = "btn-gold px-6 py-2.5" }: { children: React.ReactNode; className?: string }) {
+export function SubmitButton({ children, className = "btn-primary px-6 py-2.5" }: { children: React.ReactNode; className?: string }) {
   const { pending } = useFormStatus();
   return (
     <button type="submit" disabled={pending} className={`${className} disabled:opacity-60`}>

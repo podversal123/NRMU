@@ -7,7 +7,7 @@ export function PageTitle({ title, sub, action }: { title: string; sub?: string;
   return (
     <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="font-display text-5xl font-semibold leading-tight">{title}</h1>
+        <h1 className="text-3xl font-medium leading-tight">{title}</h1>
         {sub && <p className="mt-1 text-muted">{sub}</p>}
       </div>
       {action}
@@ -31,7 +31,7 @@ export function Field({ label, hint, children, className = "" }: { label: string
 
 export function LinkButton({ href, children, variant = "gold" }: { href: string; children: React.ReactNode; variant?: "gold" | "line" }) {
   return variant === "gold" ? (
-    <Link href={href} className="btn-gold px-5 py-2.5 text-sm">
+    <Link href={href} className="btn-primary px-5 py-2.5 text-sm">
       {children}
     </Link>
   ) : (

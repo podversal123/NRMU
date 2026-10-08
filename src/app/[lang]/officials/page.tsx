@@ -30,7 +30,7 @@ export default async function OfficialsPage({ params }: { params: Promise<{ lang
         {groups.map((g) => (
           <section key={g.key}>
             <div className="track-red mb-5 w-24" />
-            <h2 className="font-display text-2xl font-extrabold sm:text-3xl">{setting(s, `officials.group.${g.key}`, lang)}</h2>
+            <h2 className="font-display text-2xl font-semibold sm:text-2xl">{setting(s, `officials.group.${g.key}`, lang)}</h2>
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {g.rows.map((p) => (
                 <PersonCard key={p.id} p={p} lang={lang} callLabel={ui.call} />

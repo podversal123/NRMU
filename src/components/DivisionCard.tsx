@@ -35,7 +35,7 @@ export default function DivisionCard({
       </span>
 
       <div>
-        <h3 className="max-w-[85%] font-display text-[2.3rem] font-semibold leading-none">{pick(lang, d.nameEn, d.nameHi)}</h3>
+        <h3 className="max-w-[85%] text-[1.75rem] font-medium leading-tight">{pick(lang, d.nameEn, d.nameHi)}</h3>
         {d.nameHi && <p className="mt-2 text-soft/85">{lang === "hi" ? d.nameEn : d.nameHi}</p>}
       </div>
 
@@ -48,11 +48,11 @@ export default function DivisionCard({
         )}
         <dl className="flex gap-9 border-t border-white/15 pt-4">
           <div>
-            <dd className="font-display text-[1.9rem] font-semibold leading-none">{num(d.branches)}</dd>
+            <dd className="text-[1.3rem] font-semibold leading-none">{num(d.branches)}</dd>
             <dt className="mt-1 text-sm text-light/70">{labels.branches}</dt>
           </div>
           <div>
-            <dd className="font-display text-[1.9rem] font-semibold leading-none">{num(d.secretaries)}</dd>
+            <dd className="text-[1.3rem] font-semibold leading-none">{num(d.secretaries)}</dd>
             <dt className="mt-1 text-sm text-light/70">{labels.branchSecretaries}</dt>
           </div>
         </dl>

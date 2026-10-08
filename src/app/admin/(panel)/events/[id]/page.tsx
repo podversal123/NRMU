@@ -52,7 +52,7 @@ export default async function EditEvent({ params, searchParams }: { params: Prom
             </select>
           </Field>
           <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="published" defaultChecked={ev?.published ?? true} className="h-5 w-5" /> Show on website</label>
-          <SubmitButton className="btn-gold w-full px-6 py-3">Save</SubmitButton>
+          <SubmitButton className="btn-primary w-full px-6 py-3">Save</SubmitButton>
         </Card>
       </form>
       {!isNew && (

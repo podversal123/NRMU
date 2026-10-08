@@ -61,14 +61,20 @@ export default function Header({
     return () => clearInterval(t);
   }, []);
 
+  // Normal size (100%) unless the visitor chose another one; a missing saved value must not mean "smallest".
   useEffect(() => {
-    const s = Number(read("nrmu-size"));
+    const raw = read("nrmu-size");
+    const s = raw === null ? NaN : Number(raw);
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (s >= 0 && s < SIZES.length) setSize(s);
+    if (Number.isInteger(s) && s >= 0 && s < SIZES.length) setSize(s);
   }, []);
+  const choose = (next: number) => {
+    setSize(next);
+    document.documentElement.style.fontSize = `${SIZES[next]}%`;
+    write("nrmu-size", String(next));
+  };
   useEffect(() => {
     document.documentElement.style.fontSize = `${SIZES[size]}%`;
-    write("nrmu-size", String(size));
   }, [size]);
 
   useEffect(() => {
@@ -107,13 +113,13 @@ export default function Header({
           </div>
           <div className="flex items-center gap-1.5">
             <span className="hidden text-light/70 sm:inline">{labels.textSize}</span>
-            <button className={sizeBtn} aria-label={labels.textSmaller} onClick={() => setSize((s) => Math.max(0, s - 1))}>
+            <button className={sizeBtn} aria-label={labels.textSmaller} onClick={() => choose(Math.max(0, size - 1))}>
               A−
             </button>
-            <button className={sizeBtn} aria-label={labels.textDefault} onClick={() => setSize(1)}>
+            <button className={sizeBtn} aria-label={labels.textDefault} onClick={() => choose(1)}>
               A
             </button>
-            <button className={sizeBtn} aria-label={labels.textLarger} onClick={() => setSize((s) => Math.min(SIZES.length - 1, s + 1))}>
+            <button className={sizeBtn} aria-label={labels.textLarger} onClick={() => choose(Math.min(SIZES.length - 1, size + 1))}>
               A+
             </button>
             <span className="mx-1.5 h-3.5 w-px bg-white/25" />
@@ -137,11 +143,11 @@ export default function Header({
           <Link href={`/${lang}`} className="flex items-center gap-4" aria-label={orgName}>
             <Image src="/logo.jpg" alt="" width={72} height={72} priority className="h-14 w-14 rounded-full sm:h-[4.5rem] sm:w-[4.5rem]" />
             <span className="leading-tight">
-              <b className="block font-display text-[1.45rem] font-bold sm:text-[2.1rem]">{orgName}</b>
+              <b className="block text-[1.3rem] font-bold sm:text-[1.85rem]">{orgName}</b>
               <span className="block text-sm text-muted sm:text-base">{orgAltName}</span>
             </span>
           </Link>
-          <Link href={full("/join")} className="btn-gold hidden shrink-0 lg:inline-block">
+          <Link href={full("/join")} className="btn-primary hidden shrink-0 lg:inline-block">
             {join}
           </Link>
           <span className="sr-only">{orgShort}</span>

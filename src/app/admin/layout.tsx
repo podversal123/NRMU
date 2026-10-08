@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Jost } from "next/font/google";
+import { Noto_Sans_Devanagari, Roboto } from "next/font/google";
 import "../globals.css";
 
-const cormorant = Cormorant_Garamond({ variable: "--font-cormorant", subsets: ["latin"], weight: ["600", "700"] });
-const jost = Jost({ variable: "--font-jost", subsets: ["latin"], weight: ["400", "500", "600"] });
+const roboto = Roboto({ variable: "--font-roboto", subsets: ["latin"], weight: ["400", "500", "700"] });
+const notoDevanagari = Noto_Sans_Devanagari({ variable: "--font-noto-deva", subsets: ["devanagari", "latin"], weight: ["400", "500", "700"] });
 
 export const metadata: Metadata = {
   title: { default: "NRMU Admin", template: "%s · NRMU Admin" },
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${jost.variable} antialiased`}>
+    <html lang="en" className={`${roboto.variable} ${notoDevanagari.variable} antialiased`}>
       <body className="min-h-screen bg-paper">{children}</body>
     </html>
   );

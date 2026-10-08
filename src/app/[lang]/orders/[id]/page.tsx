@@ -70,7 +70,7 @@ async function OrderPageContent({ params }: Props) {
           </div>
           {post.files.length > 0 && (
             <div className="rounded-none border-2 border-ink bg-white p-5">
-              <h2 className="font-display text-lg font-bold">{ui.attachments}</h2>
+              <h2 className="font-display text-lg font-semibold">{ui.attachments}</h2>
               <ul className="mt-3 space-y-2">
                 {post.files.map((f) => (
                   <li key={f.url}>

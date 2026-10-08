@@ -31,7 +31,7 @@ export default async function WomenPage({ params }: { params: Promise<{ lang: st
         {pages.length > 0 && (
           <section>
             <div className="track-red mb-5 w-24" />
-            <h2 className="font-display text-2xl font-extrabold sm:text-3xl">{setting(s, "women.pages_title", lang)}</h2>
+            <h2 className="font-display text-2xl font-semibold sm:text-2xl">{setting(s, "women.pages_title", lang)}</h2>
             <ul className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {pages.map((p) => (
                 <li key={p.slug}>
@@ -49,7 +49,7 @@ export default async function WomenPage({ params }: { params: Promise<{ lang: st
         {posts.length > 0 && (
           <section>
             <div className="track-red mb-5 w-24" />
-            <h2 className="font-display text-2xl font-extrabold sm:text-3xl">{setting(s, "women.posts_title", lang)}</h2>
+            <h2 className="font-display text-2xl font-semibold sm:text-2xl">{setting(s, "women.posts_title", lang)}</h2>
             <div className="mt-6">
               <PostGrid rows={posts} lang={lang} photos />
             </div>

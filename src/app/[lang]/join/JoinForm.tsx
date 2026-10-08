@@ -17,7 +17,7 @@ export default function JoinForm({ ui, divisions }: { ui: Dict; divisions: { id:
   if (state.ok) {
     return (
       <div role="status" className="rounded-none border-2 border-ink bg-white p-10 text-center">
-        <p className="font-display text-3xl font-extrabold text-brand">{ui.thanksTitle}</p>
+        <p className="font-display text-2xl font-semibold text-brand">{ui.thanksTitle}</p>
         <p className="mt-3 text-lg text-muted">{ui.thanksText}</p>
       </div>
     );
@@ -80,7 +80,7 @@ export default function JoinForm({ ui, divisions }: { ui: Dict; divisions: { id:
       <button
         type="submit"
         disabled={pending}
-        className="btn-gold w-full px-8 py-4 text-lg disabled:opacity-60 sm:w-auto"
+        className="btn-primary w-full px-8 py-4 text-lg disabled:opacity-60 sm:w-auto"
       >
         {pending ? ui.submitting : ui.submit}
       </button>

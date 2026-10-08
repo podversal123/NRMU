@@ -36,7 +36,7 @@ export default async function EditDivision({ params, searchParams }: { params: P
         <Card className="space-y-5">
           <Field label="Display order" hint="Smaller numbers show first."><input type="number" name="sort" defaultValue={d?.sort ?? 0} className={inputCls} /></Field>
           <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="active" defaultChecked={d?.active ?? true} className="h-5 w-5" /> Show on website</label>
-          <SubmitButton className="btn-gold w-full px-6 py-3">Save</SubmitButton>
+          <SubmitButton className="btn-primary w-full px-6 py-3">Save</SubmitButton>
         </Card>
       </form>
 

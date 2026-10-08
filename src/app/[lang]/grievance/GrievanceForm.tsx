@@ -26,7 +26,7 @@ export default function GrievanceForm({
   if (state.ok) {
     return (
       <div role="status" className="border border-ink bg-white p-8 sm:p-10">
-        <p className="font-display text-3xl font-semibold">{ui.gThanksTitle}</p>
+        <p className="font-display text-2xl font-semibold">{ui.gThanksTitle}</p>
         <p className="mt-3 text-muted">{ui.gThanksText}</p>
         {state.ticket && (
           <div className="mt-6 border border-line bg-paper p-5">
@@ -35,7 +35,7 @@ export default function GrievanceForm({
             <p className="mt-3 text-sm text-muted">{ui.gKeepTicket}</p>
           </div>
         )}
-        <Link href={`/${lang}/grievance/track`} className="btn-gold mt-7">
+        <Link href={`/${lang}/grievance/track`} className="btn-primary mt-7">
           {ui.gTrackTitle}
         </Link>
       </div>
@@ -106,7 +106,7 @@ export default function GrievanceForm({
         <textarea name="details" required rows={7} maxLength={4000} defaultValue={v.details} className={input} />
       </label>
       <div className="flex flex-wrap items-center gap-4">
-        <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
+        <button type="submit" disabled={pending} className="btn-primary disabled:opacity-60">
           {pending ? ui.submitting : ui.gSubmit}
         </button>
         <Link href={`/${lang}/grievance/track`} className="border-b border-signal pb-0.5 font-medium hover:text-brand">

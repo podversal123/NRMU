@@ -8,7 +8,7 @@ import { getDivisionCards, getEvents, getGalleryPhotos, getPostsByCategory } fro
 import { getFeaturedLeaders, getLatestPosts, getSearchChips, getSettings, getUi, pick, setting } from "@/lib/queries";
 
 const wrap = "mx-auto max-w-[1180px] px-5 sm:px-8";
-const h2 = "text-[clamp(1.7rem,2.6vw,2.2rem)]";
+const h2 = "text-[clamp(1.5rem,2.2vw,1.75rem)] font-medium";
 
 function dateParts(iso: string, lang: Lang) {
   const d = new Date(iso + "T00:00:00");
@@ -21,7 +21,7 @@ function Panel({ title, action, children }: { title: string; action?: React.Reac
   return (
     <section className="border border-line bg-white">
       <header className="flex items-center justify-between gap-3 border-b-2 border-signal px-5 py-3">
-        <h2 className="text-[1.55rem] leading-none">{title}</h2>
+        <h2 className="text-xl font-semibold leading-none">{title}</h2>
         {action}
       </header>
       {children}
@@ -70,7 +70,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         <div className="pointer-events-none relative z-10 -mt-10 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center">
           <div className={`${wrap} w-full`}>
             <div className="pointer-events-auto border border-line bg-white p-6 sm:p-8 lg:max-w-[33rem]">
-              <h1 className="text-[clamp(1.7rem,2.6vw,2.2rem)] font-semibold leading-tight">
+              <h1 className="text-[clamp(1.6rem,2.4vw,2rem)] font-medium leading-tight">
                 {t("hero.title_a")} <span className="text-brand">{t("hero.title_b")}</span>
               </h1>
               <p className="mt-3 text-[0.97rem] text-muted">{t("hero.sub")}</p>
@@ -86,7 +86,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                     placeholder={t("hero.search_placeholder")}
                     className="min-w-0 flex-1 border border-ink bg-white px-4 py-3 text-base placeholder:text-muted/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-signal"
                   />
-                  <button type="submit" className="bg-signal px-5 font-semibold text-ink hover:bg-soft">
+                  <button type="submit" className="bg-brand px-5 font-medium text-white hover:bg-brand-deep">
                     {ui.search}
                   </button>
                 </div>
@@ -115,7 +115,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                   <li key={p.id}>
                     <Link href={`/${lang}/orders/${p.id}`} className="group flex gap-4 px-5 py-3.5 hover:bg-paper">
                       <time dateTime={p.publishedAt} className="w-12 shrink-0 text-center leading-none">
-                        <span className="block font-display text-[1.6rem] font-bold text-brand">{d.day}</span>
+                        <span className="block text-[1.5rem] font-bold text-brand">{d.day}</span>
                         <span className="mt-0.5 block text-xs text-muted">
                           {d.month} {d.year}
                         </span>
@@ -151,7 +151,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                       )}
                       <div>
                         <p className="text-sm font-medium text-brand">{pick(lang, l.designationEn, l.designationHi)}</p>
-                        <p className="mt-0.5 font-display text-[1.4rem] font-semibold leading-tight">{pick(lang, l.nameEn, l.nameHi)}</p>
+                        <p className="mt-0.5 text-lg font-semibold leading-tight">{pick(lang, l.nameEn, l.nameHi)}</p>
                       </div>
                     </li>
                   );
@@ -196,7 +196,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       </section>
 
       {/* DIVISIONS */}
-      <section className="bg-white py-14 lg:py-16">
+      <section className="bg-paper py-14 lg:py-16">
         <div className={wrap}>
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -248,7 +248,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       <section className="bg-ink py-14 text-light lg:py-16">
         <div className={`${wrap} grid gap-10 md:grid-cols-2 md:gap-0`}>
           <div className="md:pr-12">
-            <h2 className="text-[1.9rem] leading-tight">{t("home.grievance_title")}</h2>
+            <h2 className="text-[1.5rem] leading-tight">{t("home.grievance_title")}</h2>
             <p className="mt-3 max-w-[40ch] text-light/80">{t("home.grievance_text")}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href={`/${lang}/grievance`} className="btn-gold">
@@ -260,7 +260,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             </div>
           </div>
           <div className="border-t border-white/15 pt-10 md:border-l md:border-t-0 md:pl-12 md:pt-0">
-            <h2 className="text-[1.9rem] leading-tight">{t("home.join_title")}</h2>
+            <h2 className="text-[1.5rem] leading-tight">{t("home.join_title")}</h2>
             <p className="mt-3 max-w-[40ch] text-light/80">{t("home.join_text")}</p>
             <div className="mt-6">
               <Link href={`/${lang}/join`} className="btn-gold">

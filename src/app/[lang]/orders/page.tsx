@@ -140,7 +140,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
           {year && <input type="hidden" name="year" value={year} />}
           <label htmlFor="orders-q" className="sr-only">{ui.searchOrders}</label>
           <input id="orders-q" name="q" type="search" defaultValue={q} placeholder={ui.searchOrders} className="min-w-0 flex-1 bg-transparent px-4 py-3.5 text-base focus:outline-none" />
-          <button type="submit" className="bg-signal px-6 font-bold text-ink hover:bg-brand hover:text-white">{ui.search}</button>
+          <button type="submit" className="bg-brand px-6 font-medium text-white hover:bg-brand-deep">{ui.search}</button>
         </form>
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-muted">

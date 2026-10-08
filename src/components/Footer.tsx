@@ -20,7 +20,7 @@ export default async function Footer({ lang }: { lang: Lang }) {
   const t = (key: string) => setting(s, key, lang);
   const locale = lang === "hi" ? "hi-IN" : "en-IN";
   const image = t("footer.image");
-  const h = "font-display text-2xl text-soft";
+  const h = "text-lg font-medium text-soft";
   const contact = [t("footer.address"), t("contact.address"), t("contact.phone"), t("contact.email"), t("contact.hours")].filter(Boolean);
   const href = (h2: string) => (/^https?:/.test(h2) ? h2 : `/${lang}${h2}`);
 
@@ -36,7 +36,7 @@ export default async function Footer({ lang }: { lang: Lang }) {
           <div className="flex items-center gap-3.5">
             <Image src="/logo.jpg" alt="" width={56} height={56} className="h-14 w-14 rounded-full" />
             <div className="leading-tight">
-              <p className="font-display text-3xl font-bold tracking-[0.03em]">{t("org.short")}</p>
+              <p className="text-2xl font-bold tracking-wide">{t("org.short")}</p>
               <p className="text-sm text-light/75">{t("org.city")}</p>
             </div>
           </div>

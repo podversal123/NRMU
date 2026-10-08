@@ -30,7 +30,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {tiles.map((t) => (
           <Link key={t.label} href={t.href} className="group rounded-none border border-line bg-white p-6 transition hover:border-ink">
-            <p className={`font-display text-5xl font-bold leading-none ${t.hot ? "text-brand" : ""}`}>{t.value}</p>
+            <p className={`text-4xl font-bold leading-none ${t.hot ? "text-brand" : ""}`}>{t.value}</p>
             <p className="mt-3 text-sm font-semibold text-muted">{t.label}</p>
           </Link>
         ))}
@@ -38,7 +38,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       <Card className="mt-8">
         <h2 className="font-display text-2xl font-bold">Quick actions</h2>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Link href="/admin/posts/new" className="btn-gold px-5 py-2.5 text-sm">+ Add order / news</Link>
+          <Link href="/admin/posts/new" className="btn-primary px-5 py-2.5 text-sm">+ Add order / news</Link>
           <Link href="/admin/officials/new" className="rounded-full border-2 border-ink px-5 py-2 text-sm font-semibold hover:bg-ink hover:text-white">+ Add office bearer</Link>
           <Link href="/admin/requests" className="rounded-full border-2 border-ink px-5 py-2 text-sm font-semibold hover:bg-ink hover:text-white">View join requests</Link>
         </div>

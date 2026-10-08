@@ -72,7 +72,7 @@ export default async function EditOfficial({ params, searchParams }: { params: P
           {admin.role !== "division_admin" && (
             <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" name="featured" defaultChecked={person?.featured ?? false} className="h-5 w-5" /> Feature on home page</label>
           )}
-          <SubmitButton className="btn-gold w-full px-6 py-3">Save</SubmitButton>
+          <SubmitButton className="btn-primary w-full px-6 py-3">Save</SubmitButton>
         </Card>
       </form>
       {!isNew && (

@@ -29,7 +29,7 @@ export default function PersonCard({ p, lang, callLabel }: { p: Person; lang: La
       {p.photoUrl ? (
         <Image src={p.photoUrl} alt="" width={64} height={64} className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-signal" />
       ) : (
-        <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-ink font-display text-xl font-extrabold text-signal ring-2 ring-signal">
+        <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-ink font-display text-xl font-semibold text-signal ring-2 ring-signal">
           {initialsOf(p.nameEn)}
         </div>
       )}

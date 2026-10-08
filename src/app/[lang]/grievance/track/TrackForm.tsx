@@ -38,7 +38,7 @@ export default function TrackForm({ lang, ui }: { lang: Lang; ui: Dict }) {
             <input name="mobile" required inputMode="numeric" autoComplete="tel" maxLength={13} defaultValue={v?.mobile} className={input} />
           </label>
         </div>
-        <button type="submit" disabled={pending} className="btn-gold disabled:opacity-60">
+        <button type="submit" disabled={pending} className="btn-primary disabled:opacity-60">
           {pending ? ui.submitting : ui.gTrackButton}
         </button>
       </form>
@@ -46,7 +46,7 @@ export default function TrackForm({ lang, ui }: { lang: Lang; ui: Dict }) {
       {r && (
         <section className="border border-ink bg-white p-6 sm:p-9" aria-live="polite">
           <p className="font-mono text-lg font-bold tracking-wider text-brand">{r.ticket}</p>
-          <h2 className="mt-1 text-[1.7rem] leading-tight">{r.subject}</h2>
+          <h2 className="mt-1 text-[1.35rem] leading-tight">{r.subject}</h2>
           <dl className="mt-5 grid gap-4 sm:grid-cols-3">
             <div>
               <dt className="text-sm text-muted">{ui.gStatus}</dt>

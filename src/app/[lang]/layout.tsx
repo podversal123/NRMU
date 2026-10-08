@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Jost, Tiro_Devanagari_Hindi, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Noto_Sans_Devanagari, Roboto } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import Header from "@/components/Header";
@@ -7,20 +7,15 @@ import Footer from "@/components/Footer";
 import { isLang, locales } from "@/lib/i18n";
 import { getMenu, getSettings, pick, setting, getUi } from "@/lib/queries";
 
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
+const roboto = Roboto({
+  variable: "--font-roboto",
   subsets: ["latin"],
-  weight: ["600", "700"],
+  weight: ["400", "500", "700"],
 });
-const jost = Jost({
-  variable: "--font-jost",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
-const tiro = Tiro_Devanagari_Hindi({
-  variable: "--font-tiro",
+const notoDevanagari = Noto_Sans_Devanagari({
+  variable: "--font-noto-deva",
   subsets: ["devanagari", "latin"],
-  weight: "400",
+  weight: ["400", "500", "700"],
 });
 const mono = Geist_Mono({ variable: "--font-mono", subsets: ["latin"] });
 
@@ -55,7 +50,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   const other = lang === "en" ? "hi" : "en";
 
   return (
-    <html lang={lang} className={`${cormorant.variable} ${jost.variable} ${tiro.variable} ${mono.variable} antialiased`}>
+    <html lang={lang} className={`${roboto.variable} ${notoDevanagari.variable} ${mono.variable} antialiased`}>
       <body className="flex min-h-screen flex-col">
         <Header
           lang={lang}

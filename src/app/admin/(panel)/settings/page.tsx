@@ -49,7 +49,7 @@ export default async function SettingsAdmin({ searchParams }: { searchParams: Pr
             </div>
           </Card>
         ))}
-        <div className="sticky bottom-4 flex justify-end"><SubmitButton className="btn-gold px-8 py-3 text-lg">Save all changes</SubmitButton></div>
+        <div className="sticky bottom-4 flex justify-end"><SubmitButton className="btn-primary px-8 py-3 text-lg">Save all changes</SubmitButton></div>
       </form>
     </>
   );

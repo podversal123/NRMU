@@ -59,7 +59,7 @@ export default async function EditPost({ params, searchParams }: { params: Promi
                 {ordered.map((c) => <option key={c.id} value={c.id}>{"– ".repeat(depth(c))}{c.nameEn}</option>)}
               </select>
             </Field>
-            <SubmitButton className="btn-gold w-full px-6 py-3">Save</SubmitButton>
+            <SubmitButton className="btn-primary w-full px-6 py-3">Save</SubmitButton>
           </Card>
         </div>
       </form>

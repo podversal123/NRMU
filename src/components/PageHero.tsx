@@ -39,7 +39,7 @@ export default async function PageHero({
               ))}
             </nav>
           )}
-          <h1 className="max-w-4xl text-[clamp(1.9rem,3.8vw,3rem)] font-semibold leading-[1.1]">{title}</h1>
+          <h1 className="max-w-4xl text-[clamp(1.6rem,3vw,2rem)] font-medium leading-tight">{title}</h1>
           <div className="rule mt-6" />
           {sub && <p className="mt-5 max-w-2xl text-lg text-light/80">{sub}</p>}
         </div>
