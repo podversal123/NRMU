@@ -63,18 +63,20 @@ export default async function Footer({ lang }: { lang: Lang }) {
           </ul>
         </div>
 
-        <div className="min-w-0">
-          <h2 className={h}>{t("footer.important_links")}</h2>
-          <ul className="mt-3 md:mt-4 md:space-y-1">
-            {links.map((n) => (
-              <li key={n.id}>
-                <a href={n.href} target="_blank" rel="noopener noreferrer" className="block py-2 text-light/80 hover:text-soft lg:py-1">
-                  {pick(lang, n.labelEn, n.labelHi)} <span aria-hidden>↗</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {links.length > 0 && (
+          <div className="min-w-0">
+            <h2 className={h}>{t("footer.important_links")}</h2>
+            <ul className="mt-3 md:mt-4 md:space-y-1">
+              {links.map((n) => (
+                <li key={n.id}>
+                  <a href={n.href} target="_blank" rel="noopener noreferrer" className="block py-2 text-light/80 hover:text-soft lg:py-1">
+                    {pick(lang, n.labelEn, n.labelHi)} <span aria-hidden>↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="col-span-2 md:col-span-1">
           <h2 className={h}>{t("stats.divisions")}</h2>
