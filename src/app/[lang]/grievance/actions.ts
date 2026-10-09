@@ -3,6 +3,7 @@
 import { and, asc, eq, gte, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { UiKey } from "@/lib/i18n";
+import { clientKey, tooMany } from "@/lib/rate-limit";
 import { getSettings } from "@/lib/queries";
 
 const clean = (v: FormDataEntryValue | null, max: number) => String(v ?? "").trim().slice(0, max);
@@ -23,6 +24,7 @@ export async function submitGrievance(_prev: SubmitState, form: FormData): Promi
   const details = clean(form.get("details"), 4000);
   const values = { name, mobile, email, employeeId, division: divisionId ? String(divisionId) : "", type: typeId ? String(typeId) : "", subject, details };
 
+  if (await tooMany("grievance-ip", await clientKey(), 20, 3600)) return { error: "errLimit", values };
   if (name.length < 2) return { error: "errName", values };
   if (!/^[6-9]\d{9}$/.test(mobile)) return { error: "errMobile", values };
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "errEmail", values };
@@ -76,6 +78,8 @@ export async function trackGrievance(_prev: TrackState, form: FormData): Promise
   const mobile = normMobile(clean(form.get("mobile"), 20));
   const values = { ticket, mobile };
   if (!ticket || !mobile) return { error: "errTicket", values };
+  // A ticket number and a mobile number must both match; this stops anyone trying many of them.
+  if (await tooMany("track-ip", await clientKey(), 60, 600)) return { error: "errLimit", values };
 
   const db = getDb();
   const [g] = await db

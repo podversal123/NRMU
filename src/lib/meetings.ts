@@ -51,6 +51,12 @@ export function relative(target: Date, now: Date) {
   return rtf.format(Math.round(mins / 1440), "day");
 }
 
+/** The "meetings.video_enabled" setting: video rooms are only made when it is "1". It stays "0" until the video account can take calls. */
+export async function videoEnabled() {
+  const r = (await getDb().execute(sql`select value_en as v from site_settings where key = 'meetings.video_enabled'`)) as unknown as { rows?: { v: string }[] } & { v: string }[];
+  return (r.rows ?? r)[0]?.v?.trim() === "1";
+}
+
 /** Reminder offsets in minutes, from the "meetings.reminder_minutes" setting (e.g. "1440,60,15"). */
 export async function reminderOffsets() {
   const r = (await getDb().execute(sql`select value_en as v from site_settings where key = 'meetings.reminder_minutes'`)) as unknown as { rows?: { v: string }[] } & { v: string }[];

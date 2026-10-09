@@ -28,6 +28,7 @@ async function copy(text: string) {
 /** WhatsApp wants the number with its country code and nothing else. Indian 10-digit numbers get 91. */
 const whatsappNumber = (mobile: string) => {
   const d = mobile.replace(/\D/g, "");
+  if (mobile.trim().startsWith("+")) return d; // already has its country code (anywhere in the world)
   return d.length === 10 ? `91${d}` : d.length === 11 && d.startsWith("0") ? `91${d.slice(1)}` : d;
 };
 

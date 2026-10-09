@@ -3,6 +3,7 @@
 import { and, eq, gte, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { Dict } from "@/lib/i18n";
+import { clientKey, tooMany } from "@/lib/rate-limit";
 
 export type JoinState = { ok?: boolean; error?: keyof Dict; values?: Record<string, string> };
 
@@ -22,6 +23,7 @@ export async function submitJoin(_prev: JoinState, form: FormData): Promise<Join
 
   // Returned with every error so the form keeps what the visitor already typed.
   const values = { name, mobile, email, division: divisionId ? String(divisionId) : "", designation, employeeId, message };
+  if (await tooMany("join-ip", await clientKey(), 20, 3600)) return { error: "errLimit", values };
   if (name.length < 2) return { error: "errName", values };
   if (!/^[6-9]\d{9}$/.test(mobile)) return { error: "errMobile", values };
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "errEmail", values };

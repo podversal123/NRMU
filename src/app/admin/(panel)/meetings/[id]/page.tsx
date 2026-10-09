@@ -3,12 +3,13 @@ import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
-import { fmtWhen, meetingState, MODES, relative, reminderOffsets, RSVPS, toIst } from "@/lib/meetings";
+import { videoConfigured } from "@/lib/daily";
+import { fmtWhen, meetingState, MODES, relative, reminderOffsets, RSVPS, toIst, videoEnabled } from "@/lib/meetings";
 import UploadField from "../../../UploadField";
 import { DeleteButton, SubmitButton } from "../../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls, td, th } from "../../../ui";
 import { CopyAll, SendButtons } from "./InviteeLinks";
-import { addInvitees, addOfficeBearers, deleteMeeting, removeInvitees, saveAttendance, saveMeeting, saveRecord } from "../actions";
+import { addInvitees, addOfficeBearers, checkRecording, createVideoRoom, deleteMeeting, removeInvitees, saveAttendance, saveMeeting, saveRecord } from "../actions";
 
 // Always depends on the signed-in admin, so it is rendered per request.
 export const instant = false;
@@ -17,6 +18,7 @@ export const metadata = { title: "Meeting" };
 const ERRORS: Record<string, string> = {
   required: "Title, start time and end time are required.",
   time: "The meeting must end after it starts.",
+  long: "A meeting can be at most 12 hours long. For a longer event, schedule it in parts.",
   kept: "This meeting has minutes, a recording or attendance, so it is kept as a record. Set it to Cancelled or Completed instead of deleting it.",
 };
 
@@ -32,11 +34,12 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
   const [m] = isNew ? [] : await db.select().from(schema.meetings).where(eq(schema.meetings.id, Number(id))).limit(1);
   if (!isNew && !m) notFound();
 
-  const [types, divisions, invitees, offsets] = await Promise.all([
+  const [types, divisions, invitees, offsets, videoOn] = await Promise.all([
     db.select().from(schema.meetingTypes).where(eq(schema.meetingTypes.active, true)).orderBy(asc(schema.meetingTypes.sort)),
     db.select().from(schema.divisions).orderBy(asc(schema.divisions.sort)),
     isNew ? [] : db.select().from(schema.meetingInvitees).where(eq(schema.meetingInvitees.meetingId, Number(id))).orderBy(asc(schema.meetingInvitees.id)),
     reminderOffsets(),
+    videoEnabled(),
   ]);
   const now = new Date();
   const state = m ? meetingState(m, now) : null;
@@ -46,7 +49,7 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
   const nextHour = new Date(Math.ceil(now.getTime() / 3600000) * 3600000);
   // each person gets a link in Hindi when the meeting has a Hindi title, otherwise in English
   const linkLang = m?.titleHi ? "hi" : "en";
-  const whenText = m ? fmtWhen(m.startsAt) + " (IST)" : "";
+  const whenText = m ? fmtWhen(m.startsAt) + " (IST, UTC+5:30)" : "";
 
   return (
     <>
@@ -58,6 +61,9 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
       {sp.saved && <Notice>Saved.</Notice>}
       {sp.added && <Notice>{Number(sp.added) ? `${sp.added} ${Number(sp.added) === 1 ? "person" : "people"} added.` : "Nobody new to add. They are already in the list."}</Notice>}
       {sp.error && <Notice kind="err">{ERRORS[sp.error] ?? "Please check the form."}</Notice>}
+      {sp.video === "failed" && <Notice kind="err">The meeting is saved, but the video service did not answer. Use "Create video room" below to try again.</Notice>}
+      {sp.video === "limit" && <Notice kind="err">The meeting is saved, but 40 video rooms are already open, which is the safety limit. Finish or cancel an old meeting first.</Notice>}
+      {sp.norecording && <Notice>No finished recording yet. It can take a few minutes after the call ends.</Notice>}
 
       <form action={saveMeeting} className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <input type="hidden" name="id" value={isNew ? "" : id} />
@@ -103,6 +109,50 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
         </Card>
       </form>
 
+      {m && m.mode !== "in_person" && (
+        <Card className="mt-8">
+          <h2 id="video" className="font-display text-2xl font-bold">Video call</h2>
+          {!videoConfigured() ? (
+            <p className="mt-3 text-muted">The video service is not connected on this site yet.</p>
+          ) : m.status !== "scheduled" && !m.roomName ? (
+            <p className="mt-3 text-muted">{m.status === "cancelled" ? "This meeting is cancelled, so it has no video room." : "This meeting is completed."}</p>
+          ) : !m.roomName && !videoOn ? (
+            <p className="mt-3 text-muted">
+              Video calls are switched off for now, until the video account can take calls. When it is ready, set <strong>meetings.video_enabled</strong> to <strong>1</strong> under Site text, then come back here and press Create video room.
+            </p>
+          ) : !m.roomName ? (
+            <form action={createVideoRoom} className="mt-3 space-y-3">
+              <input type="hidden" name="id" value={m.id} />
+              <p className="text-muted">There is no video room for this meeting yet.</p>
+              <SubmitButton className="btn-primary px-6 py-2.5">Create video room</SubmitButton>
+            </form>
+          ) : (
+            <div className="mt-3 space-y-4">
+              <p className="text-muted">The room opens an hour before the start for you, and invitees can come in 15 minutes before. People you have not invited wait at the door until you let them in.</p>
+              <p className="text-sm font-semibold">
+                {!m.recordingOn
+                  ? "Recording is off for this meeting."
+                  : m.roomRecording
+                    ? "Recording starts by itself when you join as host."
+                    : "Recording is not available on the video plan you have now, so this call will not be recorded."}
+              </p>
+              <a href={`/admin/meetings/${m.id}/room`} className="btn-primary inline-block px-6 py-3">Join as host</a>
+            </div>
+          )}
+          {m.recordingId ? (
+            <p className="mt-5 border-t border-line pt-4">
+              <a href={`/admin/meetings/${m.id}/recording`} target="_blank" rel="noopener noreferrer" className="font-semibold text-brand underline-offset-2 hover:underline">Watch the recording</a>
+              {m.recordingSeconds ? <span className="text-muted"> ({Math.max(1, Math.round(m.recordingSeconds / 60))} minutes)</span> : null}
+            </p>
+          ) : m.roomName && m.roomRecording ? (
+            <form action={checkRecording} className="mt-5 border-t border-line pt-4">
+              <input type="hidden" name="id" value={m.id} />
+              <SubmitButton className="rounded-full border-2 border-ink px-5 py-2.5 text-sm font-semibold hover:bg-ink hover:text-white">Check for the recording</SubmitButton>
+            </form>
+          ) : null}
+        </Card>
+      )}
+
       {m && (
         <>
           <Card className="mt-8" >
@@ -122,7 +172,7 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
               </form>
               <form action={addInvitees} className="space-y-3">
                 <input type="hidden" name="meetingId" value={m.id} />
-                <Field label="Invite other people" hint="One per line: name, mobile, email. Mobile and email are optional.">
+                <Field label="Invite other people" hint="One per line: name, mobile, email. Mobile and email are optional. For a number outside India start with + and the country code, like +44 7911 123456.">
                   <textarea name="people" rows={4} placeholder={"Sh. Name Surname, 9876543210, name@example.com"} className={inputCls} />
                 </Field>
                 <SubmitButton className="rounded-full border-2 border-ink px-5 py-2.5 font-semibold hover:bg-ink hover:text-white">Add to list</SubmitButton>

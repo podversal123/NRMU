@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -8,6 +9,7 @@ import { isLang } from "@/lib/i18n";
 import { meetingState } from "@/lib/meetings";
 import { getUi, pick } from "@/lib/queries";
 import { answerInvitation } from "../actions";
+import LocalTime from "./LocalTime";
 
 // A private page for one person: it depends on the link and the clock, so it is rendered per request.
 export const instant = false;
@@ -18,7 +20,7 @@ const TOKEN = /^[0-9a-f]{64}$/;
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLang(lang)) return {};
-  return { title: (await getUi(lang)).mInvite, robots: { index: false, follow: false } };
+  return { title: (await getUi(lang)).mInvite, robots: { index: false, follow: false }, referrer: "no-referrer" };
 }
 
 export default function InvitationPage({ params, searchParams }: { params: Promise<{ lang: string; token: string }>; searchParams: Promise<{ saved?: string }> }) {
@@ -65,6 +67,8 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
   const agenda = (pick(lang, m.agendaEn, m.agendaHi) ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const held = m.mode === "online" ? ui.mHeldOnline : m.mode === "hybrid" ? ui.mHeldHybrid : ui.mHeldInPerson;
   const replyLabel: Record<string, string> = { yes: ui.mYes, maybe: ui.mMaybe, no: ui.mNo, pending: ui.mNoReply };
+  // The call opens 15 minutes before the start, for meetings that have a video room.
+  const canJoin = !closed && m.mode !== "in_person" && Boolean(m.roomUrl) && Date.now() >= m.startsAt.getTime() - 15 * 60 * 1000;
   const note = state === "cancelled" ? ui.mCancelled : closed ? ui.mOver : state === "live" ? ui.mLive : null;
 
   return (
@@ -77,7 +81,15 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
           <div>
             <dt className="text-sm font-semibold text-muted">{ui.mWhen}</dt>
             <dd className="mt-1 font-medium">{day}</dd>
-            <dd className="text-muted">{time(m.startsAt)} – {time(m.endsAt)} (IST)</dd>
+            <dd className="text-muted">{time(m.startsAt)} – {time(m.endsAt)} (IST, UTC+5:30)</dd>
+            <LocalTime start={m.startsAt.toISOString()} end={m.endsAt.toISOString()} locale={locale} label={ui.mYourTime} />
+            {!closed && (
+              <dd className="mt-2">
+                <a href={`/${lang}/meet/${token}/calendar`} className="inline-flex min-h-11 items-center font-medium text-brand underline underline-offset-4">
+                  {ui.mCalendar}
+                </a>
+              </dd>
+            )}
           </div>
           <div>
             <dt className="text-sm font-semibold text-muted">{ui.mWhere}</dt>
@@ -95,7 +107,13 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
           </section>
         )}
 
-        {!closed && m.mode !== "in_person" && <p className="text-muted">{ui.mVideoLater}</p>}
+        {canJoin ? (
+          <Link href={`/${lang}/meet/${token}/call`} className="btn-primary flex min-h-14 items-center justify-center text-lg sm:inline-flex sm:px-10">
+            {ui.mJoin}
+          </Link>
+        ) : (
+          !closed && m.mode !== "in_person" && <p className="text-muted">{ui.mVideoLater}</p>
+        )}
 
         {!closed && (
           <section aria-labelledby="rsvp-h" className="border border-line bg-white p-6 sm:p-8">

@@ -305,8 +305,15 @@ export const meetings = pgTable(
     agendaHi: text("agenda_hi"),
     status: text("status").notNull().default("scheduled"), // scheduled | completed | cancelled
     recordingOn: boolean("recording_on").notNull().default(true),
-    /** Name of the video room at the video provider; set when the room is created. */
+    /** Name and address of the video room at the video provider; set when the room is created. */
     roomName: text("room_name"),
+    roomUrl: text("room_url"),
+    /** True when the room really was created with recording switched on (the video plan may not allow it). */
+    roomRecording: boolean("room_recording").notNull().default(false),
+    /** The finished recording at the video provider, and how long it is. Opened through a fresh temporary link each time. */
+    recordingId: text("recording_id"),
+    recordingSeconds: integer("recording_seconds"),
+    /** A link pasted by hand (for example a recording made elsewhere). */
     recordingUrl: text("recording_url"),
     minutesUrl: text("minutes_url"),
     minutesText: text("minutes_text"),
@@ -351,6 +358,19 @@ export const meetingReminders = pgTable(
     sentAt: timestamp("sent_at", { withTimezone: true }),
   },
   (t) => [uniqueIndex("meeting_reminders_unique_idx").on(t.meetingId, t.minutesBefore)],
+);
+
+/* ----------------------------- Abuse control --------------------------- */
+
+/** How many times something was done in one time window (see lib/rate-limit.ts). Holds no names or addresses, only hashes. */
+export const rateLimits = pgTable(
+  "rate_limits",
+  {
+    key: text("key").notNull(),
+    windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+    hits: integer("hits").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.key, t.windowStart] }), index("rate_limits_window_idx").on(t.windowStart)],
 );
 
 /* ------------------------------ Grievances ----------------------------- */

@@ -454,5 +454,41 @@
   "mVideoLater": {
     "en": "The button to join the video call will appear here when the meeting starts.",
     "hi": "बैठक शुरू होने पर वीडियो कॉल में जुड़ने का बटन यहाँ दिखाई देगा।"
+  },
+  "mJoin": {
+    "en": "Join the video call",
+    "hi": "वीडियो कॉल में जुड़ें"
+  },
+  "mCallNotYet": {
+    "en": "The video call opens 15 minutes before the meeting starts.",
+    "hi": "वीडियो कॉल बैठक शुरू होने से 15 मिनट पहले खुलती है।"
+  },
+  "mCallLoading": {
+    "en": "Opening the video call…",
+    "hi": "वीडियो कॉल खुल रही है…"
+  },
+  "mCallLeft": {
+    "en": "You have left the call.",
+    "hi": "आप कॉल से बाहर आ गए हैं।"
+  },
+  "mCallAgain": {
+    "en": "Join again",
+    "hi": "फिर से जुड़ें"
+  },
+  "mCallBack": {
+    "en": "Back to the invitation",
+    "hi": "निमंत्रण पर वापस जाएँ"
+  },
+  "mCallError": {
+    "en": "The video call could not be opened. Please try again.",
+    "hi": "वीडियो कॉल नहीं खुल सकी। कृपया दोबारा कोशिश करें।"
+  },
+  "mCalendar": {
+    "en": "Add to calendar",
+    "hi": "कैलेंडर में जोड़ें"
+  },
+  "mYourTime": {
+    "en": "In your time",
+    "hi": "आपके समय में"
   }
 }

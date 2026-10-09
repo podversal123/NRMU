@@ -4,6 +4,7 @@ import { and, eq, gt } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getDb, schema } from "@/db";
 import { isLang } from "@/lib/i18n";
+import { limited } from "@/lib/rate-limit";
 
 const TOKEN = /^[0-9a-f]{64}$/;
 const ANSWERS = ["yes", "maybe", "no"] as const;
@@ -14,7 +15,7 @@ export async function answerInvitation(form: FormData) {
   const token = String(form.get("token") ?? "");
   const answer = ANSWERS.find((a) => a === String(form.get("answer") ?? ""));
   if (!isLang(lang) || !TOKEN.test(token)) redirect("/");
-  if (!answer) redirect(`/${lang}/meet/${token}`);
+  if (!answer || (await limited("rsvp", { perAddress: 100, perSecret: { id: token, max: 30 }, windowSeconds: 600 }))) redirect(`/${lang}/meet/${token}`);
 
   const db = getDb();
   const [mine] = await db.select({ meetingId: schema.meetingInvitees.meetingId }).from(schema.meetingInvitees).where(eq(schema.meetingInvitees.joinToken, token)).limit(1);

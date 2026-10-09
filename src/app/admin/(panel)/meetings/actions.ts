@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { deleteBlobs } from "@/lib/blob";
-import { fromIst, MODES, reminderOffsets, RSVPS } from "@/lib/meetings";
+import { createRoom, deleteRoom, DailyError, listRecordings, updateRoom, videoConfigured } from "@/lib/daily";
+import { fromIst, MODES, reminderOffsets, RSVPS, videoEnabled } from "@/lib/meetings";
 
 const str = (f: FormData, k: string, max = 300) => String(f.get(k) ?? "").trim().slice(0, max);
 const num = (f: FormData, k: string) => Number(str(f, k, 10)) || null;
@@ -22,6 +23,51 @@ async function planReminders(meetingId: number) {
   if (offsets.length) await db.insert(schema.meetingReminders).values(offsets.map((minutesBefore) => ({ meetingId, minutesBefore })));
 }
 
+/**
+ * Makes the video room match the meeting: created for an online or mixed meeting that is still to come,
+ * moved when the time changes, removed when the meeting is cancelled or becomes in-person.
+ * Never throws: a meeting must save even when the video service is down, and the admin sees a warning instead.
+ */
+async function syncRoom(meetingId: number): Promise<"ok" | "skipped" | "failed" | "limit"> {
+  if (!videoConfigured()) return "skipped";
+  const db = getDb();
+  const [m] = await db.select().from(schema.meetings).where(eq(schema.meetings.id, meetingId)).limit(1);
+  if (!m) return "skipped";
+  const clear = { roomName: null, roomUrl: null, roomRecording: false };
+  try {
+    const wantsRoom = m.mode !== "in_person" && m.status === "scheduled";
+    if (wantsRoom) {
+      if (m.endsAt.getTime() + 2 * 3600 * 1000 <= Date.now()) return "skipped"; // already over
+      if (!m.roomName && !(await videoEnabled())) return "skipped"; // switched off: no new rooms
+      if (!m.roomName) {
+        // A safety stop against a bug or misuse creating rooms without end: at most 40 open rooms at once.
+        const [{ n }] = (await db.execute(sql`select count(*)::int as n from meetings where room_name is not null and status = 'scheduled'`)).rows as { n: number }[];
+        if (Number(n) >= 40) return "limit";
+      }
+      const plan = { startsAt: m.startsAt, endsAt: m.endsAt, recording: m.recordingOn };
+      if (m.roomName) {
+        try {
+          const { recording } = await updateRoom(m.roomName, plan);
+          await db.update(schema.meetings).set({ roomRecording: recording }).where(eq(schema.meetings.id, meetingId));
+          return "ok";
+        } catch (e) {
+          if (!(e instanceof DailyError && e.status === 404)) throw e; // the room was removed at the video service: make a new one
+        }
+      }
+      const room = await createRoom(plan);
+      await db.update(schema.meetings).set({ roomName: room.name, roomUrl: room.url, roomRecording: room.recording }).where(eq(schema.meetings.id, meetingId));
+    } else if (m.roomName && m.status !== "completed") {
+      // A finished meeting keeps its room record (it closes by itself); cancelled or in-person ones give it back.
+      await deleteRoom(m.roomName);
+      await db.update(schema.meetings).set(clear).where(eq(schema.meetings.id, meetingId));
+    }
+    return "ok";
+  } catch (e) {
+    console.error("Video room could not be set up", e instanceof DailyError ? `${e.status} ${e.info}` : e);
+    return "failed";
+  }
+}
+
 export async function saveMeeting(form: FormData) {
   const admin = await guard();
   const idRaw = str(form, "id", 12);
@@ -31,6 +77,7 @@ export async function saveMeeting(form: FormData) {
   const endsAt = fromIst(str(form, "endsAt", 16));
   if (!titleEn || !startsAt || !endsAt) redirect(`${back}?error=required`);
   if (endsAt! <= startsAt!) redirect(`${back}?error=time`);
+  if (endsAt!.getTime() - startsAt!.getTime() > 12 * 3600 * 1000) redirect(`${back}?error=long`);
 
   const mode = one(str(form, "mode", 12), MODES, "online");
   const values = {
@@ -62,7 +109,40 @@ export async function saveMeeting(form: FormData) {
     id = row.id;
     await planReminders(id);
   }
-  redirect(`/admin/meetings/${id}?saved=1`);
+  const video = await syncRoom(id);
+  redirect(`/admin/meetings/${id}?saved=1${video === "failed" ? "&video=failed" : video === "limit" ? "&video=limit" : ""}`);
+}
+
+/** Retry button: makes the video room when it could not be made while saving. */
+export async function createVideoRoom(form: FormData) {
+  await guard();
+  const id = Number(form.get("id"));
+  if (!id) redirect("/admin/meetings");
+  const video = await syncRoom(id);
+  redirect(`/admin/meetings/${id}${video === "failed" ? "?video=failed" : video === "limit" ? "?video=limit" : "?saved=1"}#video`);
+}
+
+/** Looks up the recording at the video service when the automatic message has not arrived. */
+export async function checkRecording(form: FormData) {
+  await guard();
+  const id = Number(form.get("id"));
+  if (!id) redirect("/admin/meetings");
+  const db = getDb();
+  const [m] = await db.select({ roomName: schema.meetings.roomName }).from(schema.meetings).where(eq(schema.meetings.id, id)).limit(1);
+  let found = 0;
+  if (m?.roomName) {
+    try {
+      const done = (await listRecordings(m.roomName)).filter((r) => r.status === "finished").sort((a, b) => (b.duration ?? 0) - (a.duration ?? 0))[0];
+      if (done) {
+        await db.update(schema.meetings).set({ recordingId: done.id, recordingSeconds: done.duration }).where(eq(schema.meetings.id, id));
+        found = 1;
+      }
+    } catch (e) {
+      console.error("Recording lookup failed", e instanceof DailyError ? `${e.status} ${e.info}` : e);
+      redirect(`/admin/meetings/${id}?video=failed#video`);
+    }
+  }
+  redirect(`/admin/meetings/${id}?${found ? "saved=1" : "norecording=1"}#video`);
 }
 
 export async function deleteMeeting(form: FormData) {
@@ -76,8 +156,9 @@ export async function deleteMeeting(form: FormData) {
       .where(and(eq(schema.meetings.id, id), sql`(minutes_url is not null or minutes_text is not null or recording_url is not null or exists (select 1 from meeting_invitees i where i.meeting_id = meetings.id and i.attended))`))
       .limit(1);
     if (kept) redirect(`/admin/meetings/${id}?error=kept`);
-    const [row] = await getDb().delete(schema.meetings).where(eq(schema.meetings.id, id)).returning({ minutesUrl: schema.meetings.minutesUrl });
+    const [row] = await getDb().delete(schema.meetings).where(eq(schema.meetings.id, id)).returning({ minutesUrl: schema.meetings.minutesUrl, roomName: schema.meetings.roomName });
     await deleteBlobs([row?.minutesUrl]);
+    if (row?.roomName) await deleteRoom(row.roomName).catch(() => {});
   }
   redirect("/admin/meetings?deleted=1");
 }
@@ -105,12 +186,13 @@ export async function saveRecord(form: FormData) {
     })
     .where(eq(schema.meetings.id, id));
   if (before.minutesUrl && before.minutesUrl !== minutesUrl) await deleteBlobs([before.minutesUrl]);
-  redirect(`/admin/meetings/${id}?saved=1#record`);
+  const video = status === "completed" ? "ok" : await syncRoom(id);
+  redirect(`/admin/meetings/${id}?saved=1${video === "failed" ? "&video=failed" : ""}#record`);
 }
 
 const cleanMobile = (v: string) => {
   const d = v.replace(/[^\d+]/g, "");
-  return d.replace(/\D/g, "").length >= 10 ? d.slice(0, 14) : "";
+  return d.replace(/\D/g, "").length >= 10 ? d.slice(0, 16) : "";
 };
 
 /** One person per line: "Name, mobile, email". Mobile and email are optional. */

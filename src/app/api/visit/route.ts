@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 import { getDb } from "@/db";
+import { clientKey, tooMany } from "@/lib/rate-limit";
 
 const total = async () => {
   const r = await getDb().execute(sql`select coalesce(sum(visits), 0)::int as n from visit_counts`);
@@ -13,6 +14,7 @@ export async function GET() {
 }
 
 export async function POST() {
+  if (await tooMany("visit-ip", await clientKey(), 120, 600)) return NextResponse.json({ total: await total() });
   await getDb().execute(sql`
     insert into visit_counts (day, visits) values ((now() at time zone 'Asia/Kolkata')::date, 1)
     on conflict (day) do update set visits = visit_counts.visits + 1`);

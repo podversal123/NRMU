@@ -26,7 +26,7 @@ export const UI_KEYS = [
   // portal layout
   "lastUpdated", "visitors", "print", "share", "copied", "sitemapTitle",
   // meeting invitation page
-  "mInvite", "mInvitedName", "mWhen", "mWhere", "mHeldOnline", "mHeldInPerson", "mHeldHybrid", "mAttend", "mYes", "mMaybe", "mNo", "mYourReply", "mNoReply", "mSaved", "mBadLink", "mBadLinkText", "mCancelled", "mOver", "mLive", "mVideoLater",
+  "mInvite", "mInvitedName", "mWhen", "mWhere", "mHeldOnline", "mHeldInPerson", "mHeldHybrid", "mAttend", "mYes", "mMaybe", "mNo", "mYourReply", "mNoReply", "mSaved", "mBadLink", "mBadLinkText", "mCancelled", "mOver", "mLive", "mVideoLater", "mJoin", "mCallNotYet", "mCallLoading", "mCallLeft", "mCallAgain", "mCallBack", "mCallError", "mCalendar", "mYourTime",
 ] as const;
 export type UiKey = (typeof UI_KEYS)[number];
 export type Dict = Record<UiKey, string>;

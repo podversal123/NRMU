@@ -123,5 +123,10 @@
     "en": "1440,60,15",
     "hi": "",
     "group": "meetings"
+  },
+  "meetings.video_enabled": {
+    "en": "0",
+    "hi": "",
+    "group": "meetings"
   }
 }
