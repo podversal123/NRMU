@@ -50,6 +50,25 @@ export async function getDivisions() {
   return getDb().select().from(divisions).where(eq(divisions.active, true)).orderBy(asc(divisions.sort));
 }
 
+/** Every branch (sub-division) with the division it belongs to, for the registration form. */
+export async function getBranches() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("divisions");
+  return getDb()
+    .select({ id: schema.branches.id, divisionId: schema.branches.divisionId, nameEn: schema.branches.nameEn, nameHi: schema.branches.nameHi })
+    .from(schema.branches)
+    .orderBy(asc(schema.branches.divisionId), asc(schema.branches.sort));
+}
+
+/** The fields a member can work in. */
+export async function getDepartments() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("departments");
+  return getDb().select().from(schema.departments).where(eq(schema.departments.active, true)).orderBy(asc(schema.departments.sort));
+}
+
 export async function getFeaturedLeaders() {
   "use cache";
   cacheLife("hours");

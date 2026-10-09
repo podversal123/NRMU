@@ -8,8 +8,8 @@ import { isLang, type Lang } from "@/lib/i18n";
 import { getDivisionCards, getEvents, getGalleryPhotos, getPostsByCategory } from "@/lib/content";
 import { getFeaturedLeaders, getLatestPosts, getSearchChips, getSettings, getUi, pick, setting } from "@/lib/queries";
 
-const wrap = "mx-auto max-w-[1180px] px-5 sm:px-8";
-const h2 = "text-[clamp(1.5rem,2.2vw,1.75rem)] font-medium";
+const wrap = "mx-auto max-w-wrap px-5 sm:px-8";
+const h2 = "text-2xl font-medium lg:text-[1.75rem]";
 
 function dateParts(iso: string, lang: Lang) {
   const d = new Date(iso + "T00:00:00");
@@ -20,9 +20,9 @@ function dateParts(iso: string, lang: Lang) {
 /** A bordered panel with a title bar. */
 function Panel({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="border border-line bg-white">
-      <header className="flex items-center justify-between gap-3 border-b-2 border-signal px-5 py-3">
-        <h2 className="text-xl font-semibold leading-none">{title}</h2>
+    <section className="min-w-0 border border-line bg-white">
+      <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b-2 border-signal px-5 py-3">
+        <h2 className="min-w-0 text-xl font-semibold leading-tight">{title}</h2>
         {action}
       </header>
       {children}
@@ -71,7 +71,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         <div className="pointer-events-none relative z-10 -mt-10 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center">
           <div className={`${wrap} w-full`}>
             <div className="pointer-events-auto border border-line bg-white p-5 sm:p-8 lg:max-w-[33rem]">
-              <h1 className="text-[clamp(1.6rem,2.4vw,2rem)] font-medium leading-tight">
+              <h1 className="text-[1.6rem] font-medium leading-tight md:text-[1.8rem] lg:text-[2rem]">
                 {t("hero.title_a")} <span className="text-brand">{t("hero.title_b")}</span>
               </h1>
               <p className="mt-3 text-[0.97rem] text-muted">{t("hero.sub")}</p>
@@ -107,7 +107,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
 
       {/* NOTICE BOARD | LEADERS + HIGHLIGHTS */}
       <section className="py-12 lg:py-14">
-        <div className={`${wrap} grid items-start gap-6 lg:grid-cols-[1.3fr_1fr]`}>
+        <div className={`${wrap} grid grid-cols-1 items-start gap-6 lg:grid-cols-[1.3fr_1fr]`}>
           <Panel title={t("home.notice_title")} action={more("/orders")}>
             <ul className="divide-y divide-line">
               {latest.map((p) => {
@@ -208,7 +208,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             {more("/divisions")}
           </div>
           {/* phones: swipe sideways through the cards; larger screens: a grid */}
-          <div className="-mx-5 mt-9 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto overscroll-x-contain px-5 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
+          <div className="-mx-5 mt-9 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto overscroll-x-contain px-5 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 xl:grid-cols-5">
             {divisions.map((d) => (
               <DivisionCard key={d.slug} d={d} lang={lang} labels={labels} className="w-[80%] shrink-0 snap-start sm:w-auto" />
             ))}

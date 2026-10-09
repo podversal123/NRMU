@@ -168,6 +168,64 @@ export async function getOfficials() {
     .orderBy(asc(officeBearers.scope), asc(designations.sort), asc(officeBearers.sort), asc(officeBearers.id));
 }
 
+export type OfficePerson = {
+  id: number;
+  nameEn: string;
+  nameHi: string | null;
+  designationEn: string | null;
+  designationHi: string | null;
+  placeLabel: string | null;
+  addressEn: string | null;
+  phone: string | null;
+  photoUrl: string | null;
+};
+
+/**
+ * All office bearers in the three parts the union asked for: central, divisional (a part for every division)
+ * and branch (a part for every branch, grouped by division). Divisions and branches without a person are
+ * kept, so the page can say that their details are still to come.
+ */
+export async function getOfficeBearerParts() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("officials", "divisions");
+  const db = getDb();
+  const [divs, branches, people] = await Promise.all([
+    db.select().from(divisions).where(eq(divisions.active, true)).orderBy(asc(divisions.sort)),
+    db.select().from(schema.branches).orderBy(asc(schema.branches.divisionId), asc(schema.branches.sort), asc(schema.branches.id)),
+    db
+      .select({
+        id: officeBearers.id,
+        scope: officeBearers.scope,
+        divisionId: officeBearers.divisionId,
+        branchId: officeBearers.branchId,
+        nameEn: officeBearers.nameEn,
+        nameHi: officeBearers.nameHi,
+        designationEn: designations.nameEn,
+        designationHi: designations.nameHi,
+        placeLabel: officeBearers.placeLabel,
+        addressEn: officeBearers.addressEn,
+        phone: officeBearers.phone,
+        photoUrl: officeBearers.photoUrl,
+      })
+      .from(officeBearers)
+      .leftJoin(designations, eq(designations.id, officeBearers.designationId))
+      .where(eq(officeBearers.active, true))
+      .orderBy(asc(designations.sort), asc(officeBearers.sort), asc(officeBearers.id)),
+  ]);
+  const strip = ({ id, nameEn, nameHi, designationEn, designationHi, placeLabel, addressEn, phone, photoUrl }: (typeof people)[number]): OfficePerson => ({ id, nameEn, nameHi, designationEn, designationHi, placeLabel, addressEn, phone, photoUrl });
+  return {
+    central: people.filter((p) => p.scope === "central").map(strip),
+    divisions: divs.map((d) => ({
+      division: d,
+      leaders: people.filter((p) => p.divisionId === d.id && (p.scope === "division_president" || p.scope === "division_secretary")).map(strip),
+      branches: branches
+        .filter((b) => b.divisionId === d.id)
+        .map((b) => ({ branch: b, secretaries: people.filter((p) => p.scope === "branch_secretary" && p.branchId === b.id).map(strip) })),
+    })),
+  };
+}
+
 export async function getDivisionDetail(slug: string) {
   "use cache";
   cacheLife("hours");
@@ -319,4 +377,164 @@ export async function getGrievanceTypes() {
   cacheLife("hours");
   cacheTag("grievance-types");
   return getDb().select().from(schema.grievanceTypes).where(eq(schema.grievanceTypes.active, true)).orderBy(asc(schema.grievanceTypes.sort));
+}
+
+/* ------------------------- Public meetings ------------------------- */
+
+export type PublicMeetingType = { id: number; nameEn: string; nameHi: string | null; count: number };
+
+/**
+ * The public Meetings page lists these kinds as its headings. Only meetings the super admin marked public
+ * are ever read here, and only the columns below: the invitees, attendance, recording and private notes never leave the admin.
+ */
+export async function getPublicMeetingTypes(): Promise<PublicMeetingType[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("meetings");
+  const rows = await getDb().execute(sql`
+    select t.id, t.name_en as "nameEn", t.name_hi as "nameHi",
+           (select count(*)::int from meetings m where m.type_id = t.id and m.is_public and m.status <> 'cancelled') as count
+    from meeting_types t where t.active and t.show_public order by t.sort, t.id`);
+  return rowsOf<PublicMeetingType>(rows);
+}
+
+export type PublicMeeting = {
+  id: number;
+  typeId: number;
+  titleEn: string;
+  titleHi: string | null;
+  startsAt: string;
+  endsAt: string;
+  mode: string;
+  status: string;
+  venueEn: string | null;
+  venueHi: string | null;
+  divisionEn: string | null;
+  divisionHi: string | null;
+  agendaEn: string | null;
+  agendaHi: string | null;
+  resolutionsEn: string | null;
+  resolutionsHi: string | null;
+  minutesUrl: string | null;
+  minutesText: string | null;
+  noticeUrl: string | null;
+};
+
+const MEETING_COLS = sql`m.id, m.type_id as "typeId", m.title_en as "titleEn", m.title_hi as "titleHi", m.starts_at::text as "startsAt", m.ends_at::text as "endsAt",
+  m.mode, m.status, m.venue_en as "venueEn", m.venue_hi as "venueHi", d.name_en as "divisionEn", d.name_hi as "divisionHi",
+  m.agenda_en as "agendaEn", m.agenda_hi as "agendaHi", m.resolutions_en as "resolutionsEn", m.resolutions_hi as "resolutionsHi",
+  m.minutes_url as "minutesUrl", m.minutes_text as "minutesText", m.notice_url as "noticeUrl"`;
+
+export async function getPublicMeetings(typeId: number): Promise<PublicMeeting[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("meetings");
+  const rows = await getDb().execute(sql`
+    select ${MEETING_COLS} from meetings m
+    join meeting_types t on t.id = m.type_id and t.active and t.show_public
+    left join divisions d on d.id = m.division_id
+    where m.is_public and m.status <> 'cancelled' and m.type_id = ${typeId}
+    order by m.starts_at desc, m.id desc limit 300`);
+  return rowsOf<PublicMeeting>(rows);
+}
+
+export async function getPublicMeeting(id: number): Promise<PublicMeeting | null> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("meetings");
+  const rows = await getDb().execute(sql`
+    select ${MEETING_COLS} from meetings m
+    join meeting_types t on t.id = m.type_id and t.active and t.show_public
+    left join divisions d on d.id = m.division_id
+    where m.is_public and m.status <> 'cancelled' and m.id = ${id} limit 1`);
+  return rowsOf<PublicMeeting>(rows)[0] ?? null;
+}
+
+/* ---------------------------- Gallery albums ---------------------------- */
+
+export type AlbumCard = {
+  id: number;
+  titleEn: string;
+  titleHi: string | null;
+  heldOn: string | null;
+  divisionId: number | null;
+  divisionEn: string | null;
+  divisionHi: string | null;
+  branchEn: string | null;
+  branchHi: string | null;
+  cover: string;
+  photos: number;
+};
+
+/** Albums that have at least one visible photo, newest first. A division filter also matches albums of its branches. */
+export async function getGalleryAlbums(divisionId?: number, branchId?: number): Promise<AlbumCard[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("gallery");
+  const conds = [sql`a.active`];
+  if (branchId) conds.push(sql`a.branch_id = ${branchId}`);
+  else if (divisionId) conds.push(sql`(a.division_id = ${divisionId} or a.branch_id in (select id from branches where division_id = ${divisionId}))`);
+  const rows = await getDb().execute(sql`
+    select a.id, a.title_en as "titleEn", a.title_hi as "titleHi", a.held_on::text as "heldOn", coalesce(a.division_id, b.division_id) as "divisionId",
+           d.name_en as "divisionEn", d.name_hi as "divisionHi", b.name_en as "branchEn", b.name_hi as "branchHi",
+           (select p.url from gallery_photos p where p.album_id = a.id and p.active order by p.sort, p.id limit 1) as cover,
+           (select count(*)::int from gallery_photos p where p.album_id = a.id and p.active) as photos
+    from gallery_albums a
+    left join branches b on b.id = a.branch_id
+    left join divisions d on d.id = coalesce(a.division_id, b.division_id)
+    where ${sql.join(conds, sql` and `)}
+      and exists (select 1 from gallery_photos p where p.album_id = a.id and p.active)
+    order by a.sort, a.held_on desc nulls last, a.id desc`);
+  return rowsOf<AlbumCard>(rows);
+}
+
+export async function getGalleryAlbum(id: number) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("gallery");
+  const [album] = rowsOf<AlbumCard & { descriptionEn: string | null; descriptionHi: string | null }>(
+    await getDb().execute(sql`
+      select a.id, a.title_en as "titleEn", a.title_hi as "titleHi", a.description_en as "descriptionEn", a.description_hi as "descriptionHi",
+             a.held_on::text as "heldOn", coalesce(a.division_id, b.division_id) as "divisionId", d.name_en as "divisionEn", d.name_hi as "divisionHi",
+             b.name_en as "branchEn", b.name_hi as "branchHi", '' as cover, 0 as photos
+      from gallery_albums a left join branches b on b.id = a.branch_id left join divisions d on d.id = coalesce(a.division_id, b.division_id)
+      where a.id = ${id} and a.active limit 1`),
+  );
+  if (!album) return null;
+  const photos = rowsOf<GalleryRow>(
+    await getDb().execute(sql`
+      select id, url, caption_en as "captionEn", caption_hi as "captionHi", taken_on::text as "takenOn", featured
+      from gallery_photos where album_id = ${id} and active order by sort, taken_on desc nulls last, id`),
+  );
+  return { album, photos };
+}
+
+/** Photographs that are not in any album. */
+export async function getLoosePhotos(limit: number): Promise<GalleryRow[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("gallery");
+  const rows = await getDb().execute(sql`
+    select id, url, caption_en as "captionEn", caption_hi as "captionHi", taken_on::text as "takenOn", featured
+    from gallery_photos where active and album_id is null order by sort, taken_on desc nulls last, id desc limit ${limit}`);
+  return rowsOf<GalleryRow>(rows);
+}
+
+/* ------------------------------ Wing committees ------------------------------ */
+
+export type CommitteePerson = OfficePerson & { divisionId: number | null; divisionEn: string | null; divisionHi: string | null };
+
+/** The committee of a wing (women or youth): central members first, then division by division. */
+export async function getCommittee(wing: "women" | "youth"): Promise<CommitteePerson[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("committee", "divisions");
+  const rows = await getDb().execute(sql`
+    select c.id, c.name_en as "nameEn", c.name_hi as "nameHi", c.designation_en as "designationEn", c.designation_hi as "designationHi",
+           null::text as "placeLabel", null::text as "addressEn", c.phone, c.photo_url as "photoUrl",
+           c.division_id as "divisionId", d.name_en as "divisionEn", d.name_hi as "divisionHi"
+    from committee_members c left join divisions d on d.id = c.division_id
+    where c.wing = ${wing} and c.active
+    order by (c.division_id is not null), d.sort nulls first, c.sort, c.id`);
+  return rowsOf<CommitteePerson>(rows);
 }

@@ -240,12 +240,54 @@ export const galleryPhotos = pgTable(
     captionEn: text("caption_en").notNull().default(""),
     captionHi: text("caption_hi"),
     takenOn: date("taken_on"),
+    /** The album this photo belongs to; empty for a loose photo. */
+    albumId: integer("album_id").references(() => galleryAlbums.id, { onDelete: "set null" }),
     featured: boolean("featured").notNull().default(false),
     sort: integer("sort").notNull().default(0),
     active: boolean("active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("gallery_photos_idx").on(t.active, t.featured, t.takenOn.desc())],
+  (t) => [index("gallery_photos_idx").on(t.active, t.featured, t.takenOn.desc()), index("gallery_photos_album_idx").on(t.albumId)],
+);
+
+/** A set of photos from one occasion. Tagged with the division and branch it belongs to so visitors can filter. */
+export const galleryAlbums = pgTable(
+  "gallery_albums",
+  {
+    id: serial("id").primaryKey(),
+    titleEn: text("title_en").notNull(),
+    titleHi: text("title_hi"),
+    descriptionEn: text("description_en"),
+    descriptionHi: text("description_hi"),
+    /** Empty means the whole union. */
+    divisionId: integer("division_id").references(() => divisions.id, { onDelete: "set null" }),
+    branchId: integer("branch_id").references(() => branches.id, { onDelete: "set null" }),
+    heldOn: date("held_on"),
+    sort: integer("sort").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("gallery_albums_idx").on(t.active, t.heldOn.desc()), index("gallery_albums_division_idx").on(t.divisionId)],
+);
+
+/** The committee of a wing (women or youth). A row with no division belongs to the central committee. */
+export const committeeMembers = pgTable(
+  "committee_members",
+  {
+    id: serial("id").primaryKey(),
+    wing: text("wing").notNull(), // women | youth
+    nameEn: text("name_en").notNull(),
+    nameHi: text("name_hi"),
+    designationEn: text("designation_en"),
+    designationHi: text("designation_hi"),
+    divisionId: integer("division_id").references(() => divisions.id, { onDelete: "set null" }),
+    phone: text("phone"),
+    photoUrl: text("photo_url"),
+    sort: integer("sort").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("committee_members_idx").on(t.wing, t.active, t.sort)],
 );
 
 /* ------------------------- Events & meetings ------------------------- */
@@ -271,6 +313,58 @@ export const events = pgTable(
   (t) => [index("events_start_idx").on(t.published, t.startsAt.desc())],
 );
 
+/* ------------------------------- Members ------------------------------- */
+
+/** The field a member works in (commercial, loco, S&T...). Edited as data; a branch name alone cannot say it. */
+export const departments = pgTable("departments", {
+  id: serial("id").primaryKey(),
+  nameEn: text("name_en").notNull(),
+  nameHi: text("name_hi"),
+  sort: integer("sort").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+});
+
+/**
+ * Union members. Someone registers themselves (status "pending"); a super admin or the division admin of
+ * their division approves them ("active"). Only active members can sign in. The password is stored only as a
+ * one-way hash. `consent_at` records when they agreed to the privacy terms.
+ */
+export const members = pgTable(
+  "members",
+  {
+    id: serial("id").primaryKey(),
+    /** Given when the membership is approved, e.g. NRMU-000123. */
+    membershipNo: text("membership_no"),
+    name: text("name").notNull(),
+    mobile: text("mobile").notNull(),
+    email: text("email"),
+    employeeId: text("employee_id"),
+    divisionId: integer("division_id").references(() => divisions.id, { onDelete: "set null" }),
+    branchId: integer("branch_id").references(() => branches.id, { onDelete: "set null" }),
+    departmentId: integer("department_id").references(() => departments.id, { onDelete: "set null" }),
+    designation: text("designation"),
+    passwordHash: text("password_hash").notNull(),
+    /** Set when an admin gives a temporary password: the member must choose their own at the next sign-in. */
+    mustChangePassword: boolean("must_change_password").notNull().default(false),
+    status: text("status").notNull().default("pending"), // pending | active | suspended | rejected
+    consentAt: timestamp("consent_at", { withTimezone: true }).notNull(),
+    approvedBy: integer("approved_by").references(() => adminUsers.id, { onDelete: "set null" }),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    validUntil: date("valid_until"),
+    failedAttempts: integer("failed_attempts").notNull().default(0),
+    lockedUntil: timestamp("locked_until", { withTimezone: true }),
+    lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("members_mobile_idx").on(t.mobile),
+    uniqueIndex("members_no_idx").on(t.membershipNo),
+    index("members_division_idx").on(t.divisionId, t.status),
+    index("members_department_idx").on(t.departmentId),
+    index("members_status_idx").on(t.status, t.createdAt.desc()),
+  ],
+);
+
 /* ------------------------------- Meetings ------------------------------ */
 
 /** Kinds of meeting (executive committee, general body, ...). Edited as data, never hard-coded. */
@@ -278,6 +372,8 @@ export const meetingTypes = pgTable("meeting_types", {
   id: serial("id").primaryKey(),
   nameEn: text("name_en").notNull(),
   nameHi: text("name_hi"),
+  /** True for the kinds that have their own heading on the public Meetings pages. */
+  showPublic: boolean("show_public").notNull().default(false),
   sort: integer("sort").notNull().default(0),
   active: boolean("active").notNull().default(true),
 });
@@ -317,13 +413,18 @@ export const meetings = pgTable(
     recordingUrl: text("recording_url"),
     minutesUrl: text("minutes_url"),
     minutesText: text("minutes_text"),
+    /** Public meetings show their notice, agenda, resolutions and minutes on the website. Everything else stays private. */
+    isPublic: boolean("is_public").notNull().default(false),
+    noticeUrl: text("notice_url"),
+    resolutionsEn: text("resolutions_en"),
+    resolutionsHi: text("resolutions_hi"),
     /** Private notes of the super admin. */
     notes: text("notes"),
     createdBy: integer("created_by").references(() => adminUsers.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("meetings_start_idx").on(t.startsAt.desc()), index("meetings_status_idx").on(t.status, t.startsAt)],
+  (t) => [index("meetings_start_idx").on(t.startsAt.desc()), index("meetings_status_idx").on(t.status, t.startsAt), index("meetings_public_idx").on(t.isPublic, t.typeId, t.startsAt.desc())],
 );
 
 /** Who is invited, whether they said yes, and whether they came. */

@@ -25,7 +25,7 @@ const initialsOf = (name: string) =>
 
 export default function PersonCard({ p, lang, callLabel }: { p: Person; lang: Lang; callLabel: string }) {
   return (
-    <article className="flex min-w-0 gap-4 rounded-2xl border border-line bg-white p-4 sm:p-5">
+    <article className="flex min-w-0 gap-4 border border-line bg-white p-4 sm:p-5">
       {p.photoUrl ? (
         <Image src={p.photoUrl} alt="" width={64} height={64} className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-signal" />
       ) : (

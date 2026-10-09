@@ -10,13 +10,15 @@ export const instant = false;
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ denied?: string }> }) {
   const admin = await requireAdmin();
   const sp = await searchParams;
+  // A division admin sees the numbers of their own division only.
+  const mine = admin.role === "division_admin" ? sql`and division_id = ${admin.divisionId ?? -1}` : sql``;
   const r = (await getDb().execute(sql`
     select (select count(*)::int from posts where status = 'published') posts,
            (select count(*)::int from posts where status = 'draft') drafts,
            (select count(*)::int from office_bearers where active) officials,
            (select count(*)::int from divisions where active) divisions,
-           (select count(*)::int from join_requests where status = 'new') new_requests,
-           (select count(*)::int from join_requests) all_requests`)) as unknown as { rows?: Record<string, number>[] } & Record<string, number>[];
+           (select count(*)::int from members where status = 'pending' ${mine}) new_requests,
+           (select count(*)::int from members where true ${mine}) all_requests`)) as unknown as { rows?: Record<string, number>[] } & Record<string, number>[];
   const c = (r.rows ?? r)[0];
   const alerts = admin.role === "super_admin" ? await getMeetingAlerts() : [];
   const now = new Date();
@@ -25,7 +27,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     { label: "Published orders & news", value: c.posts, href: "/admin/posts" },
     { label: "Drafts", value: c.drafts, href: "/admin/posts?status=draft" },
     { label: "Office bearers", value: c.officials, href: "/admin/officials" },
-    { label: "New join requests", value: c.new_requests, href: "/admin/requests", hot: c.new_requests > 0 },
+    { label: "Members waiting for approval", value: c.new_requests, href: "/admin/members", hot: c.new_requests > 0 },
   ];
 
   return (
@@ -63,7 +65,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         <div className="mt-4 flex flex-wrap gap-3">
           <Link href="/admin/posts/new" className="btn-primary px-5 py-2.5 text-sm">+ Add order / news</Link>
           <Link href="/admin/officials/new" className="rounded-full border-2 border-ink px-5 py-2 text-sm font-semibold hover:bg-ink hover:text-white">+ Add office bearer</Link>
-          <Link href="/admin/requests" className="rounded-full border-2 border-ink px-5 py-2 text-sm font-semibold hover:bg-ink hover:text-white">View join requests</Link>
+          <Link href="/admin/members" className="rounded-full border-2 border-ink px-5 py-2 text-sm font-semibold hover:bg-ink hover:text-white">View members</Link>
           {admin.role === "super_admin" && <Link href="/admin/meetings/new" className="rounded-full border-2 border-ink px-5 py-2 text-sm font-semibold hover:bg-ink hover:text-white">+ Schedule a meeting</Link>}
         </div>
       </Card>

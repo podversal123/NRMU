@@ -43,19 +43,51 @@
       ]
     },
     {
-      "en": "Organisation",
-      "hi": "संगठन",
-      "href": "#",
+      "en": "Office Bearers",
+      "hi": "पदाधिकारी",
+      "href": "/officials",
       "children": [
         {
-          "en": "Office Bearers",
-          "hi": "पदाधिकारी",
-          "href": "/officials"
+          "en": "Central Office Bearers",
+          "hi": "केंद्रीय पदाधिकारी",
+          "href": "/officials/central"
+        },
+        {
+          "en": "Divisional Office Bearers",
+          "hi": "मंडल पदाधिकारी",
+          "href": "/officials/divisional"
+        },
+        {
+          "en": "Branch Office Bearers",
+          "hi": "शाखा पदाधिकारी",
+          "href": "/officials/branch"
         },
         {
           "en": "Divisions",
           "hi": "मंडल",
           "href": "/divisions"
+        }
+      ]
+    },
+    {
+      "en": "Meetings",
+      "hi": "बैठकें",
+      "href": "/meetings",
+      "children": [
+        {
+          "en": "Standing Committee",
+          "hi": "स्थायी समिति",
+          "href": "/meetings/1"
+        },
+        {
+          "en": "AGM (Annual General Meeting)",
+          "hi": "वार्षिक आम सभा (ए.जी.एम.)",
+          "href": "/meetings/2"
+        },
+        {
+          "en": "Branch Council Minutes",
+          "hi": "शाखा परिषद की कार्यवाही",
+          "href": "/meetings/3"
         }
       ]
     },
@@ -87,8 +119,8 @@
           "href": "/gallery"
         },
         {
-          "en": "Events & Meetings",
-          "hi": "कार्यक्रम एवं बैठकें",
+          "en": "Events",
+          "hi": "कार्यक्रम",
           "href": "/events"
         }
       ]

@@ -2,9 +2,10 @@
 
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
-import { deleteBlobs } from "@/lib/blob";
+import { deleteBlobs, isOwnBlobUrl } from "@/lib/blob";
 import { createRoom, deleteRoom, DailyError, listRecordings, updateRoom, videoConfigured } from "@/lib/daily";
 import { fromIst, MODES, reminderOffsets, RSVPS, videoEnabled } from "@/lib/meetings";
 
@@ -93,15 +94,18 @@ export async function saveMeeting(form: FormData) {
     agendaEn: str(form, "agendaEn", 5000) || null,
     agendaHi: str(form, "agendaHi", 5000) || null,
     recordingOn: mode !== "in_person" && form.get("recordingOn") === "on",
+    isPublic: form.get("isPublic") === "on",
+    noticeUrl: isOwnBlobUrl(str(form, "notice", 600)) ? str(form, "notice", 600) : null,
     updatedAt: new Date(),
   };
 
   const db = getDb();
   let id = Number(idRaw);
   if (id) {
-    const [before] = await db.select({ startsAt: schema.meetings.startsAt }).from(schema.meetings).where(eq(schema.meetings.id, id)).limit(1);
+    const [before] = await db.select({ startsAt: schema.meetings.startsAt, noticeUrl: schema.meetings.noticeUrl }).from(schema.meetings).where(eq(schema.meetings.id, id)).limit(1);
     if (!before) redirect("/admin/meetings");
     await db.update(schema.meetings).set(values).where(eq(schema.meetings.id, id));
+    if (before.noticeUrl && before.noticeUrl !== values.noticeUrl) await deleteBlobs([before.noticeUrl]);
     // A new time means every reminder is due again.
     if (before.startsAt.getTime() !== startsAt!.getTime()) await planReminders(id);
   } else {
@@ -109,6 +113,7 @@ export async function saveMeeting(form: FormData) {
     id = row.id;
     await planReminders(id);
   }
+  updateTag("meetings");
   const video = await syncRoom(id);
   redirect(`/admin/meetings/${id}?saved=1${video === "failed" ? "&video=failed" : video === "limit" ? "&video=limit" : ""}`);
 }
@@ -153,12 +158,13 @@ export async function deleteMeeting(form: FormData) {
     const [kept] = await getDb()
       .select({ id: schema.meetings.id })
       .from(schema.meetings)
-      .where(and(eq(schema.meetings.id, id), sql`(minutes_url is not null or minutes_text is not null or recording_url is not null or exists (select 1 from meeting_invitees i where i.meeting_id = meetings.id and i.attended))`))
+      .where(and(eq(schema.meetings.id, id), sql`(minutes_url is not null or minutes_text is not null or recording_url is not null or resolutions_en is not null or resolutions_hi is not null or exists (select 1 from meeting_invitees i where i.meeting_id = meetings.id and i.attended))`))
       .limit(1);
     if (kept) redirect(`/admin/meetings/${id}?error=kept`);
-    const [row] = await getDb().delete(schema.meetings).where(eq(schema.meetings.id, id)).returning({ minutesUrl: schema.meetings.minutesUrl, roomName: schema.meetings.roomName });
-    await deleteBlobs([row?.minutesUrl]);
+    const [row] = await getDb().delete(schema.meetings).where(eq(schema.meetings.id, id)).returning({ minutesUrl: schema.meetings.minutesUrl, noticeUrl: schema.meetings.noticeUrl, roomName: schema.meetings.roomName });
+    await deleteBlobs([row?.minutesUrl, row?.noticeUrl]);
     if (row?.roomName) await deleteRoom(row.roomName).catch(() => {});
+    updateTag("meetings");
   }
   redirect("/admin/meetings?deleted=1");
 }
@@ -179,6 +185,8 @@ export async function saveRecord(form: FormData) {
     .set({
       minutesUrl,
       minutesText: str(form, "minutesText", 20000) || null,
+      resolutionsEn: str(form, "resolutionsEn", 10000) || null,
+      resolutionsHi: str(form, "resolutionsHi", 10000) || null,
       recordingUrl: str(form, "recordingUrl", 600) || null,
       notes: str(form, "notes", 5000) || null,
       status,
@@ -186,6 +194,7 @@ export async function saveRecord(form: FormData) {
     })
     .where(eq(schema.meetings.id, id));
   if (before.minutesUrl && before.minutesUrl !== minutesUrl) await deleteBlobs([before.minutesUrl]);
+  updateTag("meetings");
   const video = status === "completed" ? "ok" : await syncRoom(id);
   redirect(`/admin/meetings/${id}?saved=1${video === "failed" ? "&video=failed" : ""}#record`);
 }

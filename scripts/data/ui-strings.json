@@ -490,5 +490,189 @@
   "mYourTime": {
     "en": "In your time",
     "hi": "आपके समय में"
+  },
+  "memBranch": {
+    "en": "Branch",
+    "hi": "शाखा"
+  },
+  "memBranchPick": {
+    "en": "Select your branch",
+    "hi": "अपनी शाखा चुनें"
+  },
+  "memDepartment": {
+    "en": "Department (your field)",
+    "hi": "विभाग (आपका क्षेत्र)"
+  },
+  "memDepartmentPick": {
+    "en": "Select your department",
+    "hi": "अपना विभाग चुनें"
+  },
+  "memPassword": {
+    "en": "Create a password",
+    "hi": "पासवर्ड बनाएँ"
+  },
+  "memPasswordHint": {
+    "en": "At least 8 characters. You will sign in with your mobile number and this password.",
+    "hi": "कम से कम 8 अक्षर। आप अपने मोबाइल नंबर और इस पासवर्ड से साइन इन करेंगे।"
+  },
+  "memPassword2": {
+    "en": "Type the password again",
+    "hi": "पासवर्ड दोबारा लिखें"
+  },
+  "memConsent": {
+    "en": "I confirm that these details are correct and I agree to the privacy terms of NRMU.",
+    "hi": "मैं पुष्टि करता/करती हूँ कि ये जानकारी सही है और मैं एन.आर.एम.यू. की गोपनीयता शर्तों से सहमत हूँ।"
+  },
+  "memConsentLink": {
+    "en": "Read the privacy terms",
+    "hi": "गोपनीयता शर्तें पढ़ें"
+  },
+  "memErrBranch": {
+    "en": "Please select your branch.",
+    "hi": "कृपया अपनी शाखा चुनें।"
+  },
+  "memErrDepartment": {
+    "en": "Please select your department.",
+    "hi": "कृपया अपना विभाग चुनें।"
+  },
+  "memErrPassword": {
+    "en": "The password must have at least 8 characters and must not be your mobile number.",
+    "hi": "पासवर्ड में कम से कम 8 अक्षर होने चाहिए और वह आपका मोबाइल नंबर नहीं होना चाहिए।"
+  },
+  "memErrPassword2": {
+    "en": "The two passwords are not the same.",
+    "hi": "दोनों पासवर्ड एक जैसे नहीं हैं।"
+  },
+  "memErrConsent": {
+    "en": "Please tick the box to continue.",
+    "hi": "आगे बढ़ने के लिए बॉक्स पर निशान लगाएँ।"
+  },
+  "memErrExists": {
+    "en": "This mobile number is already registered. Please sign in.",
+    "hi": "यह मोबाइल नंबर पहले से पंजीकृत है। कृपया साइन इन करें।"
+  },
+  "memThanksTitle": {
+    "en": "Registration received",
+    "hi": "पंजीकरण प्राप्त हुआ"
+  },
+  "memThanksText": {
+    "en": "Your details are with the union. You can sign in as soon as they are approved.",
+    "hi": "आपकी जानकारी यूनियन के पास पहुँच गई है। मंज़ूरी मिलते ही आप साइन इन कर सकेंगे।"
+  },
+  "memHaveAccount": {
+    "en": "Already registered?",
+    "hi": "पहले से पंजीकृत हैं?"
+  },
+  "memLoginTitle": {
+    "en": "Member sign in",
+    "hi": "सदस्य साइन इन"
+  },
+  "memLoginSub": {
+    "en": "Sign in with the mobile number you registered with.",
+    "hi": "जिस मोबाइल नंबर से पंजीकरण किया था, उससे साइन इन करें।"
+  },
+  "memLoginPassword": {
+    "en": "Password",
+    "hi": "पासवर्ड"
+  },
+  "memLoginButton": {
+    "en": "Sign in",
+    "hi": "साइन इन"
+  },
+  "memLoginWrong": {
+    "en": "The mobile number or the password is not correct.",
+    "hi": "मोबाइल नंबर या पासवर्ड सही नहीं है।"
+  },
+  "memLoginPending": {
+    "en": "Your registration is waiting for approval. You can sign in once it is approved.",
+    "hi": "आपका पंजीकरण मंज़ूरी की प्रतीक्षा में है। मंज़ूरी के बाद आप साइन इन कर सकेंगे।"
+  },
+  "memLoginInactive": {
+    "en": "This membership is not active. Please contact your division office.",
+    "hi": "यह सदस्यता सक्रिय नहीं है। कृपया अपने मंडल कार्यालय से संपर्क करें।"
+  },
+  "memLoginLocked": {
+    "en": "Too many wrong attempts. Please try again after 15 minutes.",
+    "hi": "बहुत बार गलत कोशिश हुई। कृपया 15 मिनट बाद फिर कोशिश करें।"
+  },
+  "memNotMember": {
+    "en": "Not a member yet?",
+    "hi": "अभी सदस्य नहीं हैं?"
+  },
+  "memHeaderLogin": {
+    "en": "Member sign in",
+    "hi": "सदस्य साइन इन"
+  },
+  "memForgot": {
+    "en": "Forgot your password? Ask your division office to give you a new one.",
+    "hi": "पासवर्ड भूल गए? अपने मंडल कार्यालय से नया पासवर्ड माँगें।"
+  },
+  "memAccountTitle": {
+    "en": "My membership",
+    "hi": "मेरी सदस्यता"
+  },
+  "memCardTitle": {
+    "en": "NRMU membership card",
+    "hi": "एन.आर.एम.यू. सदस्यता कार्ड"
+  },
+  "memNo": {
+    "en": "Membership no.",
+    "hi": "सदस्यता क्रमांक"
+  },
+  "memStatusLabel": {
+    "en": "Status",
+    "hi": "स्थिति"
+  },
+  "memActive": {
+    "en": "Active",
+    "hi": "सक्रिय"
+  },
+  "memValid": {
+    "en": "Valid until",
+    "hi": "वैधता"
+  },
+  "memOngoing": {
+    "en": "Ongoing",
+    "hi": "जारी"
+  },
+  "memPrint": {
+    "en": "Print or save the card",
+    "hi": "कार्ड प्रिंट करें या सहेजें"
+  },
+  "memSignOut": {
+    "en": "Sign out",
+    "hi": "साइन आउट"
+  },
+  "memChangeTitle": {
+    "en": "Change your password",
+    "hi": "पासवर्ड बदलें"
+  },
+  "memCurrent": {
+    "en": "Current password",
+    "hi": "वर्तमान पासवर्ड"
+  },
+  "memNew": {
+    "en": "New password",
+    "hi": "नया पासवर्ड"
+  },
+  "memChangeButton": {
+    "en": "Change password",
+    "hi": "पासवर्ड बदलें"
+  },
+  "memChanged": {
+    "en": "Your password has been changed.",
+    "hi": "आपका पासवर्ड बदल दिया गया है।"
+  },
+  "memErrCurrent": {
+    "en": "The current password is not correct.",
+    "hi": "वर्तमान पासवर्ड सही नहीं है।"
+  },
+  "memMustChange": {
+    "en": "Please choose a new password of your own before you continue.",
+    "hi": "आगे बढ़ने से पहले कृपया अपना नया पासवर्ड चुनें।"
+  },
+  "memJoinNow": {
+    "en": "Join NRMU",
+    "hi": "सदस्य बनें"
   }
 }

@@ -53,7 +53,7 @@ async function OrderPageContent({ params }: Props) {
   return (
     <>
       <PageHero lang={lang} title={title} crumbs={[{ href: `/${lang}`, label: ui.home }, { href: `/${lang}/orders`, label: ordersTitle }, { label: formatDate(post.publishedAt, lang) }]} />
-      <article className="mx-auto grid max-w-[1180px] gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <article className="mx-auto grid max-w-wrap gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0 rounded-none border border-line bg-white p-6 sm:p-10">
           <SafeHtml html={post.contentHtml} />
         </div>
@@ -74,7 +74,7 @@ async function OrderPageContent({ params }: Props) {
               <ul className="mt-3 space-y-2">
                 {post.files.map((f) => (
                   <li key={f.url}>
-                    <a href={f.url.replace(/^http:/, "https:")} target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 rounded-lg border border-line p-3 hover:border-brand hover:bg-paper">
+                    <a href={f.url.replace(/^http:/, "https:")} target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 border border-line p-3 hover:border-brand hover:bg-paper">
                       <Icon name="pdf" className="mt-0.5 shrink-0 text-brand" />
                       <span className="min-w-0">
                         <span className="line-clamp-2 break-words text-sm font-semibold group-hover:text-brand">{f.name || fileName(f.url)}</span>

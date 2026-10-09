@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { sql } from "drizzle-orm";
+import { getDb } from "@/db";
 import { requireAdmin, type Role } from "@/lib/auth";
 import { getMeetingAlerts } from "@/lib/meetings";
 import { logout } from "../login/actions";
@@ -14,11 +16,13 @@ const NAV: { href: string; label: string; roles: Role[] }[] = [
   { href: "/admin/pages", label: "Pages", roles: ["super_admin", "editor"] },
   { href: "/admin/gallery", label: "Photo gallery", roles: ["super_admin", "editor"] },
   { href: "/admin/officials", label: "Office bearers", roles: ["super_admin", "editor", "division_admin"] },
+  { href: "/admin/wings", label: "Women & Youth wings", roles: ["super_admin", "editor"] },
   { href: "/admin/divisions", label: "Divisions & branches", roles: ["super_admin", "editor"] },
   { href: "/admin/grievances", label: "Grievances", roles: ["super_admin", "editor", "division_admin"] },
   { href: "/admin/events", label: "Events", roles: ["super_admin", "editor"] },
   { href: "/admin/meetings", label: "Meetings", roles: ["super_admin"] },
-  { href: "/admin/requests", label: "Join requests", roles: ["super_admin", "editor", "division_admin"] },
+  { href: "/admin/members", label: "Members", roles: ["super_admin", "division_admin"] },
+  { href: "/admin/departments", label: "Departments", roles: ["super_admin"] },
   { href: "/admin/settings", label: "Site text", roles: ["super_admin"] },
   { href: "/admin/navigation", label: "Menus & links", roles: ["super_admin"] },
   { href: "/admin/users", label: "Admin users", roles: ["super_admin"] },
@@ -36,6 +40,17 @@ async function Shell({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
   const items = NAV.filter((n) => n.roles.includes(admin.role));
   // meetings that are on now or later today, shown as a badge on the Meetings link
+  // registrations waiting for approval: all of them for a super admin, the division's own for a division admin
+  const waiting =
+    admin.role === "editor"
+      ? 0
+      : Number(
+          (
+            (await getDb().execute(
+              sql`select count(*)::int as n from members where status = 'pending' ${admin.role === "division_admin" ? sql`and division_id = ${admin.divisionId ?? -1}` : sql``}`,
+            )) as unknown as { rows?: { n: number }[] } & { n: number }[]
+          ).rows?.[0]?.n ?? 0,
+        );
   const meetingsToday = admin.role === "super_admin" ? (await getMeetingAlerts()).filter((a) => a.group !== "soon").length : 0;
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
@@ -51,6 +66,9 @@ async function Shell({ children }: { children: React.ReactNode }) {
           {items.map((n) => (
             <Link key={n.href} href={n.href} className="block shrink-0 whitespace-nowrap rounded-lg px-4 py-2.5 text-[0.95rem] font-medium text-dim hover:bg-white/10 hover:text-signal">
               {n.label}
+              {n.href === "/admin/members" && waiting > 0 && (
+                <span aria-label={`${waiting} waiting`} className="ml-2 inline-grid h-5 min-w-5 place-items-center rounded-full bg-signal px-1.5 text-xs font-bold text-ink">{waiting}</span>
+              )}
               {n.href === "/admin/meetings" && meetingsToday > 0 && (
                 <span aria-label={`${meetingsToday} today`} className="ml-2 inline-grid h-5 min-w-5 place-items-center rounded-full bg-signal px-1.5 text-xs font-bold text-ink">{meetingsToday}</span>
               )}

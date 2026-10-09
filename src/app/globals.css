@@ -37,12 +37,22 @@
   --font-display: var(--font-roboto), var(--font-noto-deva), "Segoe UI", Arial, sans-serif;
   --font-sans: var(--font-roboto), var(--font-noto-deva), "Segoe UI", Arial, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;
+  /* Page width in rem (73.75rem = the old 1180px) so it grows together with the text on large screens. */
+  --container-wrap: 73.75rem;
 }
 
 html {
   scroll-behavior: smooth;
   background: var(--ink);
+  /* Everything is sized in rem, so scaling the root scales the whole page. --screen-scale grows on big
+     screens; --user-scale is the visitor's own A- / A / A+ choice (percent). */
+  --screen-scale: 1;
+  font-size: calc(var(--user-scale, 100) * var(--screen-scale) * 1%);
 }
+@media (min-width: 1536px) { html { --screen-scale: 1.125; } }
+@media (min-width: 1792px) { html { --screen-scale: 1.25; } }
+@media (min-width: 2200px) { html { --screen-scale: 1.5; } }
+@media (min-width: 3000px) { html { --screen-scale: 1.875; } }
 body {
   background: #ffffff;
   color: var(--ink);
@@ -129,3 +139,9 @@ h1, h2, h3, h4, .font-display { font-family: var(--font-display); font-weight: 5
 .prose-nrmu td, .prose-nrmu th { border: 1px solid var(--line); padding: 0.5rem 0.75rem; vertical-align: top; }
 .prose-nrmu th { background: var(--paper); text-align: left; }
 .prose-nrmu blockquote { border-left: 3px solid var(--gold); padding-left: 1rem; color: var(--muted); }
+
+/* Printing a page: only the content, without the menu, the footer or the buttons. The membership card keeps its colours. */
+@media print {
+  .print-chrome, .no-print { display: none !important; }
+  .print-card { box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

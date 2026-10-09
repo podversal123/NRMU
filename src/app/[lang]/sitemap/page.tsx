@@ -19,7 +19,7 @@ export default async function SitemapPage({ params }: { params: Promise<{ lang: 
   return (
     <>
       <PageHero lang={lang} title={ui.sitemapTitle} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: ui.sitemapTitle }]} />
-      <div className="mx-auto grid max-w-[1180px] gap-10 px-5 py-12 sm:grid-cols-2 sm:px-8 lg:grid-cols-3">
+      <div className="mx-auto grid max-w-wrap gap-10 px-5 py-12 sm:grid-cols-2 sm:px-8 lg:grid-cols-3">
         {menu.map((m) => (
           <section key={m.id}>
             <h2 className={h}>{m.href === "#" ? pick(lang, m.labelEn, m.labelHi) : <Link href={href(m.href)} className="hover:text-brand">{pick(lang, m.labelEn, m.labelHi)}</Link>}</h2>

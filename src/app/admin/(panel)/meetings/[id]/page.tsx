@@ -43,7 +43,7 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
   ]);
   const now = new Date();
   const state = m ? meetingState(m, now) : null;
-  const hasRecord = Boolean(m && (m.minutesUrl || m.minutesText || m.recordingUrl || invitees.some((i) => i.attended)));
+  const hasRecord = Boolean(m && (m.minutesUrl || m.minutesText || m.recordingUrl || m.resolutionsEn || m.resolutionsHi || invitees.some((i) => i.attended)));
   const count = { yes: invitees.filter((i) => i.rsvp === "yes").length, attended: invitees.filter((i) => i.attended).length };
   // A new meeting starts at the next full hour and runs for an hour.
   const nextHour = new Date(Math.ceil(now.getTime() / 3600000) * 3600000);
@@ -96,6 +96,16 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
           <Field label="Venue (Hindi)"><input name="venueHi" defaultValue={m?.venueHi ?? ""} className={inputCls} /></Field>
           <Field label="Agenda (English)" hint="One point per line."><textarea name="agendaEn" rows={6} defaultValue={m?.agendaEn ?? ""} className={inputCls} /></Field>
           <Field label="Agenda (Hindi)"><textarea name="agendaHi" rows={6} defaultValue={m?.agendaHi ?? ""} className={inputCls} /></Field>
+          <div className="border-t border-line pt-5 sm:col-span-2">
+            <label className="flex items-start gap-3 font-semibold">
+              <input type="checkbox" name="isPublic" defaultChecked={m?.isPublic ?? false} className="mt-0.5 h-6 w-6 shrink-0" />
+              <span>
+                Show on the public website
+                <span className="mt-1 block text-sm font-normal text-muted">Visitors then see the title, date, place, notice, agenda, resolutions and minutes under Meetings. The invitee list, attendance and recording always stay private. Leave this off for a private meeting.</span>
+              </span>
+            </label>
+          </div>
+          <div className="sm:col-span-2"><UploadField name="notice" label="Notice of the meeting (PDF or Word)" kind="document" folder="meetings" initial={m?.noticeUrl ? [m.noticeUrl] : []} /></div>
         </Card>
         <Card className="space-y-5 self-start">
           <div>
@@ -230,6 +240,8 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
               <Field label="Link to the recording" hint="Filled in automatically once video calls are connected; you can also paste a link."><input name="recordingUrl" defaultValue={m.recordingUrl ?? ""} className={inputCls} /></Field>
               <div className="sm:col-span-2"><UploadField name="minutes" label="Minutes (PDF or Word)" kind="document" folder="meetings" initial={m.minutesUrl ? [m.minutesUrl] : []} /></div>
               <Field label="Minutes in text" className="sm:col-span-2"><textarea name="minutesText" rows={8} defaultValue={m.minutesText ?? ""} className={inputCls} /></Field>
+              <Field label="Resolutions (English)" hint="One resolution per line. Shown publicly only when the meeting is public."><textarea name="resolutionsEn" rows={5} defaultValue={m.resolutionsEn ?? ""} className={inputCls} /></Field>
+              <Field label="Resolutions (Hindi)"><textarea name="resolutionsHi" rows={5} defaultValue={m.resolutionsHi ?? ""} className={inputCls} /></Field>
               <Field label="Private notes" hint="Only you can see these." className="sm:col-span-2"><textarea name="notes" rows={3} defaultValue={m.notes ?? ""} className={inputCls} /></Field>
               <div className="sm:col-span-2"><SubmitButton className="btn-primary px-6 py-3">Save the record</SubmitButton></div>
             </Card>

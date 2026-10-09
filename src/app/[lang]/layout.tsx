@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Noto_Sans_Devanagari, Roboto } from "next/font/google";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import "../globals.css";
 import Header from "@/components/Header";
+import { TEXT_SIZES } from "@/lib/text-size";
 import Footer from "@/components/Footer";
 import { isLang, locales } from "@/lib/i18n";
 import { getMenu, getSettings, pick, setting, getUi } from "@/lib/queries";
@@ -50,8 +52,25 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   const other = lang === "en" ? "hi" : "en";
 
   return (
-    <html lang={lang} className={`${roboto.variable} ${notoDevanagari.variable} ${mono.variable} antialiased`}>
+    <html lang={lang} suppressHydrationWarning className={`${roboto.variable} ${notoDevanagari.variable} ${mono.variable} antialiased`}>
       <body className="flex min-h-screen flex-col">
+        {/* Applies the visitor's saved text size before the first paint, so the page does not jump when it loads. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var r=localStorage.getItem("nrmu-size"),s=r===null?NaN:Number(r),z=${JSON.stringify(TEXT_SIZES)};if(Number.isInteger(s)&&s>=0&&s<z.length)document.documentElement.style.setProperty("--user-scale",String(z[s]))}catch(e){}`,
+          }}
+        />
+        {/* The header reads the current address (to mark the open menu item). Pages whose address is only known per request
+            need a boundary around it; the placeholder keeps the same height so nothing jumps when the real header arrives. */}
+        <Suspense
+          fallback={
+            <div aria-hidden>
+              <div className="h-11 bg-ink lg:h-9" />
+              <div className="h-[5.6rem] border-b border-line bg-white sm:h-[6.6rem]" />
+              <div className="h-12 bg-ink" />
+            </div>
+          }
+        >
         <Header
           lang={lang}
           orgName={setting(s, "org.name", lang)}
@@ -70,8 +89,10 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
             langSwitch: t.langSwitch,
             navPrimary: t.navPrimary,
             navMobile: t.navMobile,
+            memberLogin: t.memHeaderLogin,
           }}
         />
+        </Suspense>
         <main id="main" className="flex-1">
           {children}
         </main>

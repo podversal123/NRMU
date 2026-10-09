@@ -112,8 +112,8 @@ const DIVISIONS: { slug: string; key: string; en: string; hi: string; active: bo
   { slug: "workshop", key: "Workshop", en: "Workshop", hi: "कार्यशाला", active: true },
   { slug: "bridge", key: "Bridge", en: "Bridge", hi: "ब्रिज", active: true },
   { slug: "accounts", key: "Accounts", en: "Accounts", hi: "लेखा", active: true },
-  // Present in the branch spreadsheet but not on the live website; hidden until confirmed.
-  { slug: "jammu", key: "Jammu", en: "Jammu", hi: "जम्मू", active: false },
+  // In the union's branch spreadsheet (four branches) and counted by the client among the ten divisions; it was not on the old website.
+  { slug: "jammu", key: "Jammu", en: "Jammu", hi: "जम्मू", active: true },
 ];
 
 // Addresses of the division pages on the old WordPress site, used to redirect old links.
@@ -381,7 +381,8 @@ async function ensureFeatureDefaults() {
   const feat = JSON.parse(fs.readFileSync(path.join(__dirname, "data", "features.json"), "utf8")) as {
     nav: { area: string; en: string; hi: string; href: string }[];
     grievanceTypes: [string, string][];
-    meetingTypes: [string, string][];
+    meetingTypes: [string, string, string?][];
+    departments: [string, string][];
   };
   const settings = [
     ...Object.entries(extra).map(([key, v]) => ({ key, valueEn: v.en, valueHi: v.hi, group: v.group })),
@@ -402,7 +403,11 @@ async function ensureFeatureDefaults() {
   }
   const [{ n: meetingTypeCount }] = (await db.execute(sql`select count(*)::int as n from meeting_types`)).rows as { n: number }[];
   if (!Number(meetingTypeCount)) {
-    await db.insert(schema.meetingTypes).values(feat.meetingTypes.map(([en, hi], i) => ({ nameEn: en, nameHi: hi, sort: i })));
+    await db.insert(schema.meetingTypes).values(feat.meetingTypes.map(([en, hi, flag], i) => ({ nameEn: en, nameHi: hi, showPublic: flag === "public", sort: i })));
+  }
+  const [{ n: departmentCount }] = (await db.execute(sql`select count(*)::int as n from departments`)).rows as { n: number }[];
+  if (!Number(departmentCount)) {
+    await db.insert(schema.departments).values(feat.departments.map(([en, hi], i) => ({ nameEn: en, nameHi: hi, sort: i })));
   }
   console.log("feature defaults ensured");
 }

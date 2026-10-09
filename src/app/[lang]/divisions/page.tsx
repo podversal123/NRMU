@@ -20,7 +20,7 @@ export default async function DivisionsPage({ params }: { params: Promise<{ lang
   return (
     <>
       <PageHero lang={lang} title={title} sub={setting(s, "divisions.sub", lang)} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: title }]} />
-      <div className="mx-auto grid max-w-[1180px] gap-5 px-5 py-14 sm:grid-cols-2 sm:px-8 lg:grid-cols-3">
+      <div className="mx-auto grid max-w-wrap gap-5 px-5 py-14 sm:grid-cols-2 sm:px-8 xl:grid-cols-5">
         {cards.map((d) => (
           <DivisionCard key={d.slug} d={d} lang={lang} labels={labels} />
         ))}

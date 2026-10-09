@@ -128,5 +128,220 @@
     "en": "0",
     "hi": "",
     "group": "meetings"
+  },
+  "officials.central.sub": {
+    "en": "The central team of NRMU.",
+    "hi": "एन.आर.एम.यू. की केंद्रीय टीम।",
+    "group": "officials"
+  },
+  "officials.divisional.sub": {
+    "en": "The President and the Secretary of every division.",
+    "hi": "हर मंडल के अध्यक्ष और सचिव।",
+    "group": "officials"
+  },
+  "officials.branch.sub": {
+    "en": "The Secretary of every branch, division by division.",
+    "hi": "हर शाखा के सचिव, मंडलवार।",
+    "group": "officials"
+  },
+  "officials.pending": {
+    "en": "Details will be added soon.",
+    "hi": "जानकारी जल्द जोड़ी जाएगी।",
+    "group": "officials"
+  },
+  "officials.jump": {
+    "en": "Go to a division",
+    "hi": "किसी मंडल पर जाएँ",
+    "group": "officials"
+  },
+  "officials.unit.people": {
+    "en": "office bearers",
+    "hi": "पदाधिकारी",
+    "group": "officials"
+  },
+  "officials.unit.divisions": {
+    "en": "divisions",
+    "hi": "मंडल",
+    "group": "officials"
+  },
+  "officials.unit.branches": {
+    "en": "branches",
+    "hi": "शाखाएँ",
+    "group": "officials"
+  },
+  "officials.open": {
+    "en": "Open",
+    "hi": "खोलें",
+    "group": "officials"
+  },
+  "officials.back": {
+    "en": "All office bearers",
+    "hi": "सभी पदाधिकारी",
+    "group": "officials"
+  },
+  "officials.division_page": {
+    "en": "Division page",
+    "hi": "मंडल का पृष्ठ",
+    "group": "officials"
+  },
+  "officials.card.central": {
+    "en": "Central Office Bearers",
+    "hi": "केंद्रीय पदाधिकारी",
+    "group": "officials"
+  },
+  "officials.card.divisional": {
+    "en": "Divisional Office Bearers",
+    "hi": "मंडल पदाधिकारी",
+    "group": "officials"
+  },
+  "officials.card.branch": {
+    "en": "Branch Office Bearers",
+    "hi": "शाखा पदाधिकारी",
+    "group": "officials"
+  },
+  "meetings.sub": {
+    "en": "Notices, agendas, resolutions and minutes of the union's meetings.",
+    "hi": "यूनियन की बैठकों की सूचनाएँ, कार्यसूची, प्रस्ताव और कार्यवाही।",
+    "group": "meetings"
+  },
+  "meetings.empty": {
+    "en": "No meetings have been published here yet.",
+    "hi": "यहाँ अभी कोई बैठक प्रकाशित नहीं हुई है।",
+    "group": "meetings"
+  },
+  "meetings.unit": {
+    "en": "meetings",
+    "hi": "बैठकें",
+    "group": "meetings"
+  },
+  "meetings.open": {
+    "en": "Open",
+    "hi": "खोलें",
+    "group": "meetings"
+  },
+  "meetings.back": {
+    "en": "All meetings",
+    "hi": "सभी बैठकें",
+    "group": "meetings"
+  },
+  "meetings.when": {
+    "en": "Date and time",
+    "hi": "तिथि और समय",
+    "group": "meetings"
+  },
+  "meetings.place": {
+    "en": "Place",
+    "hi": "स्थान",
+    "group": "meetings"
+  },
+  "meetings.for": {
+    "en": "For",
+    "hi": "किसके लिए",
+    "group": "meetings"
+  },
+  "meetings.whole_union": {
+    "en": "Whole union",
+    "hi": "पूरा संगठन",
+    "group": "meetings"
+  },
+  "meetings.notice": {
+    "en": "Notice of the meeting",
+    "hi": "बैठक की सूचना",
+    "group": "meetings"
+  },
+  "meetings.resolutions": {
+    "en": "Resolutions",
+    "hi": "प्रस्ताव",
+    "group": "meetings"
+  },
+  "meetings.minutes_file": {
+    "en": "Minutes (document)",
+    "hi": "कार्यवाही (दस्तावेज़)",
+    "group": "meetings"
+  },
+  "meetings.cancelled": {
+    "en": "Cancelled",
+    "hi": "रद्द",
+    "group": "meetings"
+  },
+  "meetings.upcoming": {
+    "en": "Upcoming",
+    "hi": "आगामी",
+    "group": "meetings"
+  },
+  "meetings.earlier": {
+    "en": "Earlier meetings",
+    "hi": "पिछली बैठकें",
+    "group": "meetings"
+  },
+  "gallery.albums_title": {
+    "en": "Albums",
+    "hi": "एल्बम",
+    "group": "gallery"
+  },
+  "gallery.loose_title": {
+    "en": "More photographs",
+    "hi": "अन्य चित्र",
+    "group": "gallery"
+  },
+  "gallery.filter_division": {
+    "en": "Division",
+    "hi": "मंडल",
+    "group": "gallery"
+  },
+  "gallery.filter_branch": {
+    "en": "Branch",
+    "hi": "शाखा",
+    "group": "gallery"
+  },
+  "gallery.all": {
+    "en": "All",
+    "hi": "सभी",
+    "group": "gallery"
+  },
+  "gallery.show": {
+    "en": "Show",
+    "hi": "दिखाएँ",
+    "group": "gallery"
+  },
+  "gallery.unit": {
+    "en": "photos",
+    "hi": "चित्र",
+    "group": "gallery"
+  },
+  "gallery.back": {
+    "en": "All albums",
+    "hi": "सभी एल्बम",
+    "group": "gallery"
+  },
+  "gallery.empty_filter": {
+    "en": "There are no albums for this choice.",
+    "hi": "इस चयन के लिए कोई एल्बम नहीं है।",
+    "group": "gallery"
+  },
+  "gallery.whole_union": {
+    "en": "Whole union",
+    "hi": "पूरा संगठन",
+    "group": "gallery"
+  },
+  "wings.committee_title": {
+    "en": "Committee",
+    "hi": "समिति",
+    "group": "wings"
+  },
+  "wings.committee_pending": {
+    "en": "The committee list will be added soon.",
+    "hi": "समिति की सूची जल्द जोड़ी जाएगी।",
+    "group": "wings"
+  },
+  "wings.reports_title": {
+    "en": "Reports and updates",
+    "hi": "रिपोर्ट और समाचार",
+    "group": "wings"
+  },
+  "wings.central": {
+    "en": "Central committee",
+    "hi": "केंद्रीय समिति",
+    "group": "wings"
   }
 }

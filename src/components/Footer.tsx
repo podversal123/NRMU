@@ -25,13 +25,13 @@ export default async function Footer({ lang }: { lang: Lang }) {
   const href = (h2: string) => (/^https?:/.test(h2) ? h2 : `/${lang}${h2}`);
 
   return (
-    <footer id="site-footer" className="relative isolate flex flex-col justify-between overflow-hidden bg-ink text-light md:min-h-[100svh]">
+    <footer id="site-footer" className="print-chrome relative isolate flex flex-col justify-between overflow-hidden bg-ink text-light md:min-h-[100svh]">
       {image && <Image src={image} alt="" fill sizes="100vw" className="-z-10 object-cover object-[50%_60%]" />}
       <div className="absolute inset-0 -z-10 bg-ink/85" />
 
       <div aria-hidden className="hidden min-h-[34svh] md:block" />
 
-      <div className="mx-auto grid w-full max-w-[1180px] grid-cols-2 gap-x-6 gap-y-10 px-5 py-12 sm:px-8 md:gap-10 md:py-14 lg:grid-cols-[1.4fr_1fr_1.2fr_1fr]">
+      <div className="mx-auto grid w-full max-w-wrap grid-cols-2 gap-x-6 gap-y-10 px-5 py-12 sm:px-8 md:gap-10 md:py-14 lg:grid-cols-[1.4fr_1fr_1.2fr_1fr]">
         <div className="col-span-2 md:col-span-1">
           <div className="flex items-center gap-3.5">
             <Image src="/logo.jpg" alt="" width={56} height={56} className="h-14 w-14 rounded-full" />
@@ -93,7 +93,7 @@ export default async function Footer({ lang }: { lang: Lang }) {
       </div>
 
       <div className="border-t border-white/15">
-        <div className="mx-auto w-full max-w-[1180px] px-5 py-5 text-sm text-light/75 sm:px-8">
+        <div className="mx-auto w-full max-w-wrap px-5 py-5 text-sm text-light/75 sm:px-8">
           {policy.length > 0 && (
             <ul className="flex flex-wrap gap-x-5 gap-y-2">
               {policy.map((p) => (

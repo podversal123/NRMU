@@ -23,7 +23,7 @@ export default async function OrdersPage({ params, searchParams }: { params: Pro
   return (
     <>
       <PageHero lang={lang} title={title} sub={setting(s, "orders.sub", lang)} crumbs={[{ href: `/${lang}`, label: (await getUi(lang)).home }, { label: title }]} />
-      <Suspense fallback={<div className="mx-auto max-w-[1180px] px-5 py-20 sm:px-8" aria-busy="true" />}>
+      <Suspense fallback={<div className="mx-auto max-w-wrap px-5 py-20 sm:px-8" aria-busy="true" />}>
         <Results lang={lang} searchParams={searchParams} />
       </Suspense>
     </>
@@ -131,7 +131,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
   );
 
   return (
-    <div className="mx-auto grid max-w-[1180px] grid-cols-[minmax(0,1fr)] gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8 lg:py-10">
+    <div className="mx-auto grid max-w-wrap grid-cols-[minmax(0,1fr)] gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8 lg:py-10">
       <aside className="min-w-0">
         {/* phones: the filters are folded away so the orders come first; desktop: always open */}
         <details className="border border-line bg-white lg:hidden">

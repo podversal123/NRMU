@@ -12,7 +12,7 @@ export default function PostGrid({ rows, lang, photos = false }: { rows: CardRow
         <li key={p.id}>
           <Link
             href={`/${lang}/orders/${p.id}`}
-            className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-1 hover:border-ink hover:shadow-[0_8px_0_var(--ink)]"
+            className="group flex h-full flex-col overflow-hidden border border-line bg-white transition hover:-translate-y-1 hover:border-ink hover:shadow-[0_8px_0_var(--ink)]"
           >
             {photos && p.thumbUrl && (
               <div className="relative aspect-[4/3] w-full bg-paper">

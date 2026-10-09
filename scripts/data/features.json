@@ -59,6 +59,21 @@
   ],
   "meetingTypes": [
     [
+      "Standing Committee",
+      "स्थायी समिति",
+      "public"
+    ],
+    [
+      "AGM (Annual General Meeting)",
+      "वार्षिक आम सभा (ए.जी.एम.)",
+      "public"
+    ],
+    [
+      "Branch Council Minutes",
+      "शाखा परिषद की कार्यवाही",
+      "public"
+    ],
+    [
       "Executive committee",
       "कार्यकारिणी बैठक"
     ],
@@ -77,6 +92,64 @@
     [
       "Negotiating forum (PNM)",
       "वार्ता मंच (पी.एन.एम.)"
+    ],
+    [
+      "Other",
+      "अन्य"
+    ]
+  ],
+  "departments": [
+    [
+      "Commercial",
+      "वाणिज्य"
+    ],
+    [
+      "Engineering",
+      "इंजीनियरिंग"
+    ],
+    [
+      "Bridge",
+      "ब्रिज"
+    ],
+    [
+      "Loco",
+      "लोको"
+    ],
+    [
+      "Carriage & Wagon (C&W)",
+      "कैरिज एवं वैगन"
+    ],
+    [
+      "Signal & Telecom (S&T)",
+      "सिग्नल एवं दूरसंचार"
+    ],
+    [
+      "Electrical",
+      "विद्युत"
+    ],
+    [
+      "Mechanical",
+      "यांत्रिक"
+    ],
+    [
+      "Operating",
+      "परिचालन"
+    ],
+    [
+      "Stores",
+      "भंडार"
+    ],
+    [
+      "Accounts",
+      "लेखा"
+    ],
+    [
+      "Medical",
+      "चिकित्सा"
+    ],
+    [
+      "Workshop",
+      "कार्यशाला"
     ],
     [
       "Other",

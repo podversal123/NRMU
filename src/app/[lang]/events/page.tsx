@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 }
 
 export const eventDate = (iso: string, lang: Lang) =>
-  new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "long", timeStyle: "short", timeZone: "Asia/Kolkata" }).format(new Date(iso));
+  `${new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "long", timeZone: "Asia/Kolkata" }).format(new Date(iso))}, ${new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { timeStyle: "short", timeZone: "Asia/Kolkata" }).format(new Date(iso))}`;
 
 export default async function EventsPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
@@ -38,16 +38,16 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: s
   return (
     <>
       <PageHero lang={lang} title={title} sub={setting(s, "events.sub", lang)} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: title }]} />
-      <div className="mx-auto max-w-[1180px] space-y-16 px-5 py-14 sm:px-8">
+      <div className="mx-auto max-w-wrap space-y-16 px-5 py-14 sm:px-8">
         <section>
-          <h2 className="text-[clamp(1.5rem,2.2vw,1.75rem)] font-medium">{ui.upcoming}</h2>
+          <h2 className="text-2xl lg:text-[1.75rem] font-medium">{ui.upcoming}</h2>
           <div className="mt-8 grid gap-x-12 gap-y-10 md:grid-cols-2">
             {upcoming.length ? upcoming.map((e) => <Card key={e.id} e={e} />) : <p className="text-muted">{ui.noUpcoming}</p>}
           </div>
         </section>
         {past.length > 0 && (
           <section>
-            <h2 className="text-[clamp(1.5rem,2.2vw,1.75rem)] font-medium">{ui.past}</h2>
+            <h2 className="text-2xl lg:text-[1.75rem] font-medium">{ui.past}</h2>
             <div className="mt-8 grid gap-x-12 gap-y-10 md:grid-cols-2">
               {past.map((e) => <Card key={e.id} e={e} />)}
             </div>
