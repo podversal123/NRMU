@@ -374,5 +374,85 @@
   "sitemapTitle": {
     "en": "Sitemap",
     "hi": "साइट मैप"
+  },
+  "mInvite": {
+    "en": "Meeting invitation",
+    "hi": "बैठक का निमंत्रण"
+  },
+  "mInvitedName": {
+    "en": "Invitation for",
+    "hi": "इनके लिए निमंत्रण"
+  },
+  "mWhen": {
+    "en": "When",
+    "hi": "कब"
+  },
+  "mWhere": {
+    "en": "Where",
+    "hi": "कहाँ"
+  },
+  "mHeldOnline": {
+    "en": "Online (video call)",
+    "hi": "ऑनलाइन (वीडियो कॉल)"
+  },
+  "mHeldInPerson": {
+    "en": "In person",
+    "hi": "आमने-सामने"
+  },
+  "mHeldHybrid": {
+    "en": "In person and online",
+    "hi": "आमने-सामने और ऑनलाइन दोनों"
+  },
+  "mAttend": {
+    "en": "Will you attend?",
+    "hi": "क्या आप बैठक में आएँगे?"
+  },
+  "mYes": {
+    "en": "Yes, I will attend",
+    "hi": "हाँ, उपस्थित रहेंगे"
+  },
+  "mMaybe": {
+    "en": "Maybe",
+    "hi": "शायद"
+  },
+  "mNo": {
+    "en": "No, I cannot attend",
+    "hi": "नहीं, उपस्थित नहीं हो सकेंगे"
+  },
+  "mYourReply": {
+    "en": "Your reply",
+    "hi": "आपका उत्तर"
+  },
+  "mNoReply": {
+    "en": "Not answered yet",
+    "hi": "अभी उत्तर नहीं दिया"
+  },
+  "mSaved": {
+    "en": "Your reply is saved. You can change it any time before the meeting.",
+    "hi": "आपका उत्तर दर्ज हो गया। बैठक से पहले आप इसे कभी भी बदल सकते हैं।"
+  },
+  "mBadLink": {
+    "en": "This link is not valid",
+    "hi": "यह लिंक मान्य नहीं है"
+  },
+  "mBadLinkText": {
+    "en": "Please open the link that was sent to you, or contact the union office.",
+    "hi": "कृपया वही लिंक खोलें जो आपको भेजा गया था, या यूनियन कार्यालय से संपर्क करें।"
+  },
+  "mCancelled": {
+    "en": "This meeting has been cancelled.",
+    "hi": "यह बैठक रद्द कर दी गई है।"
+  },
+  "mOver": {
+    "en": "This meeting is over.",
+    "hi": "यह बैठक समाप्त हो चुकी है।"
+  },
+  "mLive": {
+    "en": "The meeting is on now.",
+    "hi": "बैठक अभी चल रही है।"
+  },
+  "mVideoLater": {
+    "en": "The button to join the video call will appear here when the meeting starts.",
+    "hi": "बैठक शुरू होने पर वीडियो कॉल में जुड़ने का बटन यहाँ दिखाई देगा।"
   }
 }

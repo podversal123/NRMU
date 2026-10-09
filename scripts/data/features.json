@@ -56,5 +56,31 @@
       "Other",
       "अन्य"
     ]
+  ],
+  "meetingTypes": [
+    [
+      "Executive committee",
+      "कार्यकारिणी बैठक"
+    ],
+    [
+      "General body",
+      "आम सभा"
+    ],
+    [
+      "Division meeting",
+      "मंडल बैठक"
+    ],
+    [
+      "Branch meeting",
+      "शाखा बैठक"
+    ],
+    [
+      "Negotiating forum (PNM)",
+      "वार्ता मंच (पी.एन.एम.)"
+    ],
+    [
+      "Other",
+      "अन्य"
+    ]
   ]
 }

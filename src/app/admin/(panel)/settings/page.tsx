@@ -13,7 +13,7 @@ export const metadata = { title: "Site text" };
 const GROUP_LABEL: Record<string, string> = {
   org: "Organisation", page: "Inner page banner", hero: "Home banner & intro", board: "Latest orders box", home: "Home page sections", cta: "Buttons",
   stats: "Numbers", footer: "Footer", site: "Website", orders: "Orders page", officials: "Office bearers page", division: "Division labels",
-  divisions: "Divisions page", women: "Women wing page", youth: "Youth page", gallery: "Gallery page", join: "Join page", content: "Content pictures",
+  divisions: "Divisions page", women: "Women wing page", youth: "Youth page", gallery: "Gallery page", join: "Join page", content: "Content pictures", meetings: "Meetings",
 };
 
 export default async function SettingsAdmin({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {

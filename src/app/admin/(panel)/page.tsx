@@ -2,6 +2,7 @@ import Link from "next/link";
 import { sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import { fmtDay, fmtTime, getMeetingAlerts, relative } from "@/lib/meetings";
 import { Card, PageTitle } from "../ui";
 
 // Always depends on the signed-in admin, so it is rendered per request.
@@ -17,6 +18,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
            (select count(*)::int from join_requests where status = 'new') new_requests,
            (select count(*)::int from join_requests) all_requests`)) as unknown as { rows?: Record<string, number>[] } & Record<string, number>[];
   const c = (r.rows ?? r)[0];
+  const alerts = admin.role === "super_admin" ? await getMeetingAlerts() : [];
+  const now = new Date();
 
   const tiles = [
     { label: "Published orders & news", value: c.posts, href: "/admin/posts" },
@@ -37,12 +40,31 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </Link>
         ))}
       </div>
+      {alerts.length > 0 && (
+        <Card className="mt-8">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="font-display text-2xl font-bold">{alerts.some((a) => a.group === "live") ? "A meeting is on now" : "Meetings coming up"}</h2>
+            <Link href="/admin/meetings" className="inline-block py-2 text-sm font-semibold text-brand">All meetings →</Link>
+          </div>
+          <ul className="mt-3 divide-y divide-line">
+            {alerts.slice(0, 6).map((a) => (
+              <li key={a.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3">
+                <Link href={`/admin/meetings/${a.id}`} className="font-semibold hover:text-brand">{a.titleEn}</Link>
+                <span className={`text-sm ${a.group === "soon" ? "text-muted" : "font-semibold text-brand"}`}>
+                  {a.group === "live" ? "Live now" : a.group === "today" ? `Today ${fmtTime(a.startsAt)}, ${relative(a.startsAt, now)}` : `${fmtDay(a.startsAt)}, ${fmtTime(a.startsAt)}`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
       <Card className="mt-8">
         <h2 className="font-display text-2xl font-bold">Quick actions</h2>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link href="/admin/posts/new" className="btn-primary px-5 py-2.5 text-sm">+ Add order / news</Link>
           <Link href="/admin/officials/new" className="rounded-full border-2 border-ink px-5 py-2 text-sm font-semibold hover:bg-ink hover:text-white">+ Add office bearer</Link>
           <Link href="/admin/requests" className="rounded-full border-2 border-ink px-5 py-2 text-sm font-semibold hover:bg-ink hover:text-white">View join requests</Link>
+          {admin.role === "super_admin" && <Link href="/admin/meetings/new" className="rounded-full border-2 border-ink px-5 py-2 text-sm font-semibold hover:bg-ink hover:text-white">+ Schedule a meeting</Link>}
         </div>
       </Card>
     </>

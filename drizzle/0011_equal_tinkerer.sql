@@ -1,0 +1,2 @@
+ALTER TABLE "meeting_invitees" ADD COLUMN "join_token" text DEFAULT replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '') NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "meeting_invitees_token_idx" ON "meeting_invitees" USING btree ("join_token");

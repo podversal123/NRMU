@@ -118,5 +118,10 @@
     "en": "nrmu.net,airfindia.org,airfindia.com",
     "hi": "",
     "group": "content"
+  },
+  "meetings.reminder_minutes": {
+    "en": "1440,60,15",
+    "hi": "",
+    "group": "meetings"
   }
 }

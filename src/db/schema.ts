@@ -271,6 +271,88 @@ export const events = pgTable(
   (t) => [index("events_start_idx").on(t.published, t.startsAt.desc())],
 );
 
+/* ------------------------------- Meetings ------------------------------ */
+
+/** Kinds of meeting (executive committee, general body, ...). Edited as data, never hard-coded. */
+export const meetingTypes = pgTable("meeting_types", {
+  id: serial("id").primaryKey(),
+  nameEn: text("name_en").notNull(),
+  nameHi: text("name_hi"),
+  sort: integer("sort").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+});
+
+/**
+ * Union meetings, scheduled and recorded by the super admin. Unlike `events` (which is the public
+ * calendar), everything here is private: invitees, attendance, recordings and minutes.
+ * "Live" is not stored; it follows from the clock (scheduled and between starts_at and ends_at).
+ */
+export const meetings = pgTable(
+  "meetings",
+  {
+    id: serial("id").primaryKey(),
+    titleEn: text("title_en").notNull(),
+    titleHi: text("title_hi"),
+    typeId: integer("type_id").references(() => meetingTypes.id, { onDelete: "set null" }),
+    /** Empty means the whole union. */
+    divisionId: integer("division_id").references(() => divisions.id, { onDelete: "set null" }),
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+    mode: text("mode").notNull().default("online"), // online | in_person | hybrid
+    venueEn: text("venue_en"),
+    venueHi: text("venue_hi"),
+    agendaEn: text("agenda_en"),
+    agendaHi: text("agenda_hi"),
+    status: text("status").notNull().default("scheduled"), // scheduled | completed | cancelled
+    recordingOn: boolean("recording_on").notNull().default(true),
+    /** Name of the video room at the video provider; set when the room is created. */
+    roomName: text("room_name"),
+    recordingUrl: text("recording_url"),
+    minutesUrl: text("minutes_url"),
+    minutesText: text("minutes_text"),
+    /** Private notes of the super admin. */
+    notes: text("notes"),
+    createdBy: integer("created_by").references(() => adminUsers.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("meetings_start_idx").on(t.startsAt.desc()), index("meetings_status_idx").on(t.status, t.startsAt)],
+);
+
+/** Who is invited, whether they said yes, and whether they came. */
+export const meetingInvitees = pgTable(
+  "meeting_invitees",
+  {
+    id: serial("id").primaryKey(),
+    meetingId: integer("meeting_id").notNull().references(() => meetings.id, { onDelete: "cascade" }),
+    officeBearerId: integer("office_bearer_id").references(() => officeBearers.id, { onDelete: "set null" }),
+    name: text("name").notNull(),
+    designation: text("designation"),
+    mobile: text("mobile"),
+    email: text("email"),
+    rsvp: text("rsvp").notNull().default("pending"), // pending | yes | no | maybe
+    attended: boolean("attended").notNull().default(false),
+    /** Secret in this person's own meeting link. 64 random hex characters, made by the database. */
+    joinToken: text("join_token").notNull().default(sql`replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')`),
+    joinedAt: timestamp("joined_at", { withTimezone: true }),
+    leftAt: timestamp("left_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("meeting_invitees_meeting_idx").on(t.meetingId), uniqueIndex("meeting_invitees_token_idx").on(t.joinToken)],
+);
+
+/** One row per reminder due before a meeting ("1 day before", "1 hour before"); sent_at is set when it went out. */
+export const meetingReminders = pgTable(
+  "meeting_reminders",
+  {
+    id: serial("id").primaryKey(),
+    meetingId: integer("meeting_id").notNull().references(() => meetings.id, { onDelete: "cascade" }),
+    minutesBefore: integer("minutes_before").notNull(),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+  },
+  (t) => [uniqueIndex("meeting_reminders_unique_idx").on(t.meetingId, t.minutesBefore)],
+);
+
 /* ------------------------------ Grievances ----------------------------- */
 
 export const grievanceTypes = pgTable("grievance_types", {

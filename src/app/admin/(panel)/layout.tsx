@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { requireAdmin, type Role } from "@/lib/auth";
+import { getMeetingAlerts } from "@/lib/meetings";
 import { logout } from "../login/actions";
 
 // The panel always depends on the signed-in admin, so it is rendered per request and has no static shell.
@@ -16,6 +17,7 @@ const NAV: { href: string; label: string; roles: Role[] }[] = [
   { href: "/admin/divisions", label: "Divisions & branches", roles: ["super_admin", "editor"] },
   { href: "/admin/grievances", label: "Grievances", roles: ["super_admin", "editor", "division_admin"] },
   { href: "/admin/events", label: "Events", roles: ["super_admin", "editor"] },
+  { href: "/admin/meetings", label: "Meetings", roles: ["super_admin"] },
   { href: "/admin/requests", label: "Join requests", roles: ["super_admin", "editor", "division_admin"] },
   { href: "/admin/settings", label: "Site text", roles: ["super_admin"] },
   { href: "/admin/navigation", label: "Menus & links", roles: ["super_admin"] },
@@ -33,6 +35,8 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
 async function Shell({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
   const items = NAV.filter((n) => n.roles.includes(admin.role));
+  // meetings that are on now or later today, shown as a badge on the Meetings link
+  const meetingsToday = admin.role === "super_admin" ? (await getMeetingAlerts()).filter((a) => a.group !== "soon").length : 0;
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
       <aside className="bg-coal text-light lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
@@ -47,6 +51,9 @@ async function Shell({ children }: { children: React.ReactNode }) {
           {items.map((n) => (
             <Link key={n.href} href={n.href} className="block shrink-0 whitespace-nowrap rounded-lg px-4 py-2.5 text-[0.95rem] font-medium text-dim hover:bg-white/10 hover:text-signal">
               {n.label}
+              {n.href === "/admin/meetings" && meetingsToday > 0 && (
+                <span aria-label={`${meetingsToday} today`} className="ml-2 inline-grid h-5 min-w-5 place-items-center rounded-full bg-signal px-1.5 text-xs font-bold text-ink">{meetingsToday}</span>
+              )}
             </Link>
           ))}
           <Link href="/en" target="_blank" className="block shrink-0 whitespace-nowrap rounded-lg px-4 py-2.5 text-[0.95rem] font-medium text-dim hover:bg-white/10 hover:text-signal">

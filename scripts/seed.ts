@@ -95,7 +95,9 @@ async function seedContent() {
   }
   console.log();
 
-  const pages = read<PageRow[]>("pages.json");
+  // WordPress leftovers that are not real content (a page-builder shortcode dump and the default sample page).
+  const LEFTOVERS = new Set(["home-page", "sample-page"]);
+  const pages = read<PageRow[]>("pages.json").filter((p) => !LEFTOVERS.has(p.slug));
   await db.insert(schema.pages).values(pages.map((p) => ({ slug: p.slug, titleEn: decode(p.title), contentHtml: p.html })));
   console.log("pages", pages.length);
 }
@@ -379,6 +381,7 @@ async function ensureFeatureDefaults() {
   const feat = JSON.parse(fs.readFileSync(path.join(__dirname, "data", "features.json"), "utf8")) as {
     nav: { area: string; en: string; hi: string; href: string }[];
     grievanceTypes: [string, string][];
+    meetingTypes: [string, string][];
   };
   const settings = [
     ...Object.entries(extra).map(([key, v]) => ({ key, valueEn: v.en, valueHi: v.hi, group: v.group })),
@@ -397,6 +400,10 @@ async function ensureFeatureDefaults() {
   if (!Number(typeCount)) {
     await db.insert(schema.grievanceTypes).values(feat.grievanceTypes.map(([en, hi], i) => ({ nameEn: en, nameHi: hi, sort: i })));
   }
+  const [{ n: meetingTypeCount }] = (await db.execute(sql`select count(*)::int as n from meeting_types`)).rows as { n: number }[];
+  if (!Number(meetingTypeCount)) {
+    await db.insert(schema.meetingTypes).values(feat.meetingTypes.map(([en, hi], i) => ({ nameEn: en, nameHi: hi, sort: i })));
+  }
   console.log("feature defaults ensured");
 }
 
@@ -404,6 +411,23 @@ async function main() {
   if (process.argv.includes("--config-only")) {
     await ensureFeatureDefaults();
     await ensurePortalDefaults();
+    return;
+  }
+  // The full run deletes posts, pages, divisions and office bearers. It is only for an EMPTY database.
+  // Anything already there (including content that was imported earlier) stops it, unless --wipe-content is given on purpose.
+  const [{ n: inUse }] = (await db.execute(sql`
+    select ((select count(*) from posts) + (select count(*) from office_bearers) + (select count(*) from meetings)
+          + (select count(*) from events) + (select count(*) from grievances) + (select count(*) from join_requests))::int as n`)).rows as { n: number }[];
+  if (Number(inUse) > 0 && !process.argv.includes("--wipe-content")) {
+    console.error(`
+Stopped: the database already holds ${inUse} posts, office bearers, meetings, events, grievances or join requests, and this run would delete and re-import them.
+Take a copy first ("npx tsx scripts/backup.ts"), then add --wipe-content only if you really mean it.
+To add missing defaults without touching content, use --config-only.
+`);
+    process.exit(1);
+  }
+  if (process.argv.includes("--check")) {
+    console.log("Check only: this run would be allowed to wipe and re-import content. Nothing was changed.");
     return;
   }
   console.log("Resetting content tables…");
