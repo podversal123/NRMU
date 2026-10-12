@@ -57,7 +57,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
         {/* Applies the visitor's saved text size before the first paint, so the page does not jump when it loads. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var r=localStorage.getItem("nrmu-size"),s=r===null?NaN:Number(r),z=${JSON.stringify(TEXT_SIZES)};if(Number.isInteger(s)&&s>=0&&s<z.length)document.documentElement.style.setProperty("--user-scale",String(z[s]))}catch(e){}`,
+            __html: `try{var r=localStorage.getItem("nrmu-size"),s=r===null?NaN:Number(r),z=${JSON.stringify(TEXT_SIZES)};if(Number.isInteger(s)&&s>=0&&s<z.length)document.documentElement.style.setProperty("--user-scale",String(z[s]));if(localStorage.getItem("nrmu-contrast")==="1")document.documentElement.setAttribute("data-contrast","high")}catch(e){}`,
           }}
         />
         {/* The header reads the current address (to mark the open menu item). Pages whose address is only known per request
@@ -84,6 +84,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
             textSmaller: t.textSmaller,
             textDefault: t.textDefault,
             textLarger: t.textLarger,
+            textContrast: t.textContrast,
             menu: t.menu,
             search: t.search,
             langSwitch: t.langSwitch,

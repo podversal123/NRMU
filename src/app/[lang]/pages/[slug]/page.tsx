@@ -41,7 +41,7 @@ async function StaticPageContent({ params }: Props) {
   return (
     <>
       <PageHero lang={lang} title={title} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: title }]} />
-      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+      <div className="mx-auto max-w-5xl px-5 py-12 sm:px-8">
         <div className="border border-line bg-white p-6 sm:p-10">
           <SafeHtml html={pick(lang, page.contentHtml, page.contentHtmlHi)} />
         </div>

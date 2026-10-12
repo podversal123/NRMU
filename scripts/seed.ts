@@ -315,6 +315,7 @@ const NAV: { area: string; en: string; hi: string; href: string }[] = [
   { area: "header", en: "Gallery", hi: "चित्र दीर्घा", href: "/gallery" },
   { area: "footer", en: "Orders & Circulars", hi: "आदेश एवं परिपत्र", href: "/orders" },
   { area: "footer", en: "Office Bearers", hi: "पदाधिकारी", href: "/officials" },
+  { area: "footer", en: "Meetings", hi: "बैठकें", href: "/meetings" },
   { area: "footer", en: "Divisions", hi: "मंडल", href: "/divisions" },
   { area: "footer", en: "Women Wing", hi: "महिला प्रकोष्ठ", href: "/women" },
   { area: "footer", en: "Youth NRMU", hi: "युवा एन.आर.एम.यू.", href: "/youth" },

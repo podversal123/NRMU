@@ -29,6 +29,54 @@
       "en": "Track a grievance",
       "hi": "शिकायत ट्रैक करें",
       "href": "/grievance/track"
+    },
+    {
+      "area": "quick",
+      "en": "Orders & Circulars",
+      "hi": "आदेश एवं परिपत्र",
+      "href": "/orders"
+    },
+    {
+      "area": "quick",
+      "en": "Raise a grievance",
+      "hi": "शिकायत दर्ज करें",
+      "href": "/grievance"
+    },
+    {
+      "area": "quick",
+      "en": "Track a grievance",
+      "hi": "शिकायत ट्रैक करें",
+      "href": "/grievance/track"
+    },
+    {
+      "area": "quick",
+      "en": "Office Bearers",
+      "hi": "पदाधिकारी",
+      "href": "/officials"
+    },
+    {
+      "area": "quick",
+      "en": "Divisions",
+      "hi": "मंडल",
+      "href": "/divisions"
+    },
+    {
+      "area": "quick",
+      "en": "Meetings",
+      "hi": "बैठकें",
+      "href": "/meetings"
+    },
+    {
+      "area": "quick",
+      "en": "Photo Gallery",
+      "hi": "चित्र दीर्घा",
+      "href": "/gallery"
+    },
+    {
+      "area": "quick",
+      "en": "Join NRMU",
+      "hi": "एन.आर.एम.यू. से जुड़ें",
+      "href": "/join"
     }
   ],
   "grievanceTypes": [

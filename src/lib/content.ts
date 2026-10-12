@@ -538,3 +538,20 @@ export async function getCommittee(wing: "women" | "youth"): Promise<CommitteePe
     order by (c.division_id is not null), d.sort nulls first, c.sort, c.id`);
   return rowsOf<CommitteePerson>(rows);
 }
+
+/* ------------------------------ Home figures ------------------------------ */
+
+/** Counts shown in "NRMU at a glance". Everything is counted from the database. */
+export async function getFigures() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("divisions", "officials", "posts");
+  const r = rowsOf<{ divisions: number; branches: number; officers: number; orders: number }>(
+    await getDb().execute(sql`
+      select (select count(*)::int from divisions where active) as divisions,
+             (select count(*)::int from branches b join divisions d on d.id = b.division_id where d.active) as branches,
+             (select count(*)::int from office_bearers where active) as officers,
+             (select count(*)::int from posts where status = 'published') as orders`),
+  )[0];
+  return r;
+}

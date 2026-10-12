@@ -8,7 +8,7 @@ export type Lang = (typeof locales)[number];
 export const isLang = (v: string): v is Lang => (locales as readonly string[]).includes(v);
 
 export const UI_KEYS = [
-  "skip", "textSize", "textSmaller", "textDefault", "textLarger", "menu", "search", "popular", "viewAll",
+  "skip", "textSize", "textSmaller", "textDefault", "textLarger", "textContrast", "tickerPause", "tickerPlay", "menu", "search", "popular", "viewAll",
   "pdf", "home", "category", "allCategories", "year", "allYears", "clear", "filters", "results", "result",
   "noResults", "noResultsHint", "download", "attachments", "previous", "next", "page", "of", "backToOrders",
   "call", "branches", "branchSecretaries", "noItems", "formName", "formMobile", "formEmail",

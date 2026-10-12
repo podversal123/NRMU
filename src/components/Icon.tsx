@@ -7,6 +7,11 @@ const paths: Record<string, React.ReactNode> = {
   mail: (<><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>),
   arrow: (<><path d="M5 12h14M13 6l6 6-6 6" /></>),
   pdf: (<><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5" /></>),
+  calendar: (<><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>),
+  camera: (<><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></>),
+  user: (<><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></>),
+  search: (<><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></>),
+  megaphone: (<><path d="M4 10v4h3l8 4V6L7 10z" /><path d="M18 9c1.5 1 1.5 5 0 6" /></>),
 };
 
 export default function Icon({ name, size = 22, className = "" }: { name: string; size?: number; className?: string }) {

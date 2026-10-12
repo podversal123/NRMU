@@ -2,14 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { TEXT_SIZES } from "@/lib/text-size";
 
 type Child = { href: string; label: string };
 export type MenuNode = { id: number; href: string; label: string; children: Child[] };
 type Labels = {
-  skip: string; textSize: string; textSmaller: string; textDefault: string; textLarger: string;
+  skip: string; textSize: string; textSmaller: string; textDefault: string; textLarger: string; textContrast: string;
   menu: string; search: string; langSwitch: string; navPrimary: string; navMobile: string; memberLogin: string;
 };
 
@@ -54,10 +54,20 @@ export default function Header({
   const open = openAt === pathname; // a menu opened on one page is closed on the next
   const setOpen = (v: boolean | ((o: boolean) => boolean)) =>
     setOpenAt((cur) => ((typeof v === "function" ? v(cur === pathname) : v) ? pathname : null));
+  // Desktop sub-menus: one at a time. A click keeps one open until the next click, Escape, a click elsewhere or a page change;
+  // a mouse resting on a heading opens it for as long as the pointer stays.
+  const [sub, setSub] = useState<{ id: number; path: string; by: "click" | "hover" } | null>(null);
+  const openSub = sub && sub.path === pathname ? sub : null;
+  const navRef = useRef<HTMLUListElement>(null);
+  // Phone menu: an accordion, one section at a time.
+  const [mobileSub, setMobileSub] = useState<{ id: number; path: string } | null>(null);
+  const openMobileSub = mobileSub && mobileSub.path === pathname ? mobileSub.id : null;
+  const closeSub = () => setSub(null);
   const [size, setSize] = useState(1);
   // Page breakpoints are fixed in screen pixels, but text can be made larger. The full menu needs the room of a 1024px
   // screen at normal text, so with larger text it switches to the compact menu on wider screens too.
   const [compact, setCompact] = useState(false);
+  const [contrast, setContrast] = useState(false);
   const [atFooter, setAtFooter] = useState(false);
   const [now, setNow] = useState<Date | null>(null);
 
@@ -75,6 +85,17 @@ export default function Header({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (Number.isInteger(s) && s >= 0 && s < SIZES.length) setSize(s);
   }, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setContrast(read("nrmu-contrast") === "1");
+  }, []);
+  const toggleContrast = () => {
+    const next = !contrast;
+    setContrast(next);
+    if (next) document.documentElement.setAttribute("data-contrast", "high");
+    else document.documentElement.removeAttribute("data-contrast");
+    write("nrmu-contrast", next ? "1" : "0");
+  };
   const choose = (next: number) => {
     const n = Math.min(SIZES.length - 1, Math.max(0, next));
     setSize(n);
@@ -103,6 +124,28 @@ export default function Header({
     io.observe(footer);
     return () => io.disconnect();
   }, [pathname]);
+
+  useEffect(() => {
+    if (!openSub && !open) return;
+    const onDown = (e: PointerEvent) => {
+      if (openSub && navRef.current && !navRef.current.contains(e.target as Node)) setSub(null);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (openSub) {
+        navRef.current?.querySelector<HTMLElement>(`[data-sub="${openSub.id}"]`)?.focus();
+        setSub(null);
+      }
+      if (open) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openSub?.id, open]);
 
   const other = lang === "en" ? "hi" : "en";
   const swapped = pathname.replace(/^\/(en|hi)(?=\/|$)/, `/${other}`);
@@ -140,6 +183,12 @@ export default function Header({
             </button>
             <button className={`${sizeBtn} disabled:opacity-35`} aria-label={labels.textLarger} disabled={size === SIZES.length - 1} onClick={() => choose(size + 1)}>
               A+
+            </button>
+            <button className={`${sizeBtn} ${contrast ? "text-signal" : ""}`} aria-label={labels.textContrast} aria-pressed={contrast} title={labels.textContrast} onClick={toggleContrast}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor" />
+              </svg>
             </button>
             <span className="mx-0.5 h-3.5 w-px bg-white/25 sm:mx-1.5" />
             <a
@@ -184,37 +233,60 @@ export default function Header({
         className={`print-chrome sticky top-0 z-40 bg-ink text-light transition-transform duration-300 ${atFooter && !open ? "-translate-y-full" : "translate-y-0"}`}
       >
         <div className="mx-auto flex max-w-wrap items-center justify-between px-5 sm:px-8">
-          <ul className={`hidden items-stretch ${compact ? "" : "lg:flex"}`}>
-            {menu.map((m, mi) => (
-              <li key={m.id} className="group relative">
-                {m.href === "#" ? (
-                  <span tabIndex={0} className="flex h-12 cursor-default items-center gap-1.5 px-4 text-[0.95rem] font-medium hover:text-soft focus:text-soft">
-                    {m.label}
-                    <Caret />
-                  </span>
-                ) : (
-                  <Link
-                    href={full(m.href)}
-                    aria-current={isActive(m.href) ? "page" : undefined}
-                    className={`flex h-12 items-center gap-1.5 border-b-2 px-4 text-[0.95rem] font-medium hover:text-soft ${isActive(m.href) ? "border-signal text-soft" : "border-transparent"}`}
-                  >
-                    {m.label}
-                    {m.children.length > 0 && <Caret />}
-                  </Link>
-                )}
-                {m.children.length > 0 && (
-                  <ul className={`invisible absolute ${mi >= menu.length - 2 ? "right-0" : "left-0"} top-full z-50 min-w-[16rem] border border-line bg-white py-2 text-ink opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100`}>
-                    {m.children.map((c) => (
-                      <li key={c.href}>
-                        <Link href={full(c.href)} className="block px-5 py-2.5 text-[0.95rem] hover:bg-paper hover:text-brand">
-                          {c.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
+          <ul ref={navRef} className={`hidden items-stretch ${compact ? "" : "lg:flex"}`}>
+            {menu.map((m, mi) => {
+              const kids = m.children.length > 0;
+              const isOpen = openSub?.id === m.id;
+              const active = isActive(m.href) || m.children.some((c) => isActive(c.href));
+              const tab = `flex h-12 items-center gap-1.5 border-b-2 text-[0.95rem] font-medium hover:text-soft focus-visible:text-soft ${active || isOpen ? "border-signal text-soft" : "border-transparent"}`;
+              const toggle = () => setSub(isOpen && openSub?.by === "click" ? null : { id: m.id, path: pathname, by: "click" });
+              return (
+                <li
+                  key={m.id}
+                  className="relative"
+                  onPointerEnter={(e) => {
+                    if (e.pointerType === "mouse" && kids) setSub({ id: m.id, path: pathname, by: "hover" });
+                  }}
+                  onPointerLeave={(e) => {
+                    if (e.pointerType === "mouse" && sub?.by === "hover") closeSub();
+                  }}
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setSub((cur) => (cur?.id === m.id ? null : cur));
+                  }}
+                >
+                  {!kids ? (
+                    <Link href={full(m.href)} aria-current={isActive(m.href) ? "page" : undefined} className={`${tab} px-4`}>
+                      {m.label}
+                    </Link>
+                  ) : m.href === "#" ? (
+                    <button type="button" data-sub={m.id} aria-expanded={isOpen} onClick={toggle} className={`${tab} px-4`}>
+                      {m.label}
+                      <Caret open={isOpen} />
+                    </button>
+                  ) : (
+                    <div className="flex items-stretch">
+                      <Link href={full(m.href)} aria-current={isActive(m.href) ? "page" : undefined} className={`${tab} pl-4 pr-1`}>
+                        {m.label}
+                      </Link>
+                      <button type="button" data-sub={m.id} aria-label={m.label} aria-expanded={isOpen} onClick={toggle} className={`${tab} pl-1 pr-3`}>
+                        <Caret open={isOpen} />
+                      </button>
+                    </div>
+                  )}
+                  {kids && isOpen && (
+                    <ul className={`absolute ${mi >= menu.length - 2 ? "right-0" : "left-0"} top-full z-50 min-w-[16rem] border border-line border-t-2 border-t-signal bg-white py-2 text-ink shadow-[0_12px_28px_rgba(0,0,0,0.18)]`}>
+                      {m.children.map((c) => (
+                        <li key={c.href}>
+                          <Link href={full(c.href)} onClick={closeSub} className="block px-5 py-2.5 text-[0.95rem] hover:bg-paper hover:text-brand">
+                            {c.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
           </ul>
 
           <button
@@ -252,28 +324,35 @@ export default function Header({
                       {m.label}
                     </Link>
                   ) : (
-                    <details>
-                      <summary className="flex cursor-pointer list-none items-center justify-between py-3.5 text-[1.05rem]">
+                    <>
+                      <button
+                        type="button"
+                        aria-expanded={openMobileSub === m.id}
+                        onClick={() => setMobileSub(openMobileSub === m.id ? null : { id: m.id, path: pathname })}
+                        className="flex w-full items-center justify-between py-3.5 text-left text-[1.05rem]"
+                      >
                         {m.label}
-                        <Caret />
-                      </summary>
-                      <ul className="pb-3 pl-4">
-                        {m.href !== "#" && (
-                          <li>
-                            <Link href={full(m.href)} onClick={() => setOpen(false)} className="block py-2 text-light/80">
-                              {m.label}
-                            </Link>
-                          </li>
-                        )}
-                        {m.children.map((c) => (
-                          <li key={c.href}>
-                            <Link href={full(c.href)} onClick={() => setOpen(false)} className="block py-2 text-light/80">
-                              {c.label}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
+                        <Caret open={openMobileSub === m.id} />
+                      </button>
+                      {openMobileSub === m.id && (
+                        <ul className="pb-3 pl-4">
+                          {m.href !== "#" && (
+                            <li>
+                              <Link href={full(m.href)} onClick={() => setOpen(false)} className="block py-2 text-light/80">
+                                {m.label}
+                              </Link>
+                            </li>
+                          )}
+                          {m.children.map((c) => (
+                            <li key={c.href}>
+                              <Link href={full(c.href)} onClick={() => setOpen(false)} className="block py-2 text-light/80">
+                                {c.label}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
                   )}
                 </li>
               ))}
@@ -290,9 +369,9 @@ export default function Header({
   );
 }
 
-function Caret() {
+function Caret({ open = false }: { open?: boolean }) {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden className={`transition-transform ${open ? "rotate-180" : ""}`}>
       <path d="m2 3.5 3 3 3-3" />
     </svg>
   );

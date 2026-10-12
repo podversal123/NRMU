@@ -343,5 +343,40 @@
     "en": "Central committee",
     "hi": "केंद्रीय समिति",
     "group": "wings"
+  },
+  "home.ticker_label": {
+    "en": "Latest",
+    "hi": "ताज़ा",
+    "group": "home"
+  },
+  "home.quick_title": {
+    "en": "Quick links",
+    "hi": "त्वरित लिंक",
+    "group": "home"
+  },
+  "home.figures_title": {
+    "en": "NRMU at a glance",
+    "hi": "एन.आर.एम.यू. एक नज़र में",
+    "group": "home"
+  },
+  "home.figure.divisions": {
+    "en": "Divisions",
+    "hi": "मंडल",
+    "group": "home"
+  },
+  "home.figure.branches": {
+    "en": "Branches",
+    "hi": "शाखाएँ",
+    "group": "home"
+  },
+  "home.figure.officers": {
+    "en": "Office bearers",
+    "hi": "पदाधिकारी",
+    "group": "home"
+  },
+  "home.figure.orders": {
+    "en": "Orders and circulars",
+    "hi": "आदेश एवं परिपत्र",
+    "group": "home"
   }
 }

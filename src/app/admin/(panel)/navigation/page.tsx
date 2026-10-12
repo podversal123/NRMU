@@ -48,7 +48,7 @@ export default async function NavigationAdmin({ searchParams }: { searchParams: 
             </div>
           ))}
           <div className="grid grid-cols-1 items-center gap-2 rounded-lg bg-paper p-3 lg:grid-cols-[5rem_1fr_1fr_9rem_8rem_4rem]">
-            <select name="nav_area_new" className={small}><option value="header">header</option><option value="footer">footer</option><option value="links">links</option><option value="policy">policy</option></select>
+            <select name="nav_area_new" className={small}><option value="header">header</option><option value="footer">footer</option><option value="links">links</option><option value="policy">policy</option><option value="quick">quick</option></select>
             <input name="nav_labelEn_new" placeholder="New link (English)" className={small} />
             <input name="nav_labelHi_new" placeholder="हिंदी" className={small} />
             <input name="nav_href_new" placeholder="/path or https://…" className={small} />

@@ -1,5 +1,5 @@
 /**
- * Adds any site text from scripts/data/extra-settings.json that the database does not have yet.
+ * Adds any site text from scripts/data/extra-settings.json and ui-strings.json that the database does not have yet.
  * It never changes or removes text that already exists, so edits made in the admin are kept.
  * Run: npx tsx scripts/add-settings.ts
  */
@@ -11,7 +11,11 @@ config({ path: ".env.local" });
 async function main() {
   const { getDb, schema } = await import("../src/db");
   const file = JSON.parse(fs.readFileSync(path.join(process.cwd(), "scripts/data/extra-settings.json"), "utf8")) as Record<string, { en: string; hi: string; group: string }>;
-  const rows = Object.entries(file).map(([key, v]) => ({ key, valueEn: v.en, valueHi: v.hi || null, group: v.group }));
+  const ui = JSON.parse(fs.readFileSync(path.join(process.cwd(), "scripts/data/ui-strings.json"), "utf8")) as Record<string, { en: string; hi: string | null }>;
+  const rows = [
+    ...Object.entries(file).map(([key, v]) => ({ key, valueEn: v.en, valueHi: v.hi || null, group: v.group })),
+    ...Object.entries(ui).map(([k, v]) => ({ key: `ui.${k}`, valueEn: v.en, valueHi: v.hi, group: "ui" })),
+  ];
   const db = getDb();
   const inserted = await db.insert(schema.siteSettings).values(rows).onConflictDoNothing().returning({ key: schema.siteSettings.key });
   console.log(`${inserted.length} new text item(s) added, ${rows.length - inserted.length} already present and left as they are.`);

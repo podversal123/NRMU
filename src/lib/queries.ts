@@ -23,7 +23,7 @@ export async function getSettings(): Promise<Settings> {
 
 export const setting = (s: Settings, key: string, lang: Lang) => pick(lang, s[key]?.en, s[key]?.hi);
 
-export async function getNav(area: "header" | "footer") {
+export async function getNav(area: "header" | "footer" | "quick") {
   "use cache";
   cacheLife("hours");
   cacheTag("nav");

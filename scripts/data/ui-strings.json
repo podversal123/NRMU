@@ -674,5 +674,17 @@
   "memJoinNow": {
     "en": "Join NRMU",
     "hi": "सदस्य बनें"
+  },
+  "textContrast": {
+    "en": "High contrast",
+    "hi": "उच्च कंट्रास्ट"
+  },
+  "tickerPause": {
+    "en": "Pause the moving list",
+    "hi": "चलती सूची रोकें"
+  },
+  "tickerPlay": {
+    "en": "Play the moving list",
+    "hi": "चलती सूची चलाएँ"
   }
 }

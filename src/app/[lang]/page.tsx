@@ -3,10 +3,13 @@ import Link from "next/link";
 import Photo from "@/components/Photo";
 import { notFound } from "next/navigation";
 import DivisionCard from "@/components/DivisionCard";
+import Figures from "@/components/Figures";
 import Icon from "@/components/Icon";
+import QuickLinks from "@/components/QuickLinks";
+import Ticker from "@/components/Ticker";
 import { isLang, type Lang } from "@/lib/i18n";
-import { getDivisionCards, getEvents, getGalleryPhotos, getPostsByCategory } from "@/lib/content";
-import { getFeaturedLeaders, getLatestPosts, getSearchChips, getSettings, getUi, pick, setting } from "@/lib/queries";
+import { getDivisionCards, getEvents, getFigures, getGalleryPhotos, getPostsByCategory } from "@/lib/content";
+import { getFeaturedLeaders, getLatestPosts, getNav, getSearchChips, getSettings, getUi, pick, setting } from "@/lib/queries";
 
 const wrap = "mx-auto max-w-wrap px-5 sm:px-8";
 const h2 = "text-2xl font-medium lg:text-[1.75rem]";
@@ -39,7 +42,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
 
-  const [s, ui, latest, leaders, chips, photos, events, divisions] = await Promise.all([
+  const [s, ui, latest, leaders, chips, photos, events, divisions, quick, figures] = await Promise.all([
     getSettings(),
     getUi(lang),
     getLatestPosts(8),
@@ -48,6 +51,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     getGalleryPhotos(7, true),
     getEvents(0, 3),
     getDivisionCards(),
+    getNav("quick"),
+    getFigures(),
   ]);
   const t = (key: string) => setting(s, key, lang);
   const news = await getPostsByCategory(setting(s, "config.news.category", "en"), 4, false, latest.map((p) => p.id));
@@ -62,6 +67,14 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
 
   return (
     <>
+      {/* LATEST ORDERS, moving slowly (pausable) */}
+      <Ticker
+        label={t("home.ticker_label")}
+        pause={ui.tickerPause}
+        play={ui.tickerPlay}
+        items={latest.slice(0, 6).map((p) => ({ href: `/${lang}/orders/${p.id}`, text: pick(lang, p.titleEn, p.titleHi), date: new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "medium" }).format(new Date(p.publishedAt + "T00:00:00")) }))}
+      />
+
       {/* BANNER with the search card */}
       <section className="relative bg-paper">
         <div className="relative h-56 w-full overflow-hidden bg-ink sm:h-[24rem] lg:h-[31rem]">
@@ -104,6 +117,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           </div>
         </div>
       </section>
+
+      <QuickLinks title={t("home.quick_title")} lang={lang} items={quick.map((q) => ({ id: q.id, href: q.href, label: pick(lang, q.labelEn, q.labelHi) }))} />
 
       {/* NOTICE BOARD | LEADERS + HIGHLIGHTS */}
       <section className="py-12 lg:py-14">
@@ -195,6 +210,17 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           </div>
         </div>
       </section>
+
+      <Figures
+        title={t("home.figures_title")}
+        lang={lang}
+        items={[
+          { label: t("home.figure.divisions"), value: figures.divisions },
+          { label: t("home.figure.branches"), value: figures.branches },
+          { label: t("home.figure.officers"), value: figures.officers },
+          { label: t("home.figure.orders"), value: figures.orders },
+        ]}
+      />
 
       {/* DIVISIONS */}
       <section className="bg-paper py-14 lg:py-16">
