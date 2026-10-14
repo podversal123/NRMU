@@ -24,7 +24,7 @@ export default async function YouthPage({ params }: { params: Promise<{ lang: st
       <PageHero lang={lang} title={title} sub={setting(s, "youth.sub", lang)} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: title }]} />
       <div className="mx-auto max-w-wrap space-y-16 px-5 py-14 sm:px-8">
         <CommitteeSection people={committee} lang={lang} title={t("wings.committee_title")} centralLabel={t("wings.central")} pending={t("wings.committee_pending")} callLabel={ui.call} />
-        <section>
+        <section id="reports" className="scroll-mt-28">
           <div className="track-red mb-5 w-24" />
           <h2 className="text-2xl font-medium">{t("wings.reports_title")}</h2>
           <div className="mt-6">{posts.length ? <PostGrid rows={posts} lang={lang} /> : <p className="text-muted">{ui.noItems}</p>}</div>

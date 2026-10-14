@@ -65,7 +65,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       {ui.viewAll} →
     </Link>
   );
-  const labels = { secretary: t("division.secretary_label"), branches: ui.branches, branchSecretaries: ui.branchSecretaries, next: ui.next, previous: ui.previous };
+  const labels = { secretary: t("division.secretary_label"), president: t("division.president_label"), branches: ui.branches, branchSecretaries: ui.branchSecretaries, next: ui.next, previous: ui.previous };
 
   return (
     <>

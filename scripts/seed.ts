@@ -301,6 +301,7 @@ const SETTINGS: Record<string, Pair> = {
   "officials.group.division_president": { en: "Divisional Presidents", hi: "मंडल अध्यक्ष" },
   "officials.group.division_secretary": { en: "Divisional Secretaries", hi: "मंडल सचिव" },
   "division.secretary_label": { en: "Divisional Secretary", hi: "मंडल सचिव" },
+  "division.president_label": { en: "Divisional President", hi: "मंडल अध्यक्ष" },
   "women.pages_title": { en: "Committees", hi: "समितियाँ" },
   "women.posts_title": { en: "Activities & Events", hi: "गतिविधियाँ एवं कार्यक्रम" },
 };
@@ -328,6 +329,7 @@ async function seedConfig() {
     "config.women.category": { en: "women-wing", hi: "women-wing" },
     "config.women.page_pattern": { en: "women", hi: "women" },
     "config.youth.category": { en: "youth-nrmu", hi: "youth-nrmu" },
+    "config.emagazine.category": { en: "e-magazine", hi: "e-magazine" },
   };
   const all = [
     ...Object.entries(SETTINGS).map(([key, v]) => ({ key, valueEn: v.en, valueHi: v.hi, group: key.split(".")[0] })),

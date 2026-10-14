@@ -50,7 +50,7 @@ export default async function WomenPage({ params }: { params: Promise<{ lang: st
           </section>
         )}
         {posts.length > 0 && (
-          <section>
+          <section id="reports" className="scroll-mt-28">
             <div className="track-red mb-5 w-24" />
             <h2 className="font-display text-2xl font-semibold sm:text-2xl">{setting(s, "women.posts_title", lang)}</h2>
             <div className="mt-6">

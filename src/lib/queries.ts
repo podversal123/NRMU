@@ -24,14 +24,15 @@ export async function getSettings(): Promise<Settings> {
 
 export const setting = (s: Settings, key: string, lang: Lang) => pick(lang, s[key]?.en, s[key]?.hi);
 
-export async function getNav(area: "header" | "footer" | "quick") {
+/** `withHidden` also returns items switched off in the admin (used for page titles of sections taken out of the menu). */
+export async function getNav(area: "header" | "footer" | "quick", withHidden = false) {
   "use cache";
   cacheLife("hours");
   cacheTag("nav");
   return getDb()
     .select()
     .from(navItems)
-    .where(and(eq(navItems.area, area), eq(navItems.active, true)))
+    .where(withHidden ? eq(navItems.area, area) : and(eq(navItems.area, area), eq(navItems.active, true)))
     .orderBy(asc(navItems.sort));
 }
 

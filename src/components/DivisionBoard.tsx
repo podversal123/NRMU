@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 
-export type BoardItem = { href: string; name: string; other: string; secretary: string; branches: string; secretaries: string };
+export type BoardItem = { href: string; name: string; other: string; secretary: string; president: string; branches: string; secretaries: string };
 
 /**
  * A featured panel for one division beside a list of all of them. Pointing at (or tapping) a row

@@ -6,7 +6,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { TEXT_SIZES } from "@/lib/text-size";
 
-type Child = { href: string; label: string };
+type Child = { href: string; label: string; children?: Child[] };
 export type MenuNode = { id: number; href: string; label: string; children: Child[] };
 type Labels = {
   skip: string; textSize: string; textSmaller: string; textDefault: string; textLarger: string; textContrast: string;
@@ -65,6 +65,8 @@ export default function Header({
   const [mobileSub, setMobileSub] = useState<{ id: number; path: string } | null>(null);
   const openMobileSub = mobileSub && mobileSub.path === pathname ? mobileSub.id : null;
   const closeSub = () => setSub(null);
+  // Third level (a dropdown item with its own items): opens on hover or keyboard focus through CSS, or by tapping its arrow.
+  const [flyout, setFlyout] = useState<string | null>(null);
   const [size, setSize] = useState(1);
   // Page breakpoints are fixed in screen pixels, but text can be made larger. The full menu needs the room of a 1024px
   // screen at normal text, so with larger text it switches to the compact menu on wider screens too.
@@ -263,7 +265,7 @@ export default function Header({
             {menu.map((m, mi) => {
               const kids = m.children.length > 0;
               const isOpen = openSub?.id === m.id;
-              const active = isActive(m.href) || m.children.some((c) => isActive(c.href));
+              const active = isActive(m.href) || m.children.some((c) => isActive(c.href) || (c.children ?? []).some((g) => isActive(g.href)));
               const tab = `flex h-12 items-center gap-1.5 border-b-2 text-[0.95rem] font-medium hover:text-soft focus-visible:text-soft ${active || isOpen ? "border-signal text-soft" : "border-transparent"}`;
               const toggle = () => setSub(isOpen && openSub?.by === "click" ? null : { id: m.id, path: pathname, by: "click" });
               return (
@@ -301,13 +303,43 @@ export default function Header({
                   )}
                   {kids && isOpen && (
                     <ul className={`absolute ${mi >= menu.length - 2 ? "right-0" : "left-0"} top-full z-50 min-w-[16rem] border border-line border-t-2 border-t-signal bg-white py-2 text-ink shadow-[0_12px_28px_rgba(0,0,0,0.18)]`}>
-                      {m.children.map((c) => (
-                        <li key={c.href}>
-                          <Link href={full(c.href)} onClick={closeSub} className="block px-5 py-2.5 text-[0.95rem] hover:bg-paper hover:text-brand">
-                            {c.label}
-                          </Link>
-                        </li>
-                      ))}
+                      {m.children.map((c) =>
+                        c.children?.length ? (
+                          <li key={c.href} className="group/fly relative" onPointerLeave={() => setFlyout(null)}>
+                            <div className="flex items-stretch hover:bg-paper">
+                              <Link href={full(c.href)} onClick={closeSub} className="block flex-1 whitespace-nowrap py-2.5 pl-5 pr-2 text-[0.95rem] hover:text-brand">
+                                {c.label}
+                              </Link>
+                              <button
+                                type="button"
+                                aria-label={c.label}
+                                aria-expanded={flyout === c.href}
+                                onClick={() => setFlyout(flyout === c.href ? null : c.href)}
+                                className="grid w-10 shrink-0 place-items-center text-muted hover:text-brand"
+                              >
+                                <Caret side />
+                              </button>
+                            </div>
+                            <ul
+                              className={`absolute top-0 ${mi >= menu.length - 2 ? "right-full" : "left-full"} z-50 -mt-2 min-w-[16rem] border border-line border-t-2 border-t-signal bg-white py-2 shadow-[0_12px_28px_rgba(0,0,0,0.18)] ${flyout === c.href ? "block" : "hidden group-hover/fly:block group-focus-within/fly:block"}`}
+                            >
+                              {c.children.map((g) => (
+                                <li key={g.href}>
+                                  <Link href={full(g.href)} onClick={closeSub} className="block whitespace-nowrap px-5 py-2.5 text-[0.95rem] hover:bg-paper hover:text-brand">
+                                    {g.label}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </li>
+                        ) : (
+                          <li key={c.href}>
+                            <Link href={full(c.href)} onClick={closeSub} className="block px-5 py-2.5 text-[0.95rem] hover:bg-paper hover:text-brand">
+                              {c.label}
+                            </Link>
+                          </li>
+                        ),
+                      )}
                     </ul>
                   )}
                 </li>
@@ -368,6 +400,17 @@ export default function Header({
                               <Link href={full(c.href)} onClick={() => setOpen(false)} className="block py-2 text-light/80">
                                 {c.label}
                               </Link>
+                              {!!c.children?.length && (
+                                <ul className="pl-4">
+                                  {c.children.map((g) => (
+                                    <li key={g.href}>
+                                      <Link href={full(g.href)} onClick={() => setOpen(false)} className="block py-2 text-light/70">
+                                        {g.label}
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
                             </li>
                           ))}
                         </ul>
@@ -389,9 +432,10 @@ export default function Header({
   );
 }
 
-function Caret({ open = false }: { open?: boolean }) {
+/** `side` points the caret at a flyout that opens to the side. */
+function Caret({ open = false, side = false }: { open?: boolean; side?: boolean }) {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden className={`transition-transform ${open ? "rotate-180" : ""}`}>
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden className={`transition-transform ${open ? "rotate-180" : side ? "-rotate-90" : ""}`}>
       <path d="m2 3.5 3 3 3-3" />
     </svg>
   );

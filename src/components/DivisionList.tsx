@@ -12,9 +12,11 @@ export type DivisionCardData = {
   secretaries: number;
   secretaryEn: string | null;
   secretaryHi: string | null;
+  presidentEn: string | null;
+  presidentHi: string | null;
 };
 
-type Labels = { secretary: string; branches: string; branchSecretaries: string; next?: string; previous?: string };
+type Labels = { secretary: string; president?: string; branches: string; branchSecretaries: string; next?: string; previous?: string };
 
 /**
  * Divisions on the home page and the divisions page. Resolves the language here on the server
@@ -37,11 +39,12 @@ export default function DivisionList({
     name: pick(lang, d.nameEn, d.nameHi),
     other: (lang === "hi" ? d.nameEn : d.nameHi) ?? "",
     secretary: pick(lang, d.secretaryEn, d.secretaryHi),
+    president: pick(lang, d.presidentEn, d.presidentHi),
     branches: num(d.branches),
     secretaries: num(d.secretaries),
   }));
   if (variant === "deck") {
-    return <DivisionDeck items={items} labels={{ secretary: labels.secretary, branches: labels.branches, branchSecretaries: labels.branchSecretaries, next: labels.next ?? "", previous: labels.previous ?? "" }} />;
+    return <DivisionDeck items={items} labels={{ secretary: labels.secretary, president: labels.president ?? "", branches: labels.branches, branchSecretaries: labels.branchSecretaries, next: labels.next ?? "", previous: labels.previous ?? "" }} />;
   }
   if (variant === "cards") {
     const cards = items;

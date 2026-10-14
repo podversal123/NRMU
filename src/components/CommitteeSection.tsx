@@ -26,8 +26,9 @@ export default function CommitteeSection({
     if (!g) groups.push((g = { key, label: p.divisionId ? pick(lang, p.divisionEn, p.divisionHi) : centralLabel, rows: [] }));
     g.rows.push(p);
   }
+  // id: the menu links to this section (/women#committee, /youth#committee); the margin keeps it clear of the sticky header
   return (
-    <section>
+    <section id="committee" className="scroll-mt-28">
       <div className="track-red mb-5 w-24" />
       <h2 className="text-2xl font-medium">{title}</h2>
       {groups.length ? (

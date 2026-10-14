@@ -6,7 +6,7 @@ import { useCallback, useRef, useState } from "react";
 import type { BoardItem } from "./DivisionBoard";
 import { DEVANAGARI, PHOTOS, StationDrawing } from "./DivisionCards";
 
-type Labels = { secretary: string; branches: string; branchSecretaries: string; next: string; previous: string };
+type Labels = { secretary: string; president: string; branches: string; branchSecretaries: string; next: string; previous: string };
 
 const SHOWN = 3; // cards peeking out behind the top one
 const FLING = 90; // pixels a card has to be dragged before it flies off
@@ -124,10 +124,21 @@ export default function DivisionDeck({ items, labels }: { items: BoardItem[]; la
                     </div>
                   </div>
                 </div>
-                {/* details: the secretary, then the branch and branch secretary counts beside the link to the division */}
+                {/* details: the president and the secretary side by side, then the branch and branch secretary counts beside the link to the division */}
                 <div className="px-5 pb-6 pt-12 sm:px-7">
-                  <p className="text-[0.72rem] uppercase tracking-[0.1em] text-muted">{labels.secretary}</p>
-                  <p className="mt-1 truncate text-[1.3rem] font-semibold leading-snug text-ink">{d.secretary || " "}</p>
+                  <dl className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+                    {[
+                      [labels.president, d.president],
+                      [labels.secretary, d.secretary],
+                    ].map(([label, name]) => (
+                      <div key={label} className="min-w-0">
+                        <dt className="text-[0.72rem] uppercase tracking-[0.1em] text-muted">{label}</dt>
+                        <dd className="mt-1 truncate text-[1.3rem] font-semibold leading-snug text-ink" title={name || undefined}>
+                          {name || " "}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
                   <div className="mt-5 flex items-end justify-between gap-4 border-t border-line pt-4">
                     <dl className="flex gap-7 sm:gap-10">
                       <div>

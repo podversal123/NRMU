@@ -48,7 +48,11 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
     id: m.id,
     href: m.href,
     label: pick(lang, m.labelEn, m.labelHi),
-    children: m.children.map((c) => ({ href: c.href, label: pick(lang, c.labelEn, c.labelHi) })),
+    children: m.children.map((c) => ({
+      href: c.href,
+      label: pick(lang, c.labelEn, c.labelHi),
+      children: c.children.map((g) => ({ href: g.href, label: pick(lang, g.labelEn, g.labelHi) })),
+    })),
   }));
   const other = lang === "en" ? "hi" : "en";
 

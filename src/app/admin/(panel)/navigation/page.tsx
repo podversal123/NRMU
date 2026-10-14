@@ -18,6 +18,11 @@ export default async function NavigationAdmin({ searchParams }: { searchParams: 
     db.select().from(schema.navItems).orderBy(asc(schema.navItems.area), asc(schema.navItems.sort)),
     db.select().from(schema.searchChips).orderBy(asc(schema.searchChips.sort)),
   ]);
+  // An item can go under a top-level menu item, or one level deeper under a dropdown item (it then opens to the side).
+  const byId = new Map(nav.map((n) => [n.id, n]));
+  const parents = nav
+    .filter((p) => p.area === "header" && (!p.parentId || !byId.get(p.parentId)?.parentId))
+    .map((p) => ({ id: p.id, label: p.parentId ? `${byId.get(p.parentId)?.labelEn} › ${p.labelEn}` : p.labelEn }));
 
   return (
     <>
@@ -40,7 +45,7 @@ export default async function NavigationAdmin({ searchParams }: { searchParams: 
               <input name={`nav_href_${n.id}`} defaultValue={n.href} className={small} aria-label="Path" />
               <select name={`nav_parent_${n.id}`} defaultValue={n.parentId ?? ""} className={small} aria-label="Dropdown of">
                 <option value="">Top level</option>
-                {nav.filter((p) => p.area === "header" && !p.parentId && p.id !== n.id).map((p) => <option key={p.id} value={p.id}>{p.labelEn}</option>)}
+                {parents.filter((p) => p.id !== n.id).map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
               </select>
               <input type="number" name={`nav_sort_${n.id}`} defaultValue={n.sort} className={small} aria-label="Order" />
               <input type="checkbox" name={`nav_active_${n.id}`} defaultChecked={n.active} className="h-6 w-6" aria-label="Show" />
@@ -54,7 +59,7 @@ export default async function NavigationAdmin({ searchParams }: { searchParams: 
             <input name="nav_href_new" placeholder="/path or https://…" className={small} />
             <select name="nav_parent_new" className={small} aria-label="Dropdown of">
               <option value="">Top level</option>
-              {nav.filter((p) => p.area === "header" && !p.parentId).map((p) => <option key={p.id} value={p.id}>{p.labelEn}</option>)}
+              {parents.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
             </select>
             <input type="number" name="nav_sort_new" placeholder="Order" className={small} />
             <span className="text-xs text-muted">← add a new link</span>
