@@ -16,7 +16,7 @@ export default function LocalTime({ start, end, locale, label }: { start: string
     const day = new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
     const clock = new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", timeZoneName: "short" });
     // eslint-disable-next-line react-hooks/set-state-in-effect -- the zone is only known in the browser
-    setText(`${day.format(new Date(start))} – ${clock.format(new Date(end))}`);
+    setText(`${day.format(new Date(start))} - ${clock.format(new Date(end))}`);
   }, [start, end, locale]);
 
   if (!text) return null;

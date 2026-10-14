@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { trackGrievance, type TrackState } from "../actions";
 import type { Dict, Lang } from "@/lib/i18n";
 
-const input = "mt-1.5 w-full border border-line bg-white px-4 py-3 text-base focus:border-ink focus:outline-none";
+const input = "mt-1.5 w-full border border-line bg-white px-4 py-3 text-base focus:border-brand focus:outline-none";
 
 const pickLang = (pair: string | null, lang: Lang) => {
   if (!pair) return "";
@@ -44,7 +44,7 @@ export default function TrackForm({ lang, ui }: { lang: Lang; ui: Dict }) {
       </form>
 
       {r && (
-        <section className="border border-ink bg-white p-6 sm:p-9" aria-live="polite">
+        <section className="border border-brand bg-white p-6 sm:p-9" aria-live="polite">
           <p className="font-mono text-lg font-bold tracking-wider text-brand">{r.ticket}</p>
           <h2 className="mt-1 text-[1.35rem] leading-tight">{r.subject}</h2>
           <dl className="mt-5 grid gap-4 sm:grid-cols-3">

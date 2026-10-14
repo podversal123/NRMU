@@ -56,7 +56,7 @@ async function Call({ params }: { params: Promise<{ lang: string; token: string 
     return (
       <div className="mx-auto max-w-3xl px-5 py-16 text-center sm:px-8">
         <p role="alert" className="text-lg font-medium">{ui.mCallError}</p>
-        <a href={back} className="mt-6 inline-flex min-h-12 items-center rounded border-2 border-ink px-6 font-medium hover:bg-ink hover:text-light">{ui.mCallBack}</a>
+        <a href={back} className="mt-6 inline-flex min-h-12 items-center rounded border-2 border-brand px-6 font-medium text-brand hover:bg-brand hover:text-white">{ui.mCallBack}</a>
       </div>
     );
   }
@@ -68,7 +68,7 @@ async function Call({ params }: { params: Promise<{ lang: string; token: string 
     return (
       <div className="mx-auto max-w-3xl px-5 py-16 text-center sm:px-8">
         <p role="alert" className="text-lg font-medium">{ui.mCallError}</p>
-        <a href={back} className="mt-6 inline-flex min-h-12 items-center rounded border-2 border-ink px-6 font-medium hover:bg-ink hover:text-light">{ui.mCallBack}</a>
+        <a href={back} className="mt-6 inline-flex min-h-12 items-center rounded border-2 border-brand px-6 font-medium text-brand hover:bg-brand hover:text-white">{ui.mCallBack}</a>
       </div>
     );
   }

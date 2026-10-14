@@ -6,6 +6,7 @@ import "../globals.css";
 import Header from "@/components/Header";
 import { TEXT_SIZES } from "@/lib/text-size";
 import Footer from "@/components/Footer";
+import BackToTop from "@/components/BackToTop";
 import { isLang, locales } from "@/lib/i18n";
 import { getMenu, getSettings, pick, setting, getUi } from "@/lib/queries";
 
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
   const s = await getSettings();
   const short = setting(s, "org.short", lang);
   return {
-    title: { default: `${short} — ${setting(s, "org.name", lang)}`, template: `%s · ${short}` },
+    title: { default: `${short} | ${setting(s, "org.name", lang)}`, template: `%s · ${short}` },
     description: setting(s, "hero.sub", lang),
     metadataBase: new URL("https://www.nrmu.net"),
   };
@@ -76,6 +77,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
           orgName={setting(s, "org.name", lang)}
           orgAltName={setting(s, "org.name", other)}
           orgShort={setting(s, "org.short", lang)}
+          orgAltShort={setting(s, "org.short", other)}
           menu={menu}
           join={setting(s, "cta.join", lang)}
           labels={{
@@ -98,6 +100,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
           {children}
         </main>
         <Footer lang={lang} />
+        <BackToTop label={t.backToTop} />
       </body>
     </html>
   );

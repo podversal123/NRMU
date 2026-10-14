@@ -66,12 +66,12 @@ async function Account({ params }: { params: Promise<{ lang: string }> }) {
         ) : (
           <>
             {/* The card. It prints on its own: everything else on the page is hidden when printing. */}
-            <article aria-label={ui.memCardTitle} className="print-card overflow-hidden border border-ink bg-ink text-light shadow-[0_8px_0_var(--gold)]">
-              <div className="flex items-center gap-4 border-b border-white/15 bg-black/20 px-5 py-4 sm:px-7">
+            <article aria-label={ui.memCardTitle} className="print-card overflow-hidden border border-brand-deep bg-brand text-light shadow-[0_8px_0_var(--gold)]">
+              <div className="flex items-center gap-4 border-b border-white/15 bg-brand-deep px-5 py-4 sm:px-7">
                 <Image src="/logo.jpg" alt="" width={56} height={56} className="h-14 w-14 rounded-full" />
                 <div className="leading-tight">
                   <p className="text-lg font-bold sm:text-xl">{ui.memCardTitle}</p>
-                  <p className="text-sm text-soft">{pick(lang, "Northern Railway Men's Union", "उत्तर रेलवे मेन्स यूनियन")}</p>
+                  <p className="text-sm text-soft">{pick(lang, "Northern Railway Men's Union", "नॉर्दर्न रेलवे मेन्स यूनियन")}</p>
                 </div>
               </div>
               <div className="px-5 py-6 sm:px-7">
@@ -98,7 +98,7 @@ async function Account({ params }: { params: Promise<{ lang: string }> }) {
               <PrintButton label={ui.memPrint} />
               <form action={memberLogout}>
                 <input type="hidden" name="lang" value={lang} />
-                <button type="submit" className="inline-flex min-h-12 w-full items-center justify-center rounded border-2 border-ink px-6 font-medium hover:bg-ink hover:text-light sm:w-auto">
+                <button type="submit" className="inline-flex min-h-12 w-full items-center justify-center rounded border-2 border-brand px-6 font-medium text-brand hover:bg-brand hover:text-white sm:w-auto">
                   {ui.memSignOut}
                 </button>
               </form>

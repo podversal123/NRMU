@@ -76,7 +76,7 @@ export default async function UsersAdmin({ searchParams }: { searchParams: Promi
           </Field>
           <Field label="Division (for division admin)">
             <select name="divisionId" defaultValue="" className={inputCls}>
-              <option value="">–</option>
+              <option value="">-</option>
               {divisions.map((d) => <option key={d.id} value={d.id}>{d.nameEn}</option>)}
             </select>
           </Field>

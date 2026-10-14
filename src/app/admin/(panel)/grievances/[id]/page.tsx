@@ -51,8 +51,8 @@ export default async function GrievanceDetail({ params, searchParams }: { params
               <div><dt className="text-sm text-muted">Mobile</dt><dd><a href={`tel:${g.mobile}`} className="font-semibold text-brand">{g.mobile}</a></dd></div>
               {g.email && <div><dt className="text-sm text-muted">Email</dt><dd>{g.email}</dd></div>}
               {g.employeeId && <div><dt className="text-sm text-muted">Employee ID</dt><dd>{g.employeeId}</dd></div>}
-              <div><dt className="text-sm text-muted">Division</dt><dd>{row.division ?? "–"}</dd></div>
-              <div><dt className="text-sm text-muted">Type</dt><dd>{row.type ?? "–"}</dd></div>
+              <div><dt className="text-sm text-muted">Division</dt><dd>{row.division ?? "-"}</dd></div>
+              <div><dt className="text-sm text-muted">Type</dt><dd>{row.type ?? "-"}</dd></div>
             </dl>
             <p className="mt-6 whitespace-pre-wrap border-t border-line pt-5 leading-relaxed">{g.details}</p>
           </Card>

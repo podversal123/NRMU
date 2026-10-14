@@ -49,7 +49,7 @@ export default async function PostsAdmin({ searchParams }: { searchParams: Promi
               <tr key={r.id} className="hover:bg-paper">
                 <td className={`${td} whitespace-nowrap font-mono text-xs`}>{r.date}</td>
                 <td className={td}><Link href={`/admin/posts/${r.id}`} className="font-semibold hover:text-brand">{r.title}</Link></td>
-                <td className={td}>{Number(r.files) || "–"}</td>
+                <td className={td}>{Number(r.files) || "-"}</td>
                 <td className={td}>
                   <span className={`rounded px-2 py-0.5 text-xs font-bold uppercase ${r.status === "published" ? "bg-ink text-signal" : "bg-soft text-ink"}`}>{r.status}</span>
                 </td>

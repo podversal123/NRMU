@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { changePassword, type PasswordState } from "./actions";
 import type { Dict, Lang } from "@/lib/i18n";
 
-const input = "mt-1.5 w-full border border-line bg-white px-4 py-3 text-base focus:border-ink focus:outline-none";
+const input = "mt-1.5 w-full border border-line bg-white px-4 py-3 text-base focus:border-brand focus:outline-none";
 
 export default function ChangePasswordForm({ ui, lang }: { ui: Dict; lang: Lang }) {
   const [state, action, pending] = useActionState<PasswordState, FormData>(changePassword, {});
@@ -14,7 +14,7 @@ export default function ChangePasswordForm({ ui, lang }: { ui: Dict; lang: Lang 
       <form key={state.done ? "done" : "form"} action={action} className="mt-5 space-y-4" noValidate>
         <input type="hidden" name="lang" value={lang} />
         {state.error && <p role="alert" className="border-2 border-brand bg-brand/10 px-4 py-3 font-semibold text-brand-deep">{ui[state.error]}</p>}
-        {state.done && <p role="status" className="border-2 border-ink bg-soft/40 px-4 py-3 font-semibold">{ui.memChanged}</p>}
+        {state.done && <p role="status" className="border-2 border-brand bg-soft/40 px-4 py-3 font-semibold">{ui.memChanged}</p>}
         <label className="block font-semibold">
           {ui.memCurrent}
           <input name="current" type="password" required autoComplete="current-password" className={input} />

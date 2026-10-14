@@ -37,8 +37,8 @@ export default async function RequestsAdmin({ searchParams }: { searchParams: Pr
                 <td className={`${td} whitespace-nowrap font-mono text-xs`}>{r.createdAt.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" })}</td>
                 <td className={`${td} font-semibold`}>{r.name}</td>
                 <td className={td}><a href={`tel:${r.mobile}`} className="font-semibold text-brand">{r.mobile}</a>{r.email && <div className="text-sm text-muted">{r.email}</div>}</td>
-                <td className={td}>{division ?? "–"}</td>
-                <td className={`${td} max-w-xs text-sm text-muted`}>{[r.designation, r.employeeId && `ID ${r.employeeId}`, r.message].filter(Boolean).join(" · ") || "–"}</td>
+                <td className={td}>{division ?? "-"}</td>
+                <td className={`${td} max-w-xs text-sm text-muted`}>{[r.designation, r.employeeId && `ID ${r.employeeId}`, r.message].filter(Boolean).join(" · ") || "-"}</td>
                 <td className={td}>
                   <form action={setRequestStatus} className="flex gap-2">
                     <input type="hidden" name="id" value={r.id} />

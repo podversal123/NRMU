@@ -1,7 +1,10 @@
 const NAMED: Record<string, string> = {
-  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "–", mdash: "—",
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "-", mdash: "-",
   lsquo: "‘", rsquo: "’", ldquo: "“", rdquo: "”", hellip: "…", bull: "•",
 };
+
+/** The site never shows an em dash or an en dash: both characters and their HTML entities become a plain hyphen. */
+export const noEmDash = (s: string) => s.replace(/[\u2013\u2014]|&[mn]dash;|&#821[12];|&#x201[34];/gi, "-");
 
 export const decodeEntities = (s: string) =>
   s

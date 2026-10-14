@@ -2,17 +2,17 @@ import Image from "next/image";
 import Link from "next/link";
 import Photo from "@/components/Photo";
 import { notFound } from "next/navigation";
-import DivisionCard from "@/components/DivisionCard";
-import Figures from "@/components/Figures";
+import { GrievanceEnvelope, MemberPocket, TrackTrain } from "@/components/CtaProps";
+import DivisionList from "@/components/DivisionList";
 import Icon from "@/components/Icon";
 import QuickLinks from "@/components/QuickLinks";
 import Ticker from "@/components/Ticker";
 import { isLang, type Lang } from "@/lib/i18n";
-import { getDivisionCards, getEvents, getFigures, getGalleryPhotos, getPostsByCategory } from "@/lib/content";
+import { getDivisionCards, getEvents, getGalleryPhotos, getPostsByCategory } from "@/lib/content";
 import { getFeaturedLeaders, getLatestPosts, getNav, getSearchChips, getSettings, getUi, pick, setting } from "@/lib/queries";
 
 const wrap = "mx-auto max-w-wrap px-5 sm:px-8";
-const h2 = "text-2xl font-medium lg:text-[1.75rem]";
+const h2 = "text-2xl font-bold lg:text-[2rem]";
 
 function dateParts(iso: string, lang: Lang) {
   const d = new Date(iso + "T00:00:00");
@@ -23,9 +23,12 @@ function dateParts(iso: string, lang: Lang) {
 /** A bordered panel with a title bar. */
 function Panel({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="min-w-0 border border-line bg-white">
-      <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b-2 border-signal px-5 py-3">
-        <h2 className="min-w-0 text-xl font-semibold leading-tight">{title}</h2>
+    <section className="min-w-0 overflow-hidden rounded-md border border-line bg-white shadow-[0_1px_2px_rgba(21,22,26,0.04),0_8px_24px_-12px_rgba(21,22,26,0.12)]">
+      <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-line bg-gradient-to-b from-paper/70 to-white px-5 py-3.5">
+        <h2 className="flex min-w-0 items-center gap-2.5 text-xl font-semibold leading-tight">
+          <span aria-hidden className="h-5 w-1 shrink-0 rounded-full bg-brand" />
+          {title}
+        </h2>
         {action}
       </header>
       {children}
@@ -42,7 +45,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
 
-  const [s, ui, latest, leaders, chips, photos, events, divisions, quick, figures] = await Promise.all([
+  const [s, ui, latest, leaders, chips, photos, events, divisions, quick] = await Promise.all([
     getSettings(),
     getUi(lang),
     getLatestPosts(8),
@@ -52,7 +55,6 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     getEvents(0, 3),
     getDivisionCards(),
     getNav("quick"),
-    getFigures(),
   ]);
   const t = (key: string) => setting(s, key, lang);
   const news = await getPostsByCategory(setting(s, "config.news.category", "en"), 4, false, latest.map((p) => p.id));
@@ -63,56 +65,69 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       {ui.viewAll} →
     </Link>
   );
-  const labels = { secretary: t("division.secretary_label"), branches: ui.branches, branchSecretaries: ui.branchSecretaries };
+  const labels = { secretary: t("division.secretary_label"), branches: ui.branches, branchSecretaries: ui.branchSecretaries, next: ui.next, previous: ui.previous };
 
   return (
     <>
       {/* LATEST ORDERS, moving slowly (pausable) */}
       <Ticker
         label={t("home.ticker_label")}
-        pause={ui.tickerPause}
-        play={ui.tickerPlay}
         items={latest.slice(0, 6).map((p) => ({ href: `/${lang}/orders/${p.id}`, text: pick(lang, p.titleEn, p.titleHi), date: new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "medium" }).format(new Date(p.publishedAt + "T00:00:00")) }))}
       />
 
       {/* BANNER with the search card */}
       <section className="relative bg-paper">
-        <div className="relative h-56 w-full overflow-hidden bg-ink sm:h-[24rem] lg:h-[31rem]">
+        <div className="relative h-56 w-full overflow-hidden bg-ink sm:h-[24rem] lg:h-[34rem]">
           {heroImage && <Image src={heroImage} alt={t("hero.image_alt")} fill priority sizes="100vw" quality={85} className="object-cover object-[35%_60%]" />}
-          <div className="absolute inset-0 hidden bg-gradient-to-r from-ink/75 via-ink/25 to-transparent lg:block" />
+          <div className="absolute inset-0 hidden bg-gradient-to-r from-ink/80 via-ink/30 to-transparent lg:block" />
+          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/50 to-transparent" />
         </div>
         <div className="pointer-events-none relative z-10 -mt-10 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center">
           <div className={`${wrap} w-full`}>
-            <div className="pointer-events-auto border border-line bg-white p-5 sm:p-8 lg:max-w-[33rem]">
-              <h1 className="text-[1.6rem] font-medium leading-tight md:text-[1.8rem] lg:text-[2rem]">
+            <div className="pointer-events-auto relative overflow-hidden rounded-md border-t-4 border-signal bg-white p-6 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.55)] sm:p-9 lg:max-w-[35rem]">
+              <p className="eyebrow">
+                {t("org.short")} · {t("org.city")}
+              </p>
+              <h1 className="mt-3 text-[1.75rem] font-bold leading-[1.15] md:text-[2rem] lg:text-[2.4rem]">
                 {t("hero.title_a")} <span className="text-brand">{t("hero.title_b")}</span>
               </h1>
-              <p className="mt-3 text-[0.97rem] text-muted">{t("hero.sub")}</p>
+              <p className="mt-3 text-[1rem] leading-relaxed text-muted">{t("hero.sub")}</p>
               <form action={`/${lang}/orders`} role="search" className="mt-5">
                 <label htmlFor="hero-q" className="mb-1.5 block text-sm font-medium">
                   {t("hero.search_title")}
                 </label>
-                <div className="flex flex-col sm:flex-row">
-                  <input
-                    id="hero-q"
-                    name="q"
-                    type="search"
-                    placeholder={t("hero.search_placeholder")}
-                    className="min-w-0 flex-1 border border-ink bg-white px-4 py-3 text-base placeholder:text-muted/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-signal"
-                  />
-                  <button type="submit" className="bg-brand px-5 py-3 font-medium text-white hover:bg-brand-deep sm:py-0">
+                <div className="flex flex-col gap-2 sm:flex-row sm:gap-0">
+                  <div className="relative min-w-0 flex-1">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted">
+                      <circle cx="11" cy="11" r="7" />
+                      <path d="m20 20-3.5-3.5" />
+                    </svg>
+                    {/* clicking in only darkens the border: no gold ring or outline */}
+                    <input
+                      id="hero-q"
+                      name="q"
+                      type="search"
+                      placeholder={t("hero.search_placeholder")}
+                      className="field-bare w-full rounded-md border border-ink/70 bg-white py-3 pl-11 pr-4 text-base placeholder:text-muted/80 focus:border-ink focus:outline-none sm:rounded-r-none"
+                    />
+                  </div>
+                  <button type="submit" className="rounded-md bg-brand px-6 py-3 font-semibold text-white transition hover:bg-brand-deep sm:rounded-l-none sm:py-0">
                     {ui.search}
                   </button>
                 </div>
               </form>
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <span className="text-sm text-muted">{ui.popular}:</span>
+              <p className="mt-4 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-sm">
+                <span className="text-muted">{ui.popular}:</span>
                 {chips.map((c) => (
-                  <Link key={c.id} href={`/${lang}/orders?q=${encodeURIComponent(c.term)}`} className="border border-line px-3 py-2 text-sm hover:border-ink lg:py-1">
+                  <Link
+                    key={c.id}
+                    href={`/${lang}/orders?q=${encodeURIComponent(c.term)}`}
+                    className="py-1.5 font-medium text-ink underline decoration-line underline-offset-4 hover:text-brand hover:decoration-brand"
+                  >
                     {c.term}
                   </Link>
                 ))}
-              </div>
+              </p>
             </div>
           </div>
         </div>
@@ -129,12 +144,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 const d = dateParts(p.publishedAt, lang);
                 return (
                   <li key={p.id}>
-                    <Link href={`/${lang}/orders/${p.id}`} className="group flex gap-4 px-5 py-3.5 hover:bg-paper">
-                      <time dateTime={p.publishedAt} className="w-12 shrink-0 text-center leading-none">
-                        <span className="block text-[1.5rem] font-bold text-brand">{d.day}</span>
-                        <span className="mt-0.5 block text-xs text-muted">
-                          {d.month} {d.year}
-                        </span>
+                    <Link href={`/${lang}/orders/${p.id}`} className="group flex items-start gap-4 px-5 py-3.5 transition-colors hover:bg-paper/70">
+                      <time dateTime={p.publishedAt} className="w-14 shrink-0 overflow-hidden rounded border border-line bg-white text-center leading-none">
+                        <span className="block bg-brand py-1 text-[0.68rem] font-semibold uppercase tracking-wide text-white">{d.month}</span>
+                        <span className="block pt-1.5 text-[1.35rem] font-bold text-ink">{d.day}</span>
+                        <span className="block pb-1.5 pt-0.5 text-[0.68rem] text-muted">{d.year}</span>
                       </time>
                       <span className="min-w-0">
                         <span className="line-clamp-3 text-[0.98rem] font-medium leading-snug group-hover:text-brand sm:line-clamp-2">{pick(lang, p.titleEn, p.titleHi)}</span>
@@ -159,9 +173,9 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                   return (
                     <li key={l.id} className="flex items-center gap-4 px-5 py-4">
                       {l.photoUrl ? (
-                        <Image src={l.photoUrl} alt="" width={72} height={72} className="h-[4.5rem] w-[4.5rem] shrink-0 object-cover" />
+                        <Image src={l.photoUrl} alt="" width={72} height={72} className="h-[4.5rem] w-[4.5rem] shrink-0 rounded-full object-cover ring-2 ring-signal ring-offset-2" />
                       ) : (
-                        <span className="grid h-[4.5rem] w-[4.5rem] shrink-0 place-items-center bg-ink font-display text-2xl font-bold text-signal" aria-hidden>
+                        <span className="grid h-[4.5rem] w-[4.5rem] shrink-0 place-items-center rounded-full bg-ink font-display text-2xl font-bold text-signal ring-2 ring-signal ring-offset-2" aria-hidden>
                           {initials}
                         </span>
                       )}
@@ -197,8 +211,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                   return (
                     <li key={p.id}>
                       <Link href={`/${lang}/orders/${p.id}`} className="group block px-5 py-3.5 hover:bg-paper">
-                        <span className="block text-xs text-muted">
-                          {d.day} {d.month} {d.year}
+                        <span className="mb-1 inline-flex items-center gap-1.5 text-xs font-medium text-brand">
+                          <Icon name="calendar" size={13} /> {d.day} {d.month} {d.year}
                         </span>
                         <span className="line-clamp-2 text-[0.98rem] font-medium leading-snug group-hover:text-brand">{pick(lang, p.titleEn, p.titleHi)}</span>
                       </Link>
@@ -211,33 +225,17 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         </div>
       </section>
 
-      <Figures
-        title={t("home.figures_title")}
-        lang={lang}
-        items={[
-          { label: t("home.figure.divisions"), value: figures.divisions },
-          { label: t("home.figure.branches"), value: figures.branches },
-          { label: t("home.figure.officers"), value: figures.officers },
-          { label: t("home.figure.orders"), value: figures.orders },
-        ]}
-      />
-
       {/* DIVISIONS */}
-      <section className="bg-paper py-14 lg:py-16">
+      <section className="overflow-x-clip bg-brand-deep py-14 text-light lg:py-16">
         <div className={wrap}>
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2 className={h2}>{t("home.divisions_title")}</h2>
-              <div className="rule mt-4" />
-              <p className="mt-4 max-w-[52ch] text-muted">{t("home.divisions_sub")}</p>
-            </div>
-            {more("/divisions")}
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className={`${h2} text-white`}>{t("home.divisions_title")}</h2>
+            <Link href={`/${lang}/divisions`} className="-my-2.5 shrink-0 py-2.5 text-sm font-medium text-soft hover:text-white hover:underline">
+              {ui.viewAll} →
+            </Link>
           </div>
-          {/* phones: swipe sideways through the cards; larger screens: a grid */}
-          <div className="-mx-5 mt-9 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto overscroll-x-contain px-5 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 xl:grid-cols-5">
-            {divisions.map((d) => (
-              <DivisionCard key={d.slug} d={d} lang={lang} labels={labels} className="w-[80%] shrink-0 snap-start sm:w-auto" />
-            ))}
+          <div className="mt-7">
+            <DivisionList divisions={divisions} lang={lang} labels={labels} variant="deck" />
           </div>
         </div>
       </section>
@@ -272,26 +270,54 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       )}
 
       {/* GRIEVANCE | JOIN: the only place on the page that asks the visitor to act */}
-      <section className="bg-ink py-14 text-light lg:py-16">
-        <div className={`${wrap} grid gap-10 md:grid-cols-2 md:gap-0`}>
-          <div className="md:pr-12">
-            <h2 className="text-[1.5rem] leading-tight">{t("home.grievance_title")}</h2>
-            <p className="mt-3 max-w-[40ch] text-light/80">{t("home.grievance_text")}</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href={`/${lang}/grievance`} className="btn-gold">
-                {t("grievance.title")}
-              </Link>
-              <Link href={`/${lang}/grievance/track`} className="btn-ghost">
-                {ui.gTrackTitle}
+      {/* Each card is clickable as a whole (a hidden link covers it); the envelope and the ticket button sit above it.
+          Tracking a grievance is linked from the grievance page itself.
+          Flat colours and a hairline inner frame, like the membership card; the envelope and the pocket are the pictures. */}
+      <section className="bg-paper py-16 lg:py-24">
+        <div className={`${wrap} grid gap-6 md:grid-cols-2`}>
+          <div className="act-card group relative isolate flex flex-col rounded-md border border-white/10 bg-ink px-7 pb-16 pt-9 text-light sm:px-10 sm:pt-11">
+            {/* frame, rails and train, clipped to the card; the card itself lets the letter rise out over its top edge */}
+            <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-md">
+              <span className="absolute inset-2.5 rounded-[3px] border border-signal/20" />
+              <span className="act-rails absolute inset-x-0 bottom-0 h-3" />
+              <TrackTrain kind="steam" />
+            </span>
+            <GrievanceEnvelope href={`/${lang}/grievance`} title={t("grievance.title")} short={t("org.short")} />
+            <h2 className="pr-40 text-[2rem] font-bold leading-[1.08] tracking-[-0.01em] text-balance text-white sm:pr-44 sm:text-[2.5rem]">
+              {t("home.grievance_title")}
+            </h2>
+            <p className="mt-4 max-w-[44ch] leading-relaxed text-light/75 sm:text-lg">{t("home.grievance_text")}</p>
+            {/* the whole card opens the same page; hidden from screen readers and the tab order, which use the button */}
+            <Link href={`/${lang}/grievance`} aria-hidden tabIndex={-1} className="absolute inset-0 rounded-md" />
+            <div className="mt-auto pt-9">
+              <Link href={`/${lang}/grievance`} className="ticket-btn" style={{ "--notch": "var(--ink)" } as React.CSSProperties}>
+                <span className="ticket-label">{t("grievance.title")}</span>
+                <span aria-hidden className="ticket-stub">
+                  <Icon name="arrow" size={20} />
+                </span>
               </Link>
             </div>
           </div>
-          <div className="border-t border-white/15 pt-10 md:border-l md:border-t-0 md:pl-12 md:pt-0">
-            <h2 className="text-[1.5rem] leading-tight">{t("home.join_title")}</h2>
-            <p className="mt-3 max-w-[40ch] text-light/80">{t("home.join_text")}</p>
-            <div className="mt-6">
-              <Link href={`/${lang}/join`} className="btn-gold">
-                {t("cta.join")}
+
+          <div className="act-card group relative isolate flex flex-col rounded-md border border-black/15 bg-brand px-7 pb-16 pt-9 text-light sm:px-10 sm:pt-11">
+            <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-md">
+              <span className="absolute inset-2.5 rounded-[3px] border border-soft/25" />
+              <span className="act-rails absolute inset-x-0 bottom-0 h-3" />
+              <TrackTrain kind="electric" />
+            </span>
+            <MemberPocket short={t("org.short")} name={t("org.name")} cardTitle={ui.memCardTitle} city={t("org.city")} />
+            <h2 className="pr-40 text-[2rem] font-bold leading-[1.08] tracking-[-0.01em] text-balance text-white sm:pr-44 sm:text-[2.5rem]">
+              {t("home.join_title")}
+            </h2>
+            <p className="mt-4 max-w-[44ch] leading-relaxed text-light/80 sm:text-lg">{t("home.join_text")}</p>
+            {/* the whole card opens the same page; hidden from screen readers and the tab order, which use the button */}
+            <Link href={`/${lang}/join`} aria-hidden tabIndex={-1} className="absolute inset-0 rounded-md" />
+            <div className="mt-auto pt-9">
+              <Link href={`/${lang}/join`} className="ticket-btn" style={{ "--notch": "var(--oxblood)" } as React.CSSProperties}>
+                <span className="ticket-label">{t("cta.join")}</span>
+                <span aria-hidden className="ticket-stub">
+                  <Icon name="arrow" size={20} />
+                </span>
               </Link>
             </div>
           </div>

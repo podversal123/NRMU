@@ -29,7 +29,7 @@ export default async function BranchOfficeBearers({ params }: { params: Promise<
           <ul className="flex flex-wrap gap-2">
             {withBranches.map((d) => (
               <li key={d.division.id}>
-                <a href={`#${d.division.slug}`} className="inline-flex min-h-11 items-center border border-line bg-white px-4 text-sm font-medium hover:border-ink">
+                <a href={`#${d.division.slug}`} className="inline-flex min-h-11 items-center border border-line bg-white px-4 text-sm font-medium hover:border-brand">
                   {pick(lang, d.division.nameEn, d.division.nameHi)} <span className="ml-2 text-muted">{d.branches.length}</span>
                 </a>
               </li>

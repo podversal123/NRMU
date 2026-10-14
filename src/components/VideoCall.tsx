@@ -99,7 +99,7 @@ export default function VideoCall({
               <button type="button" onClick={() => setRound((r) => r + 1)} className="btn-primary min-h-12">
                 {labels.again}
               </button>
-              <a href={backHref} className="inline-flex min-h-12 items-center justify-center rounded border-2 border-ink px-6 font-medium hover:bg-ink hover:text-light">
+              <a href={backHref} className="inline-flex min-h-12 items-center justify-center rounded border-2 border-brand px-6 font-medium text-brand hover:bg-brand hover:text-white">
                 {labels.back}
               </a>
             </div>

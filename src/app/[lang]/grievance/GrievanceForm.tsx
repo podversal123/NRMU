@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import Select from "@/components/Select";
 import { useActionState } from "react";
 import { submitGrievance, type SubmitState } from "./actions";
 import type { Dict } from "@/lib/i18n";
 
-const input = "mt-1.5 w-full border border-line bg-white px-4 py-3 text-base focus:border-ink focus:outline-none";
+const input = "mt-1.5 w-full border border-line bg-white px-4 py-3 text-base focus:border-brand focus:outline-none";
 
 export default function GrievanceForm({
   lang,
@@ -25,7 +26,7 @@ export default function GrievanceForm({
 
   if (state.ok) {
     return (
-      <div role="status" className="border border-ink bg-white p-8 sm:p-10">
+      <div role="status" className="border border-brand bg-white p-8 sm:p-10">
         <p className="font-display text-2xl font-semibold">{ui.gThanksTitle}</p>
         <p className="mt-3 text-muted">{ui.gThanksText}</p>
         {state.ticket && (
@@ -74,27 +75,24 @@ export default function GrievanceForm({
         </label>
         <label className="block font-medium">
           {ui.formDivision}
-          <select name="division" required defaultValue={v.division ?? ""} className={input}>
-            <option value="" disabled>
-              {ui.formDivisionPick}
-            </option>
-            {divisions.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
+          <Select
+            name="division"
+            defaultValue={v.division ?? ""}
+            placeholder={ui.formDivisionPick}
+            clearable={false}
+            options={divisions.map((d) => ({ value: String(d.id), label: d.name }))}
+            className={`${input} font-normal`}
+          />
         </label>
         <label className="block font-medium">
           {ui.gType}
-          <select name="type" defaultValue={v.type ?? ""} className={input}>
-            <option value="">{ui.gTypePick}</option>
-            {types.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
+          <Select
+            name="type"
+            defaultValue={v.type ?? ""}
+            placeholder={ui.gTypePick}
+            options={types.map((t) => ({ value: String(t.id), label: t.name }))}
+            className={`${input} font-normal`}
+          />
         </label>
       </div>
       <label className="block font-medium">

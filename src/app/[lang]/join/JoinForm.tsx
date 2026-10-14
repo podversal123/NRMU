@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import Select from "@/components/Select";
 import { useActionState, useState } from "react";
 import { submitJoin, type JoinState } from "./actions";
 import type { Dict, Lang } from "@/lib/i18n";
 
-const input = "mt-1.5 w-full border border-line bg-white px-4 py-3 text-base focus:border-ink focus:outline-none";
+const input = "mt-1.5 w-full border border-line bg-white px-4 py-3 text-base focus:border-brand focus:outline-none";
 
 type Option = { id: number; name: string };
 
@@ -31,7 +32,7 @@ export default function JoinForm({
 
   if (state.ok) {
     return (
-      <div role="status" className="border-2 border-ink bg-white p-8 text-center sm:p-10">
+      <div role="status" className="border-2 border-brand bg-white p-8 text-center sm:p-10">
         <p className="text-2xl font-medium text-brand">{ui.memThanksTitle}</p>
         <p className="mt-3 text-lg text-muted">{ui.memThanksText}</p>
         <Link href={`/${lang}/member/login`} className="btn-primary mt-6 inline-flex min-h-12 items-center justify-center px-8">
@@ -73,27 +74,41 @@ export default function JoinForm({
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <label className="block font-semibold">
           {ui.formDivision}
-          <select name="division" required defaultValue={v.division ?? ""} onChange={(e) => setDivision(e.target.value)} className={input}>
-            <option value="" disabled>{ui.formDivisionPick}</option>
-            {divisions.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-          </select>
+          <Select
+            name="division"
+            defaultValue={v.division ?? ""}
+            onChange={setDivision}
+            placeholder={ui.formDivisionPick}
+            clearable={false}
+            options={divisions.map((d) => ({ value: String(d.id), label: d.name }))}
+            className={`${input} font-normal`}
+          />
         </label>
         <label className="block font-semibold">
           {ui.memBranch}
-          <select name="branch" required defaultValue={v.branch ?? ""} key={division || v.division || "none"} className={input}>
-            <option value="" disabled>{ui.memBranchPick}</option>
-            {shown.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-          </select>
+          <Select
+            key={division || v.division || "none"}
+            name="branch"
+            defaultValue={v.branch ?? ""}
+            placeholder={ui.memBranchPick}
+            clearable={false}
+            options={shown.map((b) => ({ value: String(b.id), label: b.name }))}
+            className={`${input} font-normal`}
+          />
         </label>
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <label className="block font-semibold">
           {ui.memDepartment}
-          <select name="department" required defaultValue={v.department ?? ""} className={input}>
-            <option value="" disabled>{ui.memDepartmentPick}</option>
-            {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-          </select>
+          <Select
+            name="department"
+            defaultValue={v.department ?? ""}
+            placeholder={ui.memDepartmentPick}
+            clearable={false}
+            options={departments.map((d) => ({ value: String(d.id), label: d.name }))}
+            className={`${input} font-normal`}
+          />
         </label>
         <label className="block font-semibold">
           {ui.formDesignation}

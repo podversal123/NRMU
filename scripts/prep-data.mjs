@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 const SRC='C:/dev/scrape/out', OUT='C:/dev/NRMU/data';
-const dec=s=>s.replace(/&#038;|&amp;/g,'&').replace(/&#8217;|&rsquo;/g,"’").replace(/&#8211;|&ndash;/g,'–').replace(/&#8220;|&#8221;/g,'"').replace(/&nbsp;/g,' ').replace(/&#8216;/g,'‘').replace(/&hellip;|&#8230;/g,'…').replace(/&#039;|&#8217;/g,"'");
+const dec=s=>s.replace(/&#038;|&amp;/g,'&').replace(/&#8217;|&rsquo;/g,"’").replace(/&#8211;|&ndash;/g,'-').replace(/&#8220;|&#8221;/g,'"').replace(/&nbsp;/g,' ').replace(/&#8216;/g,'‘').replace(/&hellip;|&#8230;/g,'…').replace(/&#039;|&#8217;/g,"'");
 const strip=h=>dec(h.replace(/<style[\s\S]*?<\/style>/g,'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim());
 const posts=JSON.parse(fs.readFileSync(`${SRC}/posts.json`,'utf8'));
 const cats=JSON.parse(fs.readFileSync(`${SRC}/categories.json`,'utf8'));

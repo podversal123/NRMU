@@ -81,7 +81,7 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
           <div>
             <dt className="text-sm font-semibold text-muted">{ui.mWhen}</dt>
             <dd className="mt-1 font-medium">{day}</dd>
-            <dd className="text-muted">{time(m.startsAt)} – {time(m.endsAt)} (IST, UTC+5:30)</dd>
+            <dd className="text-muted">{time(m.startsAt)} - {time(m.endsAt)} (IST, UTC+5:30)</dd>
             <LocalTime start={m.startsAt.toISOString()} end={m.endsAt.toISOString()} locale={locale} label={ui.mYourTime} />
             {!closed && (
               <dd className="mt-2">
@@ -122,7 +122,7 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
               <input type="hidden" name="token" value={token} />
               <input type="hidden" name="lang" value={lang} />
               {(["yes", "maybe", "no"] as const).map((a) => (
-                <button key={a} type="submit" name="answer" value={a} aria-pressed={invitee.rsvp === a} className={`min-h-12 ${invitee.rsvp === a ? "btn-primary" : "rounded border-2 border-ink px-6 py-[0.65rem] font-medium text-ink hover:bg-ink hover:text-light"}`}>
+                <button key={a} type="submit" name="answer" value={a} aria-pressed={invitee.rsvp === a} className={`min-h-12 ${invitee.rsvp === a ? "btn-primary" : "rounded border-2 border-brand px-6 py-[0.65rem] font-medium text-brand hover:bg-brand hover:text-white"}`}>
                   {replyLabel[a]}
                 </button>
               ))}

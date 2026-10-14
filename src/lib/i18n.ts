@@ -9,7 +9,7 @@ export const isLang = (v: string): v is Lang => (locales as readonly string[]).i
 
 export const UI_KEYS = [
   "skip", "textSize", "textSmaller", "textDefault", "textLarger", "textContrast", "tickerPause", "tickerPlay", "menu", "search", "popular", "viewAll",
-  "pdf", "home", "category", "allCategories", "year", "allYears", "clear", "filters", "results", "result",
+  "pdf", "home", "category", "allCategories", "subCategoryPick", "year", "allYears", "clear", "filters", "results", "result",
   "noResults", "noResultsHint", "download", "attachments", "previous", "next", "page", "of", "backToOrders",
   "call", "branches", "branchSecretaries", "noItems", "formName", "formMobile", "formEmail",
   "formDivision", "formDivisionPick", "formDesignation", "formEmployeeId", "formMessage", "submit", "submitting",
@@ -24,7 +24,9 @@ export const UI_KEYS = [
   "gTrackTitle", "gTrackText", "gTrackButton", "gNotFound", "gStatus", "gLevel", "gTimeline", "gOpenForm",
   "gStatus_open", "gStatus_in_progress", "gStatus_resolved", "gStatus_closed", "errSubject", "errDetails", "errTicket",
   // portal layout
-  "lastUpdated", "visitors", "print", "share", "copied", "sitemapTitle",
+  "lastUpdated", "visitors", "print", "share", "copied", "sitemapTitle", "backToTop", "newTab",
+  // footer contact details
+  "cPhone", "cEmail", "cAddress", "cHours",
   // meeting invitation page
   "mInvite", "mInvitedName", "mWhen", "mWhere", "mHeldOnline", "mHeldInPerson", "mHeldHybrid", "mAttend", "mYes", "mMaybe", "mNo", "mYourReply", "mNoReply", "mSaved", "mBadLink", "mBadLinkText", "mCancelled", "mOver", "mLive", "mVideoLater", "mJoin", "mCallNotYet", "mCallLoading", "mCallLeft", "mCallAgain", "mCallBack", "mCallError", "mCalendar", "mYourTime",
   // members

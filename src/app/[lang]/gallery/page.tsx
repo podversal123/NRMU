@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Select from "@/components/Select";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import PageHero from "@/components/PageHero";
@@ -31,7 +32,7 @@ export default async function GalleryPage({ params, searchParams }: { params: Pr
   );
 }
 
-const select = "min-h-11 w-full border-2 border-line bg-white px-3 text-base focus:border-ink focus:outline-none";
+const select = "min-h-11 rounded-md border border-line bg-white px-3 text-base focus:border-brand focus:outline-none";
 
 async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP }) {
   const sp = await searchParams;
@@ -51,30 +52,33 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
 
   return (
     <div className="mx-auto max-w-wrap px-5 py-12 sm:px-8 sm:py-14">
-      <form method="get" className="mb-10 grid grid-cols-1 items-end gap-4 border border-line bg-paper p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-[1fr_1fr_auto_auto]">
+      <form method="get" className="mb-10 grid grid-cols-1 items-end gap-4 rounded-lg border border-line bg-paper/60 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-[1fr_1fr_auto]">
         <label className="block text-sm font-semibold">
           {t("gallery.filter_division")}
-          <select name="division" defaultValue={divisionId ?? ""} className={`${select} mt-1.5 font-normal`}>
-            <option value="">{t("gallery.all")}</option>
-            {divisions.map((d) => (
-              <option key={d.id} value={d.id}>{pick(lang, d.nameEn, d.nameHi)}</option>
-            ))}
-          </select>
+          <Select
+            name="division"
+            defaultValue={divisionId ? String(divisionId) : ""}
+            placeholder={t("gallery.all")}
+            options={divisions.map((d) => ({ value: String(d.id), label: pick(lang, d.nameEn, d.nameHi) }))}
+            submitOnChange
+            className={`${select} mt-1.5 font-normal`}
+          />
         </label>
         <label className="block text-sm font-semibold">
           {t("gallery.filter_branch")}
-          <select name="branch" defaultValue={branchId ?? ""} className={`${select} mt-1.5 font-normal`}>
-            <option value="">{t("gallery.all")}</option>
-            {divisions.map((d) => (
-              <optgroup key={d.id} label={pick(lang, d.nameEn, d.nameHi)}>
-                {branches.filter((b) => b.divisionId === d.id).map((b) => (
-                  <option key={b.id} value={b.id}>{pick(lang, b.nameEn, b.nameHi)}</option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
+          <Select
+            name="branch"
+            defaultValue={branchId ? String(branchId) : ""}
+            placeholder={t("gallery.all")}
+            options={divisions.flatMap((d) =>
+              branches
+                .filter((b) => b.divisionId === d.id)
+                .map((b) => ({ value: String(b.id), label: pick(lang, b.nameEn, b.nameHi), hint: pick(lang, d.nameEn, d.nameHi) })),
+            )}
+            submitOnChange
+            className={`${select} mt-1.5 font-normal`}
+          />
         </label>
-        <button className="btn-primary min-h-11 px-6">{t("gallery.show")}</button>
         {filtered && (
           <Link href={`/${lang}/gallery`} className="inline-flex min-h-11 items-center justify-center font-medium text-brand underline underline-offset-4">
             {t("gallery.back")}
@@ -91,7 +95,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
               const place = [pick(lang, a.divisionEn, a.divisionHi), pick(lang, a.branchEn, a.branchHi)].filter(Boolean).join(" · ") || t("gallery.whole_union");
               return (
                 <li key={a.id}>
-                  <Link href={`/${lang}/gallery/${a.id}`} className="group block h-full border border-line bg-white transition hover:border-ink">
+                  <Link href={`/${lang}/gallery/${a.id}`} className="group block h-full border border-line bg-white transition hover:border-brand">
                     <span className="relative block aspect-[4/3] overflow-hidden bg-paper">
                       <Photo src={a.cover} alt="" fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-300 group-hover:scale-[1.03]" />
                     </span>

@@ -61,7 +61,7 @@ export default async function GrievancesAdmin({ searchParams }: { searchParams: 
               <tr key={g.id} className="hover:bg-paper">
                 <td className={`${td} whitespace-nowrap font-mono text-xs`}><Link href={`/admin/grievances/${g.id}`} className="font-bold text-brand hover:underline">{g.ticket}</Link></td>
                 <td className={td}>{g.name}<div className="text-sm text-muted">{g.mobile}</div></td>
-                <td className={td}>{division ?? "–"}</td>
+                <td className={td}>{division ?? "-"}</td>
                 <td className={`${td} max-w-xs`}><span className="font-medium">{g.subject}</span>{type && <div className="text-sm text-muted">{type}</div>}</td>
                 <td className={td}>{levelName(g.level)}</td>
                 <td className={td}><span className={`px-2 py-0.5 text-xs font-bold uppercase ${g.status === "resolved" || g.status === "closed" ? "bg-soft text-ink" : "bg-ink text-signal"}`}>{STATUS[g.status]}</span></td>

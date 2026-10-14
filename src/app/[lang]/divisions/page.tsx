@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import DivisionCard from "@/components/DivisionCard";
+import DivisionList from "@/components/DivisionList";
 import PageHero from "@/components/PageHero";
 import { isLang } from "@/lib/i18n";
 import { getDivisionCards } from "@/lib/content";
@@ -20,10 +20,8 @@ export default async function DivisionsPage({ params }: { params: Promise<{ lang
   return (
     <>
       <PageHero lang={lang} title={title} sub={setting(s, "divisions.sub", lang)} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: title }]} />
-      <div className="mx-auto grid max-w-wrap gap-5 px-5 py-14 sm:grid-cols-2 sm:px-8 xl:grid-cols-5">
-        {cards.map((d) => (
-          <DivisionCard key={d.slug} d={d} lang={lang} labels={labels} />
-        ))}
+      <div className="mx-auto max-w-wrap px-5 py-14 sm:px-8">
+        <DivisionList divisions={cards} lang={lang} labels={labels} variant="cards" />
       </div>
     </>
   );

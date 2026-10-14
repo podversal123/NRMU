@@ -686,5 +686,33 @@
   "tickerPlay": {
     "en": "Play the moving list",
     "hi": "चलती सूची चलाएँ"
+  },
+  "backToTop": {
+    "en": "Back to top",
+    "hi": "ऊपर जाएँ"
+  },
+  "newTab": {
+    "en": "opens in a new tab",
+    "hi": "नए टैब में खुलेगा"
+  },
+  "cPhone": {
+    "en": "Phone",
+    "hi": "फ़ोन"
+  },
+  "cEmail": {
+    "en": "Email",
+    "hi": "ईमेल"
+  },
+  "cAddress": {
+    "en": "Address",
+    "hi": "पता"
+  },
+  "cHours": {
+    "en": "Office hours",
+    "hi": "कार्यालय समय"
+  },
+  "subCategoryPick": {
+    "en": "Select sub-category",
+    "hi": "उप-श्रेणी चुनें"
   }
 }

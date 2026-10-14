@@ -37,6 +37,7 @@ export default function Header({
   orgName,
   orgAltName,
   orgShort,
+  orgAltShort,
   menu,
   join,
   labels,
@@ -45,6 +46,7 @@ export default function Header({
   orgName: string;
   orgAltName: string;
   orgShort: string;
+  orgAltShort: string;
   menu: MenuNode[];
   join: string;
   labels: Labels;
@@ -71,11 +73,16 @@ export default function Header({
   const [atFooter, setAtFooter] = useState(false);
   const [now, setNow] = useState<Date | null>(null);
 
+  // The clock shows seconds, so tick on each whole second rather than drifting with a plain interval.
   useEffect(() => {
-    const tick = () => setNow(new Date());
+    let t: ReturnType<typeof setTimeout>;
+    const tick = () => {
+      const d = new Date();
+      setNow(d);
+      t = setTimeout(tick, 1000 - d.getMilliseconds());
+    };
     tick();
-    const t = setInterval(tick, 30000);
-    return () => clearInterval(t);
+    return () => clearTimeout(t);
   }, []);
 
   // Normal size (100%) unless the visitor chose another one; a missing saved value must not mean "smallest".
@@ -156,22 +163,37 @@ export default function Header({
     return p === "" ? pathname === `/${lang}` : pathname.startsWith(full(p));
   };
   const sizeBtn = "grid h-[44px] min-w-[44px] place-items-center px-1 text-xs font-semibold text-light/85 hover:text-signal lg:h-6 lg:min-w-6";
-  const dateText = now
-    ? `${new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "full", timeZone: "Asia/Kolkata" }).format(now)}, ${new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { timeStyle: "short", timeZone: "Asia/Kolkata" }).format(now)}`
-    : "";
+  const locale = lang === "hi" ? "hi-IN" : "en-IN";
+  const dateText = now ? new Intl.DateTimeFormat(locale, { dateStyle: "full", timeZone: "Asia/Kolkata" }).format(now) : "";
+  const timeText = now ? new Intl.DateTimeFormat(locale, { timeStyle: "medium", timeZone: "Asia/Kolkata" }).format(now) : "";
 
   return (
     <>
-      {/* 1. utility bar */}
-      <div className="print-chrome bg-ink text-light">
+      {/* 1. utility bar: always pinned, so text size, contrast and language stay in reach */}
+      <div className="print-chrome sticky top-0 z-50 border-b border-white/10 bg-ink text-light">
         <div className="mx-auto flex h-11 max-w-wrap items-center justify-between gap-3 px-5 text-xs sm:px-8 lg:h-9">
           <div className="flex items-center gap-5">
             <a href="#main" className="sr-only font-medium text-soft underline-offset-2 hover:underline focus:not-sr-only sm:not-sr-only">
               {labels.skip}
             </a>
-            <span className="hidden text-light/70 md:inline" suppressHydrationWarning>
-              {dateText}
-            </span>
+            {now && (
+              <span className="hidden items-center gap-3 md:flex">
+                <span className="flex items-center gap-2 text-light/75">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden className="text-signal">
+                    <rect x="3" y="5" width="18" height="16" rx="2" />
+                    <path d="M3 10h18M8 3v4M16 3v4" />
+                  </svg>
+                  {dateText}
+                </span>
+                <span aria-hidden className="h-3.5 w-px bg-white/25" />
+                <span className="flex items-center gap-1.5">
+                  <time dateTime={now.toISOString()} className="font-mono tabular-nums text-soft">
+                    {timeText}
+                  </time>
+                  <span className="text-[0.65rem] font-semibold text-light/45">IST</span>
+                </span>
+              </span>
+            )}
           </div>
           <div className="ml-auto flex items-center gap-0.5 lg:gap-1.5">
             <span className="hidden text-light/70 sm:inline">{labels.textSize}</span>
@@ -211,12 +233,16 @@ export default function Header({
           <Link href={`/${lang}`} className="flex items-center gap-4" aria-label={orgName}>
             <Image src="/logo.jpg" alt="" width={72} height={72} priority className="h-14 w-14 rounded-full sm:h-[4.5rem] sm:w-[4.5rem]" />
             <span className="leading-tight">
-              <b className="block text-[1.3rem] font-bold sm:text-[1.85rem]">{orgName}</b>
-              <span className="block text-sm text-muted sm:text-base">{orgAltName}</span>
+              <b className="block text-[1.3rem] font-bold sm:text-[1.85rem]">{orgName} ({orgShort})</b>
+              <span className="block text-sm text-muted sm:text-base">{orgAltName} ({orgAltShort})</span>
             </span>
           </Link>
-          <div className={`hidden shrink-0 items-center gap-5 ${compact ? "" : "lg:flex"}`}>
-            <Link href={full("/member")} className="font-medium text-ink underline decoration-signal decoration-2 underline-offset-4 hover:text-brand">
+          <div className={`hidden shrink-0 items-center gap-3 ${compact ? "" : "lg:flex"}`}>
+            <Link href={full("/member")} className="btn-outline inline-flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21a8 8 0 0 1 16 0" />
+              </svg>
               {labels.memberLogin}
             </Link>
             <Link href={full("/join")} className="btn-primary inline-block">
@@ -230,7 +256,7 @@ export default function Header({
       {/* 3. menu bar */}
       <nav
         aria-label={labels.navPrimary}
-        className={`print-chrome sticky top-0 z-40 bg-ink text-light transition-transform duration-300 ${atFooter && !open ? "-translate-y-full" : "translate-y-0"}`}
+        className={`print-chrome sticky top-11 z-40 bg-ink lg:top-9 text-light transition-transform duration-300 ${atFooter && !open ? "-translate-y-full" : "translate-y-0"}`}
       >
         <div className="mx-auto flex max-w-wrap items-center justify-between px-5 sm:px-8">
           <ul ref={navRef} className={`hidden items-stretch ${compact ? "" : "lg:flex"}`}>
@@ -302,12 +328,6 @@ export default function Header({
           </button>
 
           <div className="flex items-center gap-1">
-            <Link href={full("/orders")} aria-label={labels.search} className="grid h-12 w-12 place-items-center hover:text-soft">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-                <circle cx="11" cy="11" r="7" />
-                <path d="m20 20-3.5-3.5" />
-              </svg>
-            </Link>
             <Link href={full("/join")} className={`btn-gold !px-3 !py-2.5 text-sm sm:!px-4 ${compact ? "" : "lg:hidden"}`}>
               {join}
             </Link>
@@ -315,7 +335,7 @@ export default function Header({
         </div>
 
         {open && (
-          <div id="mobile-nav" aria-label={labels.navMobile} className={`max-h-[calc(100svh-3rem)] overflow-y-auto overscroll-contain border-t border-[#2b2d33] ${compact ? "" : "lg:hidden"}`}>
+          <div id="mobile-nav" aria-label={labels.navMobile} className={`max-h-[calc(100svh-5.75rem)] overflow-y-auto overscroll-contain border-t border-[#2b2d33] ${compact ? "" : "lg:hidden"}`}>
             <ul className="mx-auto max-w-wrap px-5 pb-5 sm:px-8">
               {menu.map((m) => (
                 <li key={m.id} className="border-b border-[#2b2d33]">

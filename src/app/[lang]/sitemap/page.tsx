@@ -24,7 +24,7 @@ export default async function SitemapPage({ params }: { params: Promise<{ lang: 
           <section key={m.id}>
             <h2 className={h}>{m.href === "#" ? pick(lang, m.labelEn, m.labelHi) : <Link href={href(m.href)} className="hover:text-brand">{pick(lang, m.labelEn, m.labelHi)}</Link>}</h2>
             {m.children.length > 0 && (
-              <ul className="mt-3 space-y-2 border-t border-ink pt-3">
+              <ul className="mt-3 space-y-2 border-t-2 border-signal pt-3">
                 {m.children.map((c) => (
                   <li key={c.id}><Link href={href(c.href)} className="hover:text-brand">{pick(lang, c.labelEn, c.labelHi)}</Link></li>
                 ))}
@@ -34,7 +34,7 @@ export default async function SitemapPage({ params }: { params: Promise<{ lang: 
         ))}
         <section>
           <h2 className={h}>{setting(s, "stats.divisions", lang)}</h2>
-          <ul className="mt-3 space-y-2 border-t border-ink pt-3">
+          <ul className="mt-3 space-y-2 border-t-2 border-signal pt-3">
             {divisions.map((d) => (
               <li key={d.slug}><Link href={`/${lang}/divisions/${d.slug}`} className="hover:text-brand">{pick(lang, d.nameEn, d.nameHi)}</Link></li>
             ))}
@@ -43,7 +43,7 @@ export default async function SitemapPage({ params }: { params: Promise<{ lang: 
         {policy.length > 0 && (
           <section>
             <h2 className={h}>{setting(s, "footer.important_links", lang)}</h2>
-            <ul className="mt-3 space-y-2 border-t border-ink pt-3">
+            <ul className="mt-3 space-y-2 border-t-2 border-signal pt-3">
               {policy.map((p) => (
                 <li key={p.id}><Link href={href(p.href)} className="hover:text-brand">{pick(lang, p.labelEn, p.labelHi)}</Link></li>
               ))}

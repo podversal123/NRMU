@@ -19,7 +19,7 @@ const DATA = path.join(ROOT, "data");
 const read = <T,>(f: string) => JSON.parse(fs.readFileSync(path.join(DATA, f), "utf8")) as T;
 
 const NAMED: Record<string, string> = {
-  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "–", mdash: "—",
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "-", mdash: "-",
   lsquo: "‘", rsquo: "’", ldquo: "“", rdquo: "”", hellip: "…", bull: "•",
 };
 const decode = (s: string) =>
@@ -264,14 +264,14 @@ async function seedOfficials(divIds: Map<string, number>) {
 
 type Pair = { en: string; hi: string };
 const SETTINGS: Record<string, Pair> = {
-  "org.name": { en: "Northern Railway Men's Union", hi: "उत्तर रेलवे मेन्स यूनियन" },
+  "org.name": { en: "Northern Railway Men's Union", hi: "नॉर्दर्न रेलवे मेन्स यूनियन" },
   "org.short": { en: "NRMU", hi: "एन.आर.एम.यू." },
   "org.city": { en: "New Delhi", hi: "नई दिल्ली" },
-  "hero.title_a": { en: "For the Railwaymen", hi: "भारत के" },
-  "hero.title_b": { en: "of India.", hi: "रेलकर्मियों के लिए।" },
+  "hero.title_a": { en: "For the Railwaymen", hi: "नॉर्दर्न रेलवे के" },
+  "hero.title_b": { en: "of Northern Railway.", hi: "रेलकर्मियों के लिए।" },
   "hero.sub": {
-    en: "Every Railway Board order, circular and union update that matters to you — in one place, searchable, in Hindi and English.",
-    hi: "रेलवे बोर्ड के हर आदेश, परिपत्र और यूनियन की हर सूचना — एक ही जगह, खोजने योग्य, हिंदी और अंग्रेज़ी में।",
+    en: "Every Railway Board order, circular and union update that matters to you, in one place, searchable, in Hindi and English.",
+    hi: "रेलवे बोर्ड के हर आदेश, परिपत्र और यूनियन की हर सूचना, एक ही जगह, खोजने योग्य, हिंदी और अंग्रेज़ी में।",
   },
   "hero.search_placeholder": {
     en: "Search orders and circulars…",
@@ -289,7 +289,7 @@ const SETTINGS: Record<string, Pair> = {
   "footer.explore": { en: "Explore", hi: "देखें" },
   "footer.rights": { en: "All rights reserved.", hi: "सर्वाधिकार सुरक्षित।" },
   "site.domain": { en: "nrmu.net", hi: "nrmu.net" },
-  "orders.sub": { en: "Railway Board orders, DOPT circulars, pay commission and union letters — search the full archive.", hi: "रेलवे बोर्ड के आदेश, DOPT परिपत्र, वेतन आयोग और यूनियन के पत्र — पूरे संग्रह में खोजें।" },
+  "orders.sub": { en: "Railway Board orders, DOPT circulars, pay commission and union letters. Search the full archive.", hi: "रेलवे बोर्ड के आदेश, DOPT परिपत्र, वेतन आयोग और यूनियन के पत्र। पूरे संग्रह में खोजें।" },
   "officials.sub": { en: "The central office bearers, divisional presidents and divisional secretaries of the union.", hi: "यूनियन के केंद्रीय पदाधिकारी, मंडल अध्यक्ष और मंडल सचिव।" },
   "divisions.sub": { en: "NRMU is organised in divisions across Northern Railway, each with its own branches and leaders.", hi: "एन.आर.एम.यू. उत्तर रेलवे के मंडलों में संगठित है, हर मंडल की अपनी शाखाएँ और नेतृत्व है।" },
   "women.sub": { en: "Zonal and divisional women committees of NRMU.", hi: "एन.आर.एम.यू. की क्षेत्रीय और मंडलीय महिला समितियाँ।" },

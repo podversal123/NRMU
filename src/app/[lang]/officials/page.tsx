@@ -31,8 +31,8 @@ export default async function OfficialsPage({ params }: { params: Promise<{ lang
         <ul className="grid grid-cols-1 gap-5 md:grid-cols-3">
           {cards.map((c) => (
             <li key={c.href}>
-              <Link href={`/${lang}${c.href}`} className="group flex h-full flex-col border border-line bg-white p-6 transition hover:border-ink sm:p-7">
-                <span className="grid h-12 w-12 place-items-center bg-ink text-signal group-hover:bg-brand group-hover:text-white">
+              <Link href={`/${lang}${c.href}`} className="group flex h-full flex-col border border-line bg-white p-6 transition hover:border-brand sm:p-7">
+                <span className="grid h-12 w-12 place-items-center rounded-md bg-brand/10 text-brand transition-colors group-hover:bg-brand group-hover:text-white">
                   <Icon name="people" />
                 </span>
                 <h2 className="mt-5 text-xl font-medium leading-snug">{c.title}</h2>

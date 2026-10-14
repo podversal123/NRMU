@@ -19,7 +19,7 @@ export default async function NotFound() {
         <Link href="/en" className="btn-primary px-7 py-3">
           {en.goHome}
         </Link>
-        <Link href="/hi" className="rounded-full border-2 border-ink px-7 py-3 font-bold hover:bg-ink hover:text-white">
+        <Link href="/hi" className="rounded-full border-2 border-brand px-7 py-3 font-bold text-brand hover:bg-brand hover:text-white">
           {hi.goHome}
         </Link>
       </div>

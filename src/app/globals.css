@@ -65,7 +65,7 @@ h1, h2, h3, h4, .font-display { font-family: var(--font-display); font-weight: 5
 
 @layer components {
 /* Buttons */
-.btn-primary, .btn-gold, .btn-ghost {
+.btn-primary, .btn-gold, .btn-ghost, .btn-outline {
   display: inline-block;
   border-radius: 4px;
   padding: 0.7rem 1.5rem;
@@ -81,6 +81,9 @@ h1, h2, h3, h4, .font-display { font-family: var(--font-display); font-weight: 5
 .btn-gold:hover { background: var(--gold-soft); color: var(--ink); }
 .btn-ghost { border-color: #5b5e64; color: var(--light); background: transparent; font-weight: 500; }
 .btn-ghost:hover { border-color: var(--gold); color: var(--gold-soft); }
+/* secondary action on a light background, e.g. "Member sign in" beside "Join NRMU" */
+.btn-outline { border-color: var(--ink); color: var(--ink); background: #fff; }
+.btn-outline:hover { border-color: var(--oxblood); color: var(--oxblood); background: #fbf8f4; }
 }
 
 /* Rule under headings */
@@ -117,13 +120,443 @@ h1, h2, h3, h4, .font-display { font-family: var(--font-display); font-weight: 5
 .rise { animation: rise 1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 .rise-2 { animation-delay: 0.12s; }
 .rise-3 { animation-delay: 0.24s; }
+/* Divisions board: the featured panel eases in when another division is picked */
+@keyframes swap-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.swap-in { animation: swap-in 0.35s ease-out both; }
+/* Orders page: while new results load the list fades and a thin bar runs under the filters */
+.orders-list { transition: opacity 0.2s; }
+html[data-orders-pending] .orders-list { opacity: 0.45; pointer-events: none; }
+.orders-bar { position: relative; background: var(--line); transition: opacity 0.2s; }
+.orders-bar::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 35%; background: var(--oxblood); animation: orders-bar 1s ease-in-out infinite; }
+@keyframes orders-bar { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+/* Reveal: list items rise in one after another when the block first scrolls into view (components/Reveal.tsx) */
+@keyframes reveal-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.reveal[data-armed] li { opacity: 0; }
+.reveal[data-armed][data-shown] li { animation: reveal-in 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 70ms); }
+
+/* Home page action cards (grievance, join): lift on hover, arrow nudges, badge glows */
+/* the cards themselves stay put on hover; the envelope, the pocket and the arrow do the moving */
+.act-card { box-shadow: 0 1px 0 rgba(21, 22, 26, 0.06), 0 18px 32px -26px rgba(21, 22, 26, 0.6); }
+.act-mark { transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.act-card:hover .act-mark { transform: rotate(-8deg) scale(1.06); }
+.act-arrow { transition: transform 0.25s; }
+.act-card:hover .act-arrow { transform: translateX(5px); }
+.act-badge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 rgba(200, 164, 90, 0.6);
+  animation: act-ping 2.4s ease-out infinite;
+}
+@keyframes act-ping { 0% { box-shadow: 0 0 0 0 rgba(200, 164, 90, 0.55); } 70%, 100% { box-shadow: 0 0 0 16px rgba(200, 164, 90, 0); } }
+/* two gold rails with sleepers along the bottom edge */
+.act-rails {
+  background:
+    linear-gradient(rgba(200, 164, 90, 0.75), rgba(200, 164, 90, 0.75)) 0 2px / 100% 1px no-repeat,
+    linear-gradient(rgba(200, 164, 90, 0.75), rgba(200, 164, 90, 0.75)) 0 9px / 100% 1px no-repeat,
+    repeating-linear-gradient(90deg, rgba(200, 164, 90, 0.5) 0 3px, transparent 3px 22px);
+}
+
+/* Home page divisions as a deck of cards (src/components/DivisionDeck.tsx): all cards share one grid cell */
+.deck-stage { display: grid; padding-bottom: 3.25rem; touch-action: pan-y; }
+.deck-card {
+  grid-area: 1 / 1;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 26px 48px -22px rgba(0, 0, 0, 0.6);
+  outline: 1px solid rgba(0, 0, 0, 0.12);
+  transform-origin: 50% 100%;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s, filter 0.4s;
+  will-change: transform;
+}
+.deck-nav {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 99px;
+  font-size: 1.15rem;
+  color: var(--oxblood);
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(138, 33, 29, 0.25);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.deck-nav:hover { background: var(--gold); color: var(--ink); box-shadow: 0 0 0 1px var(--gold); }
+/* the deck sits on the maroon divisions band, so the names are light with gold for the current one */
+.deck-name {
+  position: relative;
+  border-radius: 99px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.95rem;
+  color: rgba(239, 236, 227, 0.8);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+  transition: color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.deck-name:hover { color: #fff; }
+.deck-name.is-active { color: var(--ink); background: var(--gold); box-shadow: none; }
+@media (min-width: 1024px) {
+  .deck-name { width: 100%; padding: 0.55rem 0 0.55rem 1.1rem; border-radius: 0; text-align: left; font-size: 1.05rem; background: none; box-shadow: none; }
+  .deck-name::before { content: ""; position: absolute; left: 0; top: 50%; width: 3px; height: 0; border-radius: 99px; background: var(--gold); transform: translateY(-50%); transition: height 0.25s; }
+  .deck-name.is-active { color: var(--gold-soft); font-weight: 600; background: none; }
+  .deck-name.is-active::before { height: 1.4rem; }
+}
+/* a click pulls the top card aside like a hand would, then it flies off; --dir is 1 (right) or -1 (left).
+   It only runs when the visitor asks for it, so it is kept for people who prefer less motion too. */
+.deck-fling { animation: deck-fling 0.68s cubic-bezier(0.45, 0, 0.2, 1) forwards; }
+@keyframes deck-fling {
+  0% { transform: translateX(0) rotate(0deg); opacity: 1; }
+  38% { transform: translateX(calc(var(--dir) * 18%)) translateY(-6px) rotate(calc(var(--dir) * 5deg)); opacity: 1; }
+  75% { opacity: 1; }
+  100% { transform: translateX(calc(var(--dir) * 125%)) translateY(10px) rotate(calc(var(--dir) * 18deg)); opacity: 0; }
+}
+
+/* Home page action cards, top right: the grievance envelope and the membership card pocket (src/components/CtaProps.tsx).
+   Both only move when the visitor hovers or clicks, so they also run for people who prefer less motion. */
+/* they sit across the card's top edge, clear of the heading */
+.env, .pocket { --w: 8.5rem; position: absolute; right: 1.5rem; top: -1.25rem; z-index: 10; width: var(--w); }
+@media (min-width: 640px) { .env, .pocket { --w: 10.5rem; right: 2.25rem; top: -1.5rem; } }
+
+.env { aspect-ratio: 3 / 2; perspective: 700px; filter: drop-shadow(0 14px 16px rgba(0, 0, 0, 0.45)); }
+.env-back, .env-front, .env-flap, .env-hit { position: absolute; inset: 0; }
+.env-back { border-radius: 5px; background: #cdb68a; }
+.env-letter {
+  position: absolute;
+  inset: 7% 7% 6%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: 3px;
+  background: #fffdf6;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), 0 6px 14px -6px rgba(0, 0, 0, 0.35);
+  transform: translateY(0);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.env-lines { /* handwriting lines on the letter */
+  flex: 1;
+  background: repeating-linear-gradient(180deg, transparent 0 0.42rem, rgba(111, 26, 23, 0.16) 0.42rem calc(0.42rem + 1px));
+}
+.env-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  border-radius: 99px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ink);
+  background: var(--gold);
+  transition: background 0.2s;
+}
+.env-letter:hover .env-cta { background: var(--gold-soft); }
+.env-front { /* the pocket of the envelope, cut in a V at the top */
+  z-index: 3;
+  border-radius: 5px;
+  background:
+    linear-gradient(to top right, transparent 49.5%, rgba(0, 0, 0, 0.07) 50%) left / 50% 100% no-repeat,
+    linear-gradient(to top left, transparent 49.5%, rgba(0, 0, 0, 0.07) 50%) right / 50% 100% no-repeat,
+    #e8d6ae;
+  clip-path: polygon(0 0, 50% 54%, 100% 0, 100% 100%, 0 100%);
+}
+.env-flap {
+  z-index: 4;
+  height: 60%;
+  bottom: auto;
+  transform-origin: 50% 0;
+  transform: rotateX(0deg);
+  /* closing: the letter goes down first, then the flap folds back over it */
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.28s, z-index 0s 0.52s;
+}
+.env-flap::before { content: ""; position: absolute; inset: 0; border-radius: 5px 5px 0 0; background: linear-gradient(180deg, #e2cd9f, #d5bd8c); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.env-seal { /* wax seal with the logo at the tip of the flap */
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 1.7rem;
+  height: 1.7rem;
+  padding: 3px;
+  border-radius: 99px;
+  background: radial-gradient(circle at 35% 30%, #b8322b, var(--oxblood) 60%, #4e100d);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -78%);
+  transition: opacity 0.25s, transform 0.35s;
+}
+.env-hit { z-index: 6; border-radius: 5px; cursor: pointer; }
+.env-hit:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+/* a hover on the card lifts the flap a little, inviting the click */
+.act-card:hover .env:not(.is-open) .env-flap { transform: rotateX(28deg); transition-delay: 0s; }
+.act-card:hover .env:not(.is-open) .env-letter { transform: translateY(-7%); }
+/* open: the flap turns over and drops behind, the seal fades, then the letter rises out above the card */
+.env.is-open .env-flap { z-index: 1; transform: rotateX(180deg); transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), z-index 0s 0.25s; }
+.env.is-open .env-seal { opacity: 0; transform: translate(-50%, -78%) scale(0.6); }
+.env.is-open .env-letter { z-index: 7; transform: translateY(-64%) rotate(-4deg); transition: transform 0.75s cubic-bezier(0.2, 1.25, 0.3, 1) 0.3s, z-index 0s 0.6s; }
+.env.is-open .env-hit { inset: 25% 0 0; }
+
+.pocket { aspect-ratio: 3 / 2; }
+.pocket-card {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: 18%;
+  z-index: 1;
+  aspect-ratio: 86 / 54;
+  overflow: hidden;
+  border-radius: 0.45rem;
+  background: #000;
+  box-shadow: 0 0 0 1px rgba(230, 211, 162, 0.45), 0 12px 20px -10px rgba(0, 0, 0, 0.8);
+  transform: translateY(22%) rotate(-3deg);
+  transition: transform 0.7s cubic-bezier(0.2, 1.3, 0.3, 1);
+}
+.pocket-card::after { /* sheen that crosses the card as it slides out */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.2) 48%, transparent 58%) 100% 0 / 250% 100%;
+  transition: background-position 0.9s 0.15s;
+}
+.pocket-band {
+  position: absolute;
+  inset: auto 9% 9%;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+  border-top: 1px solid rgba(200, 164, 90, 0.45);
+  font-size: 0.36rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+}
+.pocket-front { /* stitched leather pocket */
+  position: absolute;
+  inset: 34% 0 0;
+  z-index: 2;
+  display: grid;
+  place-items: end center;
+  padding-bottom: 0.55rem;
+  border-radius: 0.35rem 0.35rem 0.9rem 0.9rem;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(255, 255, 255, 0.12), transparent 60%),
+    linear-gradient(180deg, #5c1411, #3b0c0a);
+  box-shadow: 0 14px 22px -10px rgba(0, 0, 0, 0.7), inset 0 2px 0 rgba(255, 255, 255, 0.12), inset 0 -3px 6px rgba(0, 0, 0, 0.35);
+}
+.pocket-front::before { content: ""; position: absolute; inset: 0.4rem; border: 1px dashed rgba(200, 164, 90, 0.55); border-radius: 0.2rem 0.2rem 0.6rem 0.6rem; }
+.pocket-front b { position: relative; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.3em; color: rgba(230, 211, 162, 0.7); }
+.act-card:hover .pocket-card, .act-card:focus-within .pocket-card { transform: translateY(-62%) rotate(-8deg) scale(1.04); }
+.act-card:hover .pocket-card::after, .act-card:focus-within .pocket-card::after { background-position: -50% 0; }
+@media (hover: none) { .pocket-card { transform: translateY(-30%) rotate(-6deg); } }
+
+/* Action card buttons, shaped like a railway ticket: the label, a perforated tear line with two notches cut out of
+   the edges (filled with the card colour, --notch), and a stub with the arrow. A solid lower edge makes it a key you
+   press: it rises on hover and goes down on click. Hovering anywhere on the card sends the arrow through the stub. */
+.ticket-btn {
+  position: relative;
+  z-index: 10;
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 6px;
+  color: var(--ink);
+  background: var(--gold);
+  box-shadow: 0 4px 0 #8f7238, 0 12px 20px -12px rgba(0, 0, 0, 0.7);
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background-color 0.2s;
+}
+.ticket-btn:hover { transform: translateY(-2px); background: #d3b06b; box-shadow: 0 6px 0 #8f7238, 0 18px 24px -14px rgba(0, 0, 0, 0.75); }
+.ticket-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #8f7238, 0 4px 8px -6px rgba(0, 0, 0, 0.6); transition-duration: 0.05s; }
+.ticket-btn:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 5px; }
+.ticket-label { padding: 0.95rem 1.35rem 0.95rem 1.5rem; font-size: 1.125rem; font-weight: 700; line-height: 1.2; }
+.ticket-stub { position: relative; display: grid; place-items: center; width: 3.5rem; overflow: hidden; border-left: 2px dashed rgba(21, 22, 26, 0.32); }
+.ticket-btn::before, .ticket-btn::after { /* the two notches on the tear line */
+  content: "";
+  position: absolute;
+  right: calc(3.5rem - 7px);
+  width: 12px;
+  height: 12px;
+  border-radius: 99px;
+  background: var(--notch, var(--paper));
+}
+.ticket-btn::before { top: -6px; }
+.ticket-btn::after { bottom: -6px; }
+.ticket-stub svg { transition: transform 0.2s; }
+.act-card:hover .ticket-stub svg { animation: ticket-arrow 0.7s cubic-bezier(0.5, 0, 0.3, 1); }
+@keyframes ticket-arrow {
+  0% { transform: translateX(0); }
+  45% { transform: translateX(170%); }
+  46% { transform: translateX(-170%); }
+  100% { transform: translateX(0); }
+}
+
+/* Trains on the rails along the bottom of the action cards (TrackTrain in src/components/CtaProps.tsx). They take
+   turns on one 8 second clock: the steam train crosses the first card (0 to 40%), then after a short gap the
+   electric train crosses the second (50 to 90%), at the same speed. The track is a size container, so 100cqw is
+   the card's width. */
+.act-train { position: absolute; inset-inline: 0; bottom: 0.6rem; height: 1.85rem; container-type: inline-size; pointer-events: none; }
+.act-train-steam { --tw-body: var(--gold); --tw-win: #15161a; --tw-wheel: #9c7e40; }
+.act-train-electric { --tw-body: var(--gold-soft); --tw-win: var(--oxblood-deep); --tw-wheel: #b39a63; }
+.act-train-body { position: absolute; left: 0; bottom: 0; width: 11rem; height: 100%; transform: translateX(-100%); animation: train-run-a 8s linear infinite; }
+.act-train-electric .act-train-body { animation-name: train-run-b; }
+@keyframes train-run-a {
+  0% { transform: translateX(-100%); animation-timing-function: cubic-bezier(0.4, 0.1, 0.6, 0.9); }
+  40%, 100% { transform: translateX(100cqw); }
+}
+@keyframes train-run-b {
+  0%, 50% { transform: translateX(-100%); animation-timing-function: cubic-bezier(0.4, 0.1, 0.6, 0.9); }
+  90%, 100% { transform: translateX(100cqw); }
+}
+.act-train svg { animation: train-bob 0.28s ease-in-out infinite alternate; }
+@keyframes train-bob { to { transform: translateY(-0.6px); } }
+.tw-wheel { transform-box: fill-box; transform-origin: center; animation: wheel-spin 0.32s linear infinite; }
+@keyframes wheel-spin { to { transform: rotate(360deg); } }
+.tw-lamp { filter: drop-shadow(0 0 3px var(--gold-soft)); }
+/* off screen: everything holds still */
+.act-train.is-paused, .act-train.is-paused * { animation-play-state: paused !important; }
+/* steam: puffs leave the chimney and drift back over the train as it moves forward */
+.act-smoke span { position: absolute; left: 88%; bottom: 1.5rem; width: 0.75rem; height: 0.75rem; border-radius: 99px; background: radial-gradient(circle, rgba(239, 236, 227, 0.95), rgba(239, 236, 227, 0.55) 60%, transparent 72%); opacity: 0; animation: train-puff 1s ease-out infinite; }
+.act-smoke span:nth-child(2) { animation-delay: 0.25s; }
+.act-smoke span:nth-child(3) { animation-delay: 0.5s; }
+.act-smoke span:nth-child(4) { animation-delay: 0.75s; }
+@keyframes train-puff {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 0.95; }
+  40% { opacity: 0.8; }
+  100% { transform: translate(-2.6rem, -1.5rem) scale(2.4); opacity: 0; }
+}
+
+/* Footer: landscape membership card on a short lanyard (src/components/HangingCard.tsx) */
+.hang-wrap { --strap: 3.75rem; width: 20rem; max-width: 100%; flex-shrink: 0; perspective: 1200px; }
+.hang-rig { position: relative; transform-origin: 50% 0; touch-action: none; cursor: grab; will-change: transform; }
+.hang-rig:active { cursor: grabbing; }
+/* woven strap printed with the short name; it fades out at the top, as if it comes from above */
+.hang-strap {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  margin: 0 auto;
+  width: 1.4rem;
+  height: var(--strap);
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
+    linear-gradient(90deg, var(--oxblood-deep), var(--oxblood) 25%, #a8322c 50%, var(--oxblood) 75%, var(--oxblood-deep));
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 45%);
+  mask-image: linear-gradient(to bottom, transparent, #000 45%);
+}
+.hang-strap > span {
+  writing-mode: vertical-rl;
+  white-space: pre;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  line-height: 1.4rem;
+  color: var(--gold-soft);
+}
+.hang-clip {
+  position: relative;
+  z-index: 2;
+  display: block;
+  margin: -2px auto 0;
+  width: 1.8rem;
+  height: 1.35rem;
+  border-radius: 6px 6px 9px 9px;
+  background: linear-gradient(180deg, #f6f4ef, #a9a69d 55%, #6d6a63);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45), inset 0 1px 0 #fff;
+}
+/* the card is a button holding both faces */
+.hang-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin-top: -0.6rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.9rem;
+  background: none;
+  cursor: inherit;
+  aspect-ratio: 86 / 54;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.hang-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.hang-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  text-align: left;
+  color: var(--light);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 30px 50px -22px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(230, 211, 162, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+.hang-face::before { /* hairline gold frame just inside the edge */
+  content: "";
+  position: absolute;
+  inset: 0.45rem;
+  border: 1px solid rgba(200, 164, 90, 0.28);
+  border-radius: 0.6rem;
+  pointer-events: none;
+}
+.hang-front { background: #000; }
+.hang-front::after { /* a soft sheen that crosses the card on hover */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.16) 48%, transparent 58%);
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  transition: background-position 0.9s;
+}
+.hang-rig:hover .hang-front::after { background-position: -50% 0; }
+.hang-back {
+  transform: rotateY(180deg);
+  background: #000;
+}
+.hang-logo { flex-shrink: 0; border-radius: 99px; box-shadow: 0 0 0 2px var(--gold), 0 0 0 6px rgba(200, 164, 90, 0.14), 0 10px 20px -8px rgba(0, 0, 0, 0.6); }
+.hang-foil { background: linear-gradient(180deg, #fff7e0 0%, var(--gold-soft) 45%, var(--gold) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hang-band { /* thin gold band along the bottom with the card title and the city */
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 1.5rem 0.95rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(200, 164, 90, 0.45);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+}
+.hang-slot { position: absolute; left: 50%; top: 0.55rem; z-index: 2; width: 2.4rem; height: 0.4rem; transform: translateX(-50%); border-radius: 99px; background: rgba(0, 0, 0, 0.5); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 255, 255, 0.18); }
 
 @media (prefers-reduced-motion: reduce) {
-  .marquee-track, .rise { animation: none; }
+  .hang-card, .hang-front::after { transition: none; }
+  .act-card, .act-mark, .act-arrow { transition: none; }
+  .act-card:hover, .act-card:focus-within, .act-card:hover .act-mark, .act-card:hover .act-arrow { transform: none; }
+  .act-badge::after { animation: none; }
+  .marquee-track, .rise, .swap-in { animation: none; }
+  .reveal[data-armed] li, .reveal[data-armed][data-shown] li { opacity: 1; animation: none; }
+  .orders-bar::after { animation: none; width: 100%; }
   html { scroll-behavior: auto; }
 }
 
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+/* a text field whose surrounding box already shows focus (its border darkens) */
+.field-bare:focus-visible { outline: none; }
 
 /* Long-form content coming from the database (orders, pages) */
 .prose-nrmu { font-size: 1rem; line-height: 1.7; overflow-wrap: anywhere; }
@@ -140,20 +573,29 @@ h1, h2, h3, h4, .font-display { font-family: var(--font-display); font-weight: 5
 .prose-nrmu th { background: var(--paper); text-align: left; }
 .prose-nrmu blockquote { border-left: 3px solid var(--gold); padding-left: 1rem; color: var(--muted); }
 
+/* Footer photo drifts in very slowly */
+@keyframes footer-drift { from { transform: scale(1.04); } to { transform: scale(1.14) translateX(-1.5%); } }
+.footer-photo { animation: footer-drift 40s ease-in-out infinite alternate; }
+
 /* Printing a page: only the content, without the menu, the footer or the buttons. The membership card keeps its colours. */
 @media print {
   .print-chrome, .no-print { display: none !important; }
   .print-card { box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
-/* Latest-updates ticker: moves slowly, stops on hover, focus or when paused, and does not move at all for people who ask for less motion. */
+/* Latest-updates ticker: moves slowly on every device (including when the system asks for less motion)
+   and stops on hover or keyboard focus. The items are rendered twice so the loop has no gap. */
 @keyframes ticker-move { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .ticker-track { display: flex; width: max-content; animation: ticker-move 90s linear infinite; }
-.ticker:hover .ticker-track, .ticker:focus-within .ticker-track, .ticker[data-paused="true"] .ticker-track { animation-play-state: paused; }
-@media (prefers-reduced-motion: reduce) {
-  .ticker-track { animation: none; }
-  .ticker-view { overflow-x: auto; }
-}
+.ticker:hover .ticker-track, .ticker:focus-within .ticker-track { animation-play-state: paused; }
+/* soft fade at both ends of the moving strip */
+.ticker-view { mask-image: linear-gradient(90deg, transparent, #000 2rem, #000 calc(100% - 2rem), transparent); }
+@keyframes live-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.live-dot { animation: live-dot 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .live-dot { animation: none; } }
+
+/* Section heading eyebrow: a small capitals label above a heading */
+.eyebrow { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--oxblood); }
 
 /* High-contrast reading mode (the contrast button in the top bar). */
 html[data-contrast="high"] {

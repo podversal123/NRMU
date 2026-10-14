@@ -2,12 +2,13 @@ import { cacheLife, cacheTag } from "next/cache";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { UI_KEYS, type Dict, type Lang } from "./i18n";
+import { noEmDash } from "./text";
 
 const { categories, designations, divisions, navItems, officeBearers, postCategories, posts, searchChips, siteSettings } = schema;
 
 /** Pick the Hindi value when the language is Hindi and a translation exists. */
 export const pick = (lang: Lang, en: string | null | undefined, hi: string | null | undefined) =>
-  lang === "hi" && hi ? hi : (en ?? "");
+  noEmDash(lang === "hi" && hi ? hi : (en ?? ""));
 
 /* ----------------------------- Site config ----------------------------- */
 

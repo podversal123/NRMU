@@ -69,7 +69,7 @@ async function OrderPageContent({ params }: Props) {
             </div>
           </div>
           {post.files.length > 0 && (
-            <div className="rounded-none border-2 border-ink bg-white p-5">
+            <div className="border border-line border-t-[3px] border-t-brand bg-white p-5">
               <h2 className="font-display text-lg font-semibold">{ui.attachments}</h2>
               <ul className="mt-3 space-y-2">
                 {post.files.map((f) => (
@@ -87,7 +87,7 @@ async function OrderPageContent({ params }: Props) {
             </div>
           )}
           <PageTools print={ui.print} share={ui.share} copied={ui.copied} />
-          <Link href={`/${lang}/orders`} className="block rounded-full border-2 border-ink px-5 py-2.5 text-center font-bold hover:bg-ink hover:text-white">
+          <Link href={`/${lang}/orders`} className="block rounded-full border-2 border-brand px-5 py-2.5 text-center font-bold text-brand hover:bg-brand hover:text-white">
             ← {ui.backToOrders}
           </Link>
         </aside>

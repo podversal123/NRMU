@@ -54,7 +54,7 @@ export default async function OfficialsAdmin({ searchParams }: { searchParams: P
                 <td className={td}><Link href={`/admin/officials/${r.id}`} className="font-semibold hover:text-brand">{r.name}</Link>{r.featured && <span className="ml-2 rounded bg-signal px-1.5 py-0.5 text-[0.65rem] font-bold uppercase">Home</span>}</td>
                 <td className={td}>{r.designation}</td>
                 <td className={td}>{SCOPE_LABEL[r.scope] ?? r.scope}</td>
-                <td className={td}>{r.division ?? "–"}</td>
+                <td className={td}>{r.division ?? "-"}</td>
                 <td className={td}>{r.active ? "Active" : <span className="text-muted">Hidden</span>}</td>
               </tr>
             ))}

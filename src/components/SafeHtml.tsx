@@ -1,6 +1,7 @@
 import sanitizeHtml from "sanitize-html";
 import { cacheLife } from "next/cache";
 import { getSettings } from "@/lib/queries";
+import { noEmDash } from "@/lib/text";
 
 const toHttps = (url: string) => url.replace(/^http:\/\/((?:www\.)?(?:nrmu\.net|airfindia\.org))/i, "https://$1");
 
@@ -35,6 +36,7 @@ export async function cleanHtml(html: string, goneHosts = "") {
     },
     allowedStyles: { "*": { "text-align": [/^(left|right|center|justify)$/] } },
     allowedSchemes: ["http", "https", "mailto", "tel"],
+    textFilter: (text) => noEmDash(text),
     transformTags: {
       a: (tag, attribs) => ({
         tagName: tag,

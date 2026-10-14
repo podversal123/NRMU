@@ -19,7 +19,7 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: s
   const [ui, s, title, { upcoming, past }] = await Promise.all([getUi(lang), getSettings(), navTitle(lang, "/events"), getEvents()]);
 
   const Card = ({ e }: { e: EventRow }) => (
-    <article className="border-t border-ink pt-5">
+    <article className="border-t-2 border-signal pt-5">
       <p className="font-display text-xl font-bold text-brand">{eventDate(e.startsAt, lang)}</p>
       <h3 className="mt-1 text-[1.3rem] leading-tight">{pick(lang, e.titleEn, e.titleHi)}</h3>
       <p className="mt-2 text-muted">

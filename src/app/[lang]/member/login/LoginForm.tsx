@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { memberLogin, type LoginState } from "../actions";
 import type { Dict, Lang } from "@/lib/i18n";
 
-const input = "mt-1.5 w-full border border-line bg-white px-4 py-3 text-base focus:border-ink focus:outline-none";
+const input = "mt-1.5 w-full border border-line bg-white px-4 py-3 text-base focus:border-brand focus:outline-none";
 
 export default function LoginForm({ ui, lang }: { ui: Dict; lang: Lang }) {
   const [state, action, pending] = useActionState<LoginState, FormData>(memberLogin, {});

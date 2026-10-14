@@ -26,7 +26,7 @@ export default async function DivisionsAdmin() {
             {rows.map((r) => (
               <tr key={r.id} className="hover:bg-paper">
                 <td className={td}><Link href={`/admin/divisions/${r.id}`} className="font-semibold hover:text-brand">{r.name_en}</Link></td>
-                <td className={td}>{r.name_hi ?? "–"}</td>
+                <td className={td}>{r.name_hi ?? "-"}</td>
                 <td className={td}>{r.branches}</td>
                 <td className={td}>{r.people}</td>
                 <td className={td}>{r.active ? "Visible" : <span className="text-muted">Hidden</span>}</td>

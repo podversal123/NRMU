@@ -58,7 +58,7 @@ export default async function EditPost({ params, searchParams }: { params: Promi
             </Field>
             <Field label="Categories" hint="Hold Ctrl (or Cmd) to select several.">
               <select name="categories" multiple size={12} defaultValue={[...selected].map(String)} className={inputCls}>
-                {ordered.map((c) => <option key={c.id} value={c.id}>{"– ".repeat(depth(c))}{c.nameEn}</option>)}
+                {ordered.map((c) => <option key={c.id} value={c.id}>{"- ".repeat(depth(c))}{c.nameEn}</option>)}
               </select>
             </Field>
             <SubmitButton className="btn-primary w-full px-6 py-3">Save</SubmitButton>

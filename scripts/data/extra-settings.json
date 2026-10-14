@@ -85,7 +85,7 @@
     "group": "contact"
   },
   "contact.address": {
-    "en": "",
+    "en": "NRMU, 12 - Chelmsford Road, New Delhi. 110055",
     "hi": "",
     "group": "contact"
   },
@@ -100,8 +100,8 @@
     "group": "home"
   },
   "home.grievance_text": {
-    "en": "Raise a grievance. It reaches your division and is passed up if no one acts on it.",
-    "hi": "शिकायत दर्ज करें। वह आपके मंडल तक पहुँचती है और कार्यवाही न होने पर आगे भेज दी जाती है।",
+    "en": "File your grievance online and track it with your reference number until it is resolved.",
+    "hi": "अपनी शिकायत ऑनलाइन दर्ज करें और समाधान होने तक रेफ़रेंस नंबर से उसकी स्थिति देखें।",
     "group": "home"
   },
   "home.join_title": {
@@ -110,8 +110,8 @@
     "group": "home"
   },
   "home.join_text": {
-    "en": "Become a member, stay informed and make your voice count.",
-    "hi": "सदस्य बनें, जानकारी से जुड़े रहें और अपनी आवाज़ मज़बूत करें।",
+    "en": "More members means a stronger voice with the administration. Join online and get your membership card.",
+    "hi": "जितने ज़्यादा सदस्य, प्रशासन के सामने उतनी मज़बूत आवाज़। ऑनलाइन जुड़ें और अपना सदस्यता कार्ड पाएँ।",
     "group": "home"
   },
   "content.gone_image_hosts": {
@@ -378,5 +378,40 @@
     "en": "Orders and circulars",
     "hi": "आदेश एवं परिपत्र",
     "group": "home"
+  },
+  "footer.contact_title": {
+    "en": "Contact",
+    "hi": "संपर्क",
+    "group": "footer"
+  },
+  "footer.follow_title": {
+    "en": "Follow us",
+    "hi": "हमसे जुड़ें",
+    "group": "footer"
+  },
+  "social.facebook": {
+    "en": "",
+    "hi": "",
+    "group": "social"
+  },
+  "social.youtube": {
+    "en": "",
+    "hi": "",
+    "group": "social"
+  },
+  "social.x": {
+    "en": "",
+    "hi": "",
+    "group": "social"
+  },
+  "social.instagram": {
+    "en": "",
+    "hi": "",
+    "group": "social"
+  },
+  "social.whatsapp": {
+    "en": "",
+    "hi": "",
+    "group": "social"
   }
 }

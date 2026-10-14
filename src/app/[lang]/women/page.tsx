@@ -38,8 +38,8 @@ export default async function WomenPage({ params }: { params: Promise<{ lang: st
             <ul className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {pages.map((p) => (
                 <li key={p.slug} className="min-w-0">
-                  <Link href={`/${lang}/women/${p.slug}`} className="group flex items-center gap-4 rounded-none border border-line bg-white p-5 transition hover:border-ink">
-                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-none bg-ink text-signal group-hover:bg-brand group-hover:text-white">
+                  <Link href={`/${lang}/women/${p.slug}`} className="group flex items-center gap-4 rounded-none border border-line bg-white p-5 transition hover:border-brand">
+                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-brand/10 text-brand transition-colors group-hover:bg-brand group-hover:text-white">
                       <Icon name="people" />
                     </span>
                     <span className="min-w-0 break-words font-display font-bold leading-snug">{pick(lang, p.titleEn, p.titleHi)}</span>

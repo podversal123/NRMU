@@ -26,8 +26,8 @@ export default async function MeetingsPage({ params }: { params: Promise<{ lang:
           <ul className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {types.map((k) => (
               <li key={k.id}>
-                <Link href={`/${lang}/meetings/${k.id}`} className="group flex h-full flex-col border border-line bg-white p-6 transition hover:border-ink sm:p-7">
-                  <span className="grid h-12 w-12 place-items-center bg-ink text-signal group-hover:bg-brand group-hover:text-white">
+                <Link href={`/${lang}/meetings/${k.id}`} className="group flex h-full flex-col border border-line bg-white p-6 transition hover:border-brand sm:p-7">
+                  <span className="grid h-12 w-12 place-items-center rounded-md bg-brand/10 text-brand transition-colors group-hover:bg-brand group-hover:text-white">
                     <Icon name="people" />
                   </span>
                   <h2 className="mt-5 text-xl font-medium leading-snug">{pick(lang, k.nameEn, k.nameHi)}</h2>
