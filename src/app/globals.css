@@ -577,6 +577,15 @@ html[data-orders-pending] .orders-list { opacity: 0.45; pointer-events: none; }
 @keyframes footer-drift { from { transform: scale(1.04); } to { transform: scale(1.14) translateX(-1.5%); } }
 .footer-photo { animation: footer-drift 40s ease-in-out infinite alternate; }
 
+/* Leader banner cut-outs (src/components/LeaderBanner.tsx): the photos end in a straight cut at the shoulders,
+   so the two sides fade out below the head; the head and the top of the photo stay untouched. */
+.leader-cutout {
+  mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent), linear-gradient(#000, #000);
+  mask-size: 100% 100%, 100% 58%;
+  mask-repeat: no-repeat;
+  mask-composite: add;
+}
+
 /* Printing a page: only the content, without the menu, the footer or the buttons. The membership card keeps its colours. */
 @media print {
   .print-chrome, .no-print { display: none !important; }

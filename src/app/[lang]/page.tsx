@@ -9,7 +9,7 @@ import QuickLinks from "@/components/QuickLinks";
 import Ticker from "@/components/Ticker";
 import { isLang, type Lang } from "@/lib/i18n";
 import { getDivisionCards, getEvents, getGalleryPhotos, getPostsByCategory } from "@/lib/content";
-import { getFeaturedLeaders, getLatestPosts, getNav, getSearchChips, getSettings, getUi, pick, setting } from "@/lib/queries";
+import { getFeaturedLeaders, getLatestPosts, getNav, getSettings, getUi, pick, setting } from "@/lib/queries";
 
 const wrap = "mx-auto max-w-wrap px-5 sm:px-8";
 const h2 = "text-2xl font-bold lg:text-[2rem]";
@@ -45,12 +45,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
 
-  const [s, ui, latest, leaders, chips, photos, events, divisions, quick] = await Promise.all([
+  const [s, ui, latest, leaders, photos, events, divisions, quick] = await Promise.all([
     getSettings(),
     getUi(lang),
     getLatestPosts(8),
     getFeaturedLeaders(),
-    getSearchChips(),
     getGalleryPhotos(7, true),
     getEvents(0, 3),
     getDivisionCards(),
@@ -58,7 +57,6 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   ]);
   const t = (key: string) => setting(s, key, lang);
   const news = await getPostsByCategory(setting(s, "config.news.category", "en"), 4, false, latest.map((p) => p.id));
-  const heroImage = t("hero.image");
   const evDate = (iso: string) => new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "medium", timeZone: "Asia/Kolkata" }).format(new Date(iso));
   const more = (href: string) => (
     <Link href={`/${lang}${href}`} className="-my-2.5 shrink-0 py-2.5 text-sm font-medium text-brand hover:underline">
@@ -75,62 +73,20 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         items={latest.slice(0, 6).map((p) => ({ href: `/${lang}/orders/${p.id}`, text: pick(lang, p.titleEn, p.titleHi), date: new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "medium" }).format(new Date(p.publishedAt + "T00:00:00")) }))}
       />
 
-      {/* BANNER with the search card */}
-      <section className="relative bg-paper">
-        <div className="relative h-56 w-full overflow-hidden bg-ink sm:h-[24rem] lg:h-[34rem]">
-          {heroImage && <Image src={heroImage} alt={t("hero.image_alt")} fill priority sizes="100vw" quality={85} className="object-cover object-[35%_60%]" />}
-          <div className="absolute inset-0 hidden bg-gradient-to-r from-ink/80 via-ink/30 to-transparent lg:block" />
-          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/50 to-transparent" />
-        </div>
-        <div className="pointer-events-none relative z-10 -mt-10 lg:absolute lg:inset-0 lg:mt-0 lg:flex lg:items-center">
-          <div className={`${wrap} w-full`}>
-            <div className="pointer-events-auto relative overflow-hidden rounded-md border-t-4 border-signal bg-white p-6 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.55)] sm:p-9 lg:max-w-[35rem]">
-              <p className="eyebrow">
-                {t("org.short")} · {t("org.city")}
-              </p>
-              <h1 className="mt-3 text-[1.75rem] font-bold leading-[1.15] md:text-[2rem] lg:text-[2.4rem]">
-                {t("hero.title_a")} <span className="text-brand">{t("hero.title_b")}</span>
-              </h1>
-              <p className="mt-3 text-[1rem] leading-relaxed text-muted">{t("hero.sub")}</p>
-              <form action={`/${lang}/orders`} role="search" className="mt-5">
-                <label htmlFor="hero-q" className="mb-1.5 block text-sm font-medium">
-                  {t("hero.search_title")}
-                </label>
-                <div className="flex flex-col gap-2 sm:flex-row sm:gap-0">
-                  <div className="relative min-w-0 flex-1">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted">
-                      <circle cx="11" cy="11" r="7" />
-                      <path d="m20 20-3.5-3.5" />
-                    </svg>
-                    {/* clicking in only darkens the border: no gold ring or outline */}
-                    <input
-                      id="hero-q"
-                      name="q"
-                      type="search"
-                      placeholder={t("hero.search_placeholder")}
-                      className="field-bare w-full rounded-md border border-ink/70 bg-white py-3 pl-11 pr-4 text-base placeholder:text-muted/80 focus:border-ink focus:outline-none sm:rounded-r-none"
-                    />
-                  </div>
-                  <button type="submit" className="rounded-md bg-brand px-6 py-3 font-semibold text-white transition hover:bg-brand-deep sm:rounded-l-none sm:py-0">
-                    {ui.search}
-                  </button>
-                </div>
-              </form>
-              <p className="mt-4 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-sm">
-                <span className="text-muted">{ui.popular}:</span>
-                {chips.map((c) => (
-                  <Link
-                    key={c.id}
-                    href={`/${lang}/orders?q=${encodeURIComponent(c.term)}`}
-                    className="py-1.5 font-medium text-ink underline decoration-line underline-offset-4 hover:text-brand hover:decoration-brand"
-                  >
-                    {c.term}
-                  </Link>
-                ))}
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* BANNER: the featured office bearers, as one designed picture (for now; src/components/LeaderBanner.tsx is the photo-based version) */}
+      {/* the wave at the bottom of the picture fades into the white page instead of ending in a hard edge */}
+      <section className="bg-white">
+        <h1 className="sr-only">{t("org.name")}</h1>
+        <Image
+          src="/banners/leaders-banner-indian-railways.png"
+          alt={leaders.map((l) => `${pick(lang, l.nameEn, l.nameHi)}, ${pick(lang, l.designationEn, l.designationHi)}`).join("; ")}
+          width={2061}
+          height={763}
+          priority
+          sizes="100vw"
+          quality={85}
+          className="block h-auto w-full [mask-image:linear-gradient(to_bottom,#000_80%,transparent)]"
+        />
       </section>
 
       <QuickLinks title={t("home.quick_title")} lang={lang} items={quick.map((q) => ({ id: q.id, href: q.href, label: pick(lang, q.labelEn, q.labelHi) }))} />
@@ -166,29 +122,6 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           </Panel>
 
           <div className="space-y-6">
-            <Panel title={t("home.leaders_card")} action={more("/officials")}>
-              <ul className="divide-y divide-line">
-                {leaders.map((l) => {
-                  const initials = l.nameEn.replace(/^(Sh|Shri|Smt)\.?\s+/i, "").split(/[ .]+/).filter(Boolean).map((w) => w[0]).join("").slice(0, 2);
-                  return (
-                    <li key={l.id} className="flex items-center gap-4 px-5 py-4">
-                      {l.photoUrl ? (
-                        <Image src={l.photoUrl} alt="" width={72} height={72} className="h-[4.5rem] w-[4.5rem] shrink-0 rounded-full object-cover ring-2 ring-signal ring-offset-2" />
-                      ) : (
-                        <span className="grid h-[4.5rem] w-[4.5rem] shrink-0 place-items-center rounded-full bg-ink font-display text-2xl font-bold text-signal ring-2 ring-signal ring-offset-2" aria-hidden>
-                          {initials}
-                        </span>
-                      )}
-                      <div>
-                        <p className="text-sm font-medium text-brand">{pick(lang, l.designationEn, l.designationHi)}</p>
-                        <p className="mt-0.5 text-lg font-semibold leading-tight">{pick(lang, l.nameEn, l.nameHi)}</p>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </Panel>
-
             <Panel title={t("home.news_title")}>
               {events.upcoming.length > 0 && (
                 <div className="border-b border-line bg-paper px-5 py-4">

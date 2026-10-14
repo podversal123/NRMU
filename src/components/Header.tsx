@@ -255,10 +255,10 @@ export default function Header({
         </div>
       </div>
 
-      {/* 3. menu bar */}
+      {/* 3. menu bar: deep oxblood, like the divisions band, with a thin gold line under it that keeps it apart from the red ticker tag */}
       <nav
         aria-label={labels.navPrimary}
-        className={`print-chrome sticky top-11 z-40 bg-ink lg:top-9 text-light transition-transform duration-300 ${atFooter && !open ? "-translate-y-full" : "translate-y-0"}`}
+        className={`print-chrome sticky top-11 z-40 border-b border-signal/60 bg-brand-deep lg:top-9 text-light transition-transform duration-300 ${atFooter && !open ? "-translate-y-full" : "translate-y-0"}`}
       >
         <div className="mx-auto flex max-w-wrap items-center justify-between px-5 sm:px-8">
           <ul ref={navRef} className={`hidden items-stretch ${compact ? "" : "lg:flex"}`}>
@@ -367,10 +367,10 @@ export default function Header({
         </div>
 
         {open && (
-          <div id="mobile-nav" aria-label={labels.navMobile} className={`max-h-[calc(100svh-5.75rem)] overflow-y-auto overscroll-contain border-t border-[#2b2d33] ${compact ? "" : "lg:hidden"}`}>
+          <div id="mobile-nav" aria-label={labels.navMobile} className={`max-h-[calc(100svh-5.75rem)] overflow-y-auto overscroll-contain border-t border-white/15 ${compact ? "" : "lg:hidden"}`}>
             <ul className="mx-auto max-w-wrap px-5 pb-5 sm:px-8">
               {menu.map((m) => (
-                <li key={m.id} className="border-b border-[#2b2d33]">
+                <li key={m.id} className="border-b border-white/15">
                   {m.children.length === 0 ? (
                     <Link href={full(m.href)} onClick={() => setOpen(false)} className="block py-3.5 text-[1.05rem]">
                       {m.label}
@@ -419,7 +419,7 @@ export default function Header({
                   )}
                 </li>
               ))}
-              <li className="border-b border-[#2b2d33]">
+              <li className="border-b border-white/15">
                 <Link href={full("/member")} onClick={() => setOpen(false)} className="block py-3.5 text-[1.05rem]">
                   {labels.memberLogin}
                 </Link>
