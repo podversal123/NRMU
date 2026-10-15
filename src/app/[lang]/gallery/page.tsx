@@ -6,7 +6,7 @@ import PageHero from "@/components/PageHero";
 import Photo from "@/components/Photo";
 import PhotoGrid from "@/components/PhotoGrid";
 import { getGalleryAlbums, getLoosePhotos } from "@/lib/content";
-import { isLang, type Lang } from "@/lib/i18n";
+import { intlLocale, isLang, type Lang } from "@/lib/i18n";
 import { getBranches, getDivisions, getSettings, getUi, formatDate, pick, setting } from "@/lib/queries";
 import { navTitle } from "@/lib/nav";
 
@@ -48,7 +48,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
     filtered ? Promise.resolve([]) : getLoosePhotos(200),
   ]);
   const t = (k: string) => setting(s, k, lang);
-  const count = (n: number) => `${n.toLocaleString(lang === "hi" ? "hi-IN" : "en-IN")} ${t("gallery.unit")}`;
+  const count = (n: number) => `${n.toLocaleString(intlLocale(lang))} ${t("gallery.unit")}`;
 
   return (
     <div className="mx-auto max-w-wrap px-5 py-12 sm:px-8 sm:py-14">
@@ -59,7 +59,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
             name="division"
             defaultValue={divisionId ? String(divisionId) : ""}
             placeholder={t("gallery.all")}
-            options={divisions.map((d) => ({ value: String(d.id), label: pick(lang, d.nameEn, d.nameHi) }))}
+            options={divisions.map((d) => ({ value: String(d.id), label: pick(lang, d.nameEn, d.nameHi, d.i18n?.name) }))}
             submitOnChange
             className={`${select} mt-1.5 font-normal`}
           />
@@ -73,7 +73,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
             options={divisions.flatMap((d) =>
               branches
                 .filter((b) => b.divisionId === d.id)
-                .map((b) => ({ value: String(b.id), label: pick(lang, b.nameEn, b.nameHi), hint: pick(lang, d.nameEn, d.nameHi) })),
+                .map((b) => ({ value: String(b.id), label: pick(lang, b.nameEn, b.nameHi, b.i18n?.name), hint: pick(lang, d.nameEn, d.nameHi, d.i18n?.name) })),
             )}
             submitOnChange
             className={`${select} mt-1.5 font-normal`}
@@ -92,7 +92,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
           <h2 className="text-2xl font-medium">{t("gallery.albums_title")}</h2>
           <ul className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {albums.map((a) => {
-              const place = [pick(lang, a.divisionEn, a.divisionHi), pick(lang, a.branchEn, a.branchHi)].filter(Boolean).join(" · ") || t("gallery.whole_union");
+              const place = [pick(lang, a.divisionEn, a.divisionHi, a.divisionI18n?.name), pick(lang, a.branchEn, a.branchHi, a.branchI18n?.name)].filter(Boolean).join(" · ") || t("gallery.whole_union");
               return (
                 <li key={a.id}>
                   <Link href={`/${lang}/gallery/${a.id}`} className="group block h-full border border-line bg-white transition hover:border-brand">
@@ -100,7 +100,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
                       <Photo src={a.cover} alt="" fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-300 group-hover:scale-[1.03]" />
                     </span>
                     <span className="block p-4 sm:p-5">
-                      <span className="block text-lg font-medium leading-snug">{pick(lang, a.titleEn, a.titleHi)}</span>
+                      <span className="block text-lg font-medium leading-snug">{pick(lang, a.titleEn, a.titleHi, a.i18n?.title)}</span>
                       <span className="mt-1 block text-sm text-muted">{place}</span>
                       <span className="mt-2 block text-sm text-muted">{[a.heldOn ? formatDate(a.heldOn, lang) : "", count(a.photos)].filter(Boolean).join(" · ")}</span>
                     </span>

@@ -4,6 +4,7 @@ import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import UploadField from "../../../UploadField";
+import OtherLanguages from "../../../OtherLanguages";
 import { DeleteButton, SubmitButton } from "../../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls } from "../../../ui";
 import { deletePost, savePost } from "../actions";
@@ -42,6 +43,7 @@ export default async function EditPost({ params, searchParams }: { params: Promi
         <Card className="space-y-5">
           <Field label="Title (English)"><input name="titleEn" required defaultValue={post?.titleEn} className={inputCls} /></Field>
           <Field label="Title (Hindi)" hint="Optional. If empty, the English title is shown on the Hindi site."><input name="titleHi" defaultValue={post?.titleHi ?? ""} className={inputCls} /></Field>
+          <OtherLanguages fields={[{ name: "title", label: "Title" }]} value={post?.i18n} />
           <Field label="Content" hint="Type plain text (blank line = new paragraph) or paste HTML.">
             <textarea name="content" rows={16} defaultValue={post?.contentHtml} className={`${inputCls} font-mono text-base lg:text-sm`} />
           </Field>

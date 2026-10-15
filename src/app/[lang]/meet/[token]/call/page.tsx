@@ -75,7 +75,7 @@ async function Call({ params }: { params: Promise<{ lang: string; token: string 
 
   return (
     <div className="mx-auto max-w-6xl space-y-4 px-3 py-6 sm:px-6">
-      <h1 className="px-2 text-xl font-medium sm:text-2xl">{pick(lang, m.titleEn, m.titleHi)}</h1>
+      <h1 className="px-2 text-xl font-medium sm:text-2xl">{pick(lang, m.titleEn, m.titleHi, m.i18n?.title)}</h1>
       <VideoCall
         url={m.roomUrl!}
         token={callToken}

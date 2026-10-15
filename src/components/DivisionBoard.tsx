@@ -40,7 +40,7 @@ export default function DivisionBoard({
             {d.secretary && (
               <div className="flex items-baseline justify-between gap-6 py-3">
                 <dt className="text-light/60">{labels.secretary}</dt>
-                <dd className="text-right font-medium">{d.secretary}</dd>
+                <dd className="text-end font-medium">{d.secretary}</dd>
               </div>
             )}
             <div className="flex items-baseline justify-between gap-6 py-3">
@@ -78,7 +78,7 @@ export default function DivisionBoard({
                   onMouseEnter={() => choose(i)}
                   onFocus={() => choose(i)}
                   onClick={() => choose(i, true)}
-                  className={`flex w-full items-baseline justify-between gap-4 px-5 py-3 text-left transition-colors sm:px-6 ${on ? "bg-paper" : "hover:bg-paper/60"}`}
+                  className={`flex w-full items-baseline justify-between gap-4 px-5 py-3 text-start transition-colors sm:px-6 ${on ? "bg-paper" : "hover:bg-paper/60"}`}
                 >
                   <span className={`truncate ${on ? "font-semibold text-brand" : "font-medium text-ink"}`}>
                     {it.name}

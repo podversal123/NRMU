@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { eq } from "drizzle-orm";
 import PageHero from "@/components/PageHero";
 import { getDb, schema } from "@/db";
-import { isLang } from "@/lib/i18n";
+import { intlLocale, isLang } from "@/lib/i18n";
 import { meetingState } from "@/lib/meetings";
 import { getUi, pick } from "@/lib/queries";
 import { answerInvitation } from "../actions";
@@ -60,11 +60,11 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
   const { invitee, meeting: m } = row;
   const state = meetingState(m, new Date());
   const closed = state === "cancelled" || state === "completed" || state === "ended";
-  const locale = lang === "hi" ? "hi-IN" : "en-IN";
+  const locale = intlLocale(lang);
   const day = new Intl.DateTimeFormat(locale, { dateStyle: "full", timeZone: "Asia/Kolkata" }).format(m.startsAt);
   const time = (d: Date) => new Intl.DateTimeFormat(locale, { timeStyle: "short", timeZone: "Asia/Kolkata" }).format(d);
-  const venue = pick(lang, m.venueEn, m.venueHi);
-  const agenda = (pick(lang, m.agendaEn, m.agendaHi) ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const venue = pick(lang, m.venueEn, m.venueHi, m.i18n?.venue);
+  const agenda = (pick(lang, m.agendaEn, m.agendaHi, m.i18n?.agenda) ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const held = m.mode === "online" ? ui.mHeldOnline : m.mode === "hybrid" ? ui.mHeldHybrid : ui.mHeldInPerson;
   const replyLabel: Record<string, string> = { yes: ui.mYes, maybe: ui.mMaybe, no: ui.mNo, pending: ui.mNoReply };
   // The call opens 15 minutes before the start, for meetings that have a video room.
@@ -73,7 +73,7 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
 
   return (
     <>
-      <PageHero lang={lang} title={pick(lang, m.titleEn, m.titleHi)} sub={`${ui.mInvitedName}: ${invitee.name}`} crumbs={crumbs} />
+      <PageHero lang={lang} title={pick(lang, m.titleEn, m.titleHi, m.i18n?.title)} sub={`${ui.mInvitedName}: ${invitee.name}`} crumbs={crumbs} />
       <div className="mx-auto max-w-3xl space-y-8 px-5 py-12 sm:px-8">
         {note && <p role="status" className="border-2 border-brand bg-white px-5 py-4 font-semibold text-brand-deep">{note}</p>}
 

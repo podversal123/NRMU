@@ -2,6 +2,7 @@ import { asc, desc, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import UploadField from "../../UploadField";
+import OtherLanguages from "../../OtherLanguages";
 import { DeleteButton, SubmitButton } from "../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls } from "../../ui";
 import { addPhotos, createAlbum, deleteAlbum, deletePhoto, updateAlbum, updatePhoto } from "./actions";
@@ -71,6 +72,7 @@ export default async function GalleryAdmin({ searchParams }: { searchParams: Pro
           <Field label="Date of the event"><input type="date" name="heldOn" className={inputCls} /></Field>
           <Field label="Description (English)" hint="Optional."><textarea name="descriptionEn" rows={2} className={inputCls} /></Field>
           <Field label="Description (Hindi)"><textarea name="descriptionHi" rows={2} className={inputCls} /></Field>
+          <OtherLanguages className="lg:col-span-2" fields={[{ name: "title", label: "Title" }, { name: "description", label: "Description", rows: 2 }]} />
           <div className="lg:col-span-2"><SubmitButton>Create album</SubmitButton></div>
         </form>
       </Card>
@@ -88,6 +90,7 @@ export default async function GalleryAdmin({ searchParams }: { searchParams: Pro
               <Field label="Order" hint="Smaller numbers come first."><input type="number" name="sort" defaultValue={a.sort} className={inputCls} /></Field>
               <Field label="Description (English)"><textarea name="descriptionEn" rows={2} defaultValue={a.descriptionEn ?? ""} className={inputCls} /></Field>
               <Field label="Description (Hindi)"><textarea name="descriptionHi" rows={2} defaultValue={a.descriptionHi ?? ""} className={inputCls} /></Field>
+              <OtherLanguages className="lg:col-span-2" fields={[{ name: "title", label: "Title" }, { name: "description", label: "Description", rows: 2 }]} value={a.i18n} />
               <label className="flex items-center gap-3 font-semibold lg:col-span-2"><input type="checkbox" name="active" defaultChecked={a.active} className="h-6 w-6" /> Show this album on the website</label>
               <div className="lg:col-span-2"><SubmitButton>Save album</SubmitButton></div>
             </form>
@@ -107,6 +110,7 @@ export default async function GalleryAdmin({ searchParams }: { searchParams: Pro
           <Field label="Date of event"><input type="date" name="takenOn" className={inputCls} /></Field>
           <Field label="Caption (English)" hint="Applied to all photos selected above. You can edit each one later."><input name="captionEn" className={inputCls} /></Field>
           <Field label="Caption (Hindi)"><input name="captionHi" className={inputCls} /></Field>
+          <OtherLanguages className="lg:col-span-2" fields={[{ name: "caption", label: "Caption" }]} />
           <div className="lg:col-span-2"><SubmitButton>Add to gallery</SubmitButton></div>
         </form>
       </Card>
@@ -122,6 +126,7 @@ export default async function GalleryAdmin({ searchParams }: { searchParams: Pro
               <input type="hidden" name="id" value={p.id} />
               <input name="captionEn" defaultValue={p.captionEn} placeholder="Caption (English)" className={small} />
               <input name="captionHi" defaultValue={p.captionHi ?? ""} placeholder="कैप्शन (हिंदी)" className={small} />
+              <OtherLanguages fields={[{ name: "caption", label: "Caption" }]} value={p.i18n} />
               {albumSelect("albumId", p.albumId)}
               <div className="grid grid-cols-[1fr_5rem] gap-2">
                 <input type="date" name="takenOn" defaultValue={p.takenOn ?? ""} className={small} />

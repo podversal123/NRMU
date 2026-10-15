@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { eq } from "drizzle-orm";
 import PageHero from "@/components/PageHero";
 import { getDb, schema } from "@/db";
-import { isLang } from "@/lib/i18n";
+import { intlLocale, isLang } from "@/lib/i18n";
 import { getMember } from "@/lib/member-auth";
 import { getUi, pick } from "@/lib/queries";
 import ChangePasswordForm from "./ChangePasswordForm";
@@ -41,12 +41,12 @@ async function Account({ params }: { params: Promise<{ lang: string }> }) {
     m.branchId ? db.select().from(schema.branches).where(eq(schema.branches.id, m.branchId)).limit(1) : [],
     m.departmentId ? db.select().from(schema.departments).where(eq(schema.departments.id, m.departmentId)).limit(1) : [],
   ]);
-  const locale = lang === "hi" ? "hi-IN" : "en-IN";
+  const locale = intlLocale(lang);
   const valid = m.validUntil ? new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(new Date(`${m.validUntil}T00:00:00`)) : ui.memOngoing;
   const rows: [string, string][] = [
-    [ui.formDivision, division ? pick(lang, division.nameEn, division.nameHi) : "-"],
-    [ui.memBranch, branch ? pick(lang, branch.nameEn, branch.nameHi) : "-"],
-    [ui.memDepartment, department ? pick(lang, department.nameEn, department.nameHi) : "-"],
+    [ui.formDivision, division ? pick(lang, division.nameEn, division.nameHi, division.i18n?.name) : "-"],
+    [ui.memBranch, branch ? pick(lang, branch.nameEn, branch.nameHi, branch.i18n?.name) : "-"],
+    [ui.memDepartment, department ? pick(lang, department.nameEn, department.nameHi, department.i18n?.name) : "-"],
     ...(m.designation ? ([[ui.formDesignation, m.designation]] as [string, string][]) : []),
     [ui.memValid, valid],
   ];
@@ -71,7 +71,7 @@ async function Account({ params }: { params: Promise<{ lang: string }> }) {
                 <Image src="/logo.jpg" alt="" width={56} height={56} className="h-14 w-14 rounded-full" />
                 <div className="leading-tight">
                   <p className="text-lg font-bold sm:text-xl">{ui.memCardTitle}</p>
-                  <p className="text-sm text-soft">{pick(lang, "Northern Railway Men's Union", "नॉर्दर्न रेलवे मेन्स यूनियन")}</p>
+                  <p className="text-sm text-soft">{pick(lang, "Northern Railway Men's Union", "नॉर्दर्न रेलवे मेन्स यूनियन", undefined)}</p>
                 </div>
               </div>
               <div className="px-5 py-6 sm:px-7">

@@ -4,6 +4,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import UploadField from "../../../UploadField";
+import OtherLanguages from "../../../OtherLanguages";
 import { DeleteButton, SubmitButton } from "../../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls } from "../../../ui";
 import { deleteOfficial, saveOfficial } from "../actions";
@@ -39,6 +40,7 @@ export default async function EditOfficial({ params, searchParams }: { params: P
         <Card className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Field label="Name (English)"><input name="nameEn" required defaultValue={person?.nameEn} className={inputCls} /></Field>
           <Field label="Name (Hindi)" hint="Optional"><input name="nameHi" defaultValue={person?.nameHi ?? ""} className={inputCls} /></Field>
+          <OtherLanguages className="sm:col-span-2" fields={[{ name: "name", label: "Name" }]} value={person?.i18n} />
           <Field label="Designation" hint="Titles are managed centrally, so spelling stays consistent.">
             <select name="designationId" required defaultValue={person?.designationId ?? ""} className={inputCls}>
               <option value="" disabled>Select a designation</option>

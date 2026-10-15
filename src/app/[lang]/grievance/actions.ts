@@ -2,9 +2,9 @@
 
 import { and, asc, eq, gte, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import type { UiKey } from "@/lib/i18n";
+import { isLang, type UiKey } from "@/lib/i18n";
 import { clientKey, tooMany } from "@/lib/rate-limit";
-import { getSettings } from "@/lib/queries";
+import { getSettings, setting } from "@/lib/queries";
 
 const clean = (v: FormDataEntryValue | null, max: number) => String(v ?? "").trim().slice(0, max);
 const normMobile = (v: string) => v.replace(/[\s-]/g, "").replace(/^(\+91|91|0)(?=\d{10}$)/, "");
@@ -95,8 +95,10 @@ export async function trackGrievance(_prev: TrackState, form: FormData): Promise
     .where(and(eq(schema.grievanceEvents.grievanceId, g.id), eq(schema.grievanceEvents.public, true)))
     .orderBy(asc(schema.grievanceEvents.createdAt), asc(schema.grievanceEvents.id));
   const s = await getSettings();
-  // Names are returned in both languages as "en|hi"; the page picks the right one.
-  const level = (n: number | string | null) => (n ? `${s[`grievance.level.${n}`]?.en ?? ""}|${s[`grievance.level.${n}`]?.hi ?? s[`grievance.level.${n}`]?.en ?? ""}` : null);
+  // Names are returned in the language of the page the form was sent from.
+  const formLang = String(form.get("lang") ?? "");
+  const lang = isLang(formLang) ? formLang : "en";
+  const level = (n: number | string | null) => (n ? setting(s, `grievance.level.${n}`, lang) : null);
 
   return {
     values,

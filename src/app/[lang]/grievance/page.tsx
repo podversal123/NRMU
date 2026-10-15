@@ -24,12 +24,12 @@ export default async function GrievancePage({ params }: { params: Promise<{ lang
   return (
     <>
       <PageHero lang={lang} title={title} sub={setting(s, "grievance.sub", lang)} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: title }]} />
-      <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      <div className="mx-auto max-w-wrap px-5 pb-16 pt-8 sm:px-8 lg:pt-10">
         <GrievanceForm
           lang={lang}
           ui={ui}
-          divisions={divisions.map((d) => ({ id: d.id, name: pick(lang, d.nameEn, d.nameHi) }))}
-          types={types.map((t) => ({ id: t.id, name: pick(lang, t.nameEn, t.nameHi) }))}
+          divisions={divisions.map((d) => ({ id: d.id, name: pick(lang, d.nameEn, d.nameHi, d.i18n?.name) }))}
+          types={types.map((t) => ({ id: t.id, name: pick(lang, t.nameEn, t.nameHi, t.i18n?.name) }))}
         />
       </div>
     </>

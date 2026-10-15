@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Lang } from "@/lib/i18n";
+import { altLang, type Lang } from "@/lib/i18n";
 import { getDivisions, getFooterLinks, getNav, getSettings, getUi, pick, setting } from "@/lib/queries";
 import FooterGroup from "./FooterGroup";
 import HangingCard from "./HangingCard";
@@ -32,7 +32,7 @@ export default async function Footer({ lang }: { lang: Lang }) {
     getDivisions(),
   ]);
   const t = (key: string) => setting(s, key, lang);
-  const other = lang === "en" ? "hi" : "en";
+  const other = altLang(lang);
   const image = t("footer.image");
   const h = "text-sm font-bold uppercase tracking-[0.14em] text-signal";
   const link = "inline-block py-1.5 text-[0.95rem] text-light/80 decoration-signal/60 underline-offset-4 transition-colors hover:text-soft hover:underline";
@@ -158,7 +158,7 @@ export default async function Footer({ lang }: { lang: Lang }) {
               {nav.map((n) => (
                 <li key={n.id}>
                   <Link href={href(n.href)} className={link}>
-                    {pick(lang, n.labelEn, n.labelHi)}
+                    {pick(lang, n.labelEn, n.labelHi, n.i18n?.label)}
                   </Link>
                 </li>
               ))}
@@ -171,7 +171,7 @@ export default async function Footer({ lang }: { lang: Lang }) {
                 {links.map((n) => (
                   <li key={n.id}>
                     <a href={n.href} target="_blank" rel="noopener noreferrer" className={`${link} group`}>
-                      {pick(lang, n.labelEn, n.labelHi)}
+                      {pick(lang, n.labelEn, n.labelHi, n.i18n?.label)}
                       <Icon name="external" size={12} className="ml-1.5 inline-block -translate-y-px opacity-60 group-hover:opacity-100" />
                       <span className="sr-only"> ({ui.newTab})</span>
                     </a>
@@ -186,7 +186,7 @@ export default async function Footer({ lang }: { lang: Lang }) {
               {divisions.map((d) => (
                 <li key={d.slug}>
                   <Link href={`/${lang}/divisions/${d.slug}`} className={link}>
-                    {pick(lang, d.nameEn, d.nameHi)}
+                    {pick(lang, d.nameEn, d.nameHi, d.i18n?.name)}
                   </Link>
                 </li>
               ))}
@@ -204,7 +204,7 @@ export default async function Footer({ lang }: { lang: Lang }) {
             {policy.map((p) => (
               <li key={p.id}>
                 <Link href={href(p.href)} className="inline-block py-1.5 decoration-signal/60 underline-offset-4 hover:text-soft hover:underline md:py-1">
-                  {pick(lang, p.labelEn, p.labelHi)}
+                  {pick(lang, p.labelEn, p.labelHi, p.i18n?.label)}
                 </Link>
               </li>
             ))}

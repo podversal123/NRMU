@@ -1,7 +1,10 @@
 import { asc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import { LANGUAGES } from "@/lib/i18n";
+import { secondLang } from "@/lib/i18n-form";
 import { SubmitButton } from "../../SubmitButton";
+import { LanguagePicker } from "../../OtherLanguages";
 import { Card, Notice, PageTitle, inputCls } from "../../ui";
 import { saveChips, saveNav } from "./actions";
 
@@ -10,9 +13,13 @@ export const instant = false;
 export const metadata = { title: "Menus & links" };
 const small = "w-full rounded-lg border-2 border-line bg-white px-2.5 py-2.5 text-base focus:border-ink lg:py-1.5 lg:text-sm focus:outline-none";
 
-export default async function NavigationAdmin({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
+export default async function NavigationAdmin({ searchParams }: { searchParams: Promise<{ saved?: string; lang?: string }> }) {
   await requireAdmin(["super_admin"]);
   const sp = await searchParams;
+  // The second label column shows Hindi or another language chosen at the top.
+  const lang2 = secondLang(sp.lang);
+  const second = LANGUAGES.find((l) => l.code === lang2)!;
+  const label2 = (n: { labelHi: string | null; i18n: Record<string, Record<string, string | undefined> | undefined> }) => (lang2 === "hi" ? n.labelHi : n.i18n.label?.[lang2]) ?? "";
   const db = getDb();
   const [nav, chips] = await Promise.all([
     db.select().from(schema.navItems).orderBy(asc(schema.navItems.area), asc(schema.navItems.sort)),
@@ -32,16 +39,18 @@ export default async function NavigationAdmin({ searchParams }: { searchParams: 
       <Card>
         <h2 className="font-display text-2xl font-bold">Menu & footer links</h2>
         <p className="mt-1 text-sm text-muted">Path starts with “/” (for example /orders); use # for a heading that only opens a dropdown; an empty path is the home page. “Under” puts an item inside a header dropdown. Areas: header = menu bar, footer = Explore list, links = Important links (full https:// address), policy = legal links at the bottom.</p>
+        <div className="mt-4"><LanguagePicker value={lang2} /></div>
         <form action={saveNav} className="mt-5 space-y-3">
+          <input type="hidden" name="lang2" value={lang2} />
           <input type="hidden" name="navIds" value={nav.map((n) => n.id).join(",")} />
           <div className="hidden grid-cols-[5.5rem_1fr_1fr_9rem_4.5rem_4rem_4rem] gap-2 text-xs font-bold uppercase tracking-wider text-muted lg:grid">
-            <span>Where</span><span>English</span><span>हिंदी</span><span>Path</span><span>Under</span><span>Order</span><span>Show</span><span>Delete</span>
+            <span>Where</span><span>English</span><span>{second.native}</span><span>Path</span><span>Under</span><span>Order</span><span>Show</span><span>Delete</span>
           </div>
           {nav.map((n) => (
             <div key={n.id} className="grid grid-cols-1 items-center gap-2 lg:grid-cols-[5rem_1fr_1fr_9rem_8rem_4rem_4rem_4rem]">
               <span className="text-xs font-bold uppercase text-muted">{n.area}</span>
               <input name={`nav_labelEn_${n.id}`} defaultValue={n.labelEn} className={small} aria-label="English label" />
-              <input name={`nav_labelHi_${n.id}`} defaultValue={n.labelHi ?? ""} className={small} aria-label="Hindi label" />
+              <input name={`nav_label2_${n.id}`} defaultValue={label2(n)} lang={lang2} className={small} aria-label={`${second.name} label`} />
               <input name={`nav_href_${n.id}`} defaultValue={n.href} className={small} aria-label="Path" />
               <select name={`nav_parent_${n.id}`} defaultValue={n.parentId ?? ""} className={small} aria-label="Dropdown of">
                 <option value="">Top level</option>
@@ -55,7 +64,7 @@ export default async function NavigationAdmin({ searchParams }: { searchParams: 
           <div className="grid grid-cols-1 items-center gap-2 rounded-lg bg-paper p-3 lg:grid-cols-[5rem_1fr_1fr_9rem_8rem_4rem]">
             <select name="nav_area_new" className={small}><option value="header">header</option><option value="footer">footer</option><option value="links">links</option><option value="policy">policy</option><option value="quick">quick</option></select>
             <input name="nav_labelEn_new" placeholder="New link (English)" className={small} />
-            <input name="nav_labelHi_new" placeholder="हिंदी" className={small} />
+            <input name="nav_label2_new" placeholder={second.native} lang={lang2} className={small} />
             <input name="nav_href_new" placeholder="/path or https://…" className={small} />
             <select name="nav_parent_new" className={small} aria-label="Dropdown of">
               <option value="">Top level</option>

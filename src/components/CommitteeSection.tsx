@@ -23,7 +23,7 @@ export default function CommitteeSection({
   for (const p of people) {
     const key = p.divisionId ? String(p.divisionId) : "central";
     let g = groups.find((x) => x.key === key);
-    if (!g) groups.push((g = { key, label: p.divisionId ? pick(lang, p.divisionEn, p.divisionHi) : centralLabel, rows: [] }));
+    if (!g) groups.push((g = { key, label: p.divisionId ? pick(lang, p.divisionEn, p.divisionHi, p.divisionI18n?.name) : centralLabel, rows: [] }));
     g.rows.push(p);
   }
   // id: the menu links to this section (/women#committee, /youth#committee); the margin keeps it clear of the sticky header

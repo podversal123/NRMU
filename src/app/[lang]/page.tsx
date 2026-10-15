@@ -7,7 +7,7 @@ import DivisionList from "@/components/DivisionList";
 import Icon from "@/components/Icon";
 import QuickLinks from "@/components/QuickLinks";
 import Ticker from "@/components/Ticker";
-import { isLang, type Lang } from "@/lib/i18n";
+import { intlLocale, isLang, type Lang } from "@/lib/i18n";
 import { getDivisionCards, getEvents, getGalleryPhotos, getPostsByCategory } from "@/lib/content";
 import { getFeaturedLeaders, getLatestPosts, getNav, getSettings, getUi, pick, setting } from "@/lib/queries";
 
@@ -16,14 +16,14 @@ const h2 = "text-2xl font-bold lg:text-[2rem]";
 
 function dateParts(iso: string, lang: Lang) {
   const d = new Date(iso + "T00:00:00");
-  const loc = lang === "hi" ? "hi-IN" : "en-IN";
+  const loc = intlLocale(lang);
   return { day: d.getDate(), month: new Intl.DateTimeFormat(loc, { month: "short" }).format(d), year: d.getFullYear() };
 }
 
 /** A bordered panel with a title bar. */
-function Panel({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
+function Panel({ title, action, className = "", children }: { title: string; action?: React.ReactNode; className?: string; children: React.ReactNode }) {
   return (
-    <section className="min-w-0 overflow-hidden rounded-md border border-line bg-white shadow-[0_1px_2px_rgba(21,22,26,0.04),0_8px_24px_-12px_rgba(21,22,26,0.12)]">
+    <section className={`${className} min-w-0 overflow-hidden rounded-md border border-line bg-white shadow-[0_1px_2px_rgba(21,22,26,0.04),0_8px_24px_-12px_rgba(21,22,26,0.12)]`}>
       <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-line bg-gradient-to-b from-paper/70 to-white px-5 py-3.5">
         <h2 className="flex min-w-0 items-center gap-2.5 text-xl font-semibold leading-tight">
           <span aria-hidden className="h-5 w-1 shrink-0 rounded-full bg-brand" />
@@ -45,7 +45,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
 
-  const [s, ui, latest, leaders, photos, events, divisions, quick] = await Promise.all([
+  const [s, ui, latest, leaders, photos, events, divisions, quick, headerNav] = await Promise.all([
     getSettings(),
     getUi(lang),
     getLatestPosts(8),
@@ -54,10 +54,26 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     getEvents(0, 3),
     getDivisionCards(),
     getNav("quick"),
+    getNav("header"),
   ]);
   const t = (key: string) => setting(s, key, lang);
-  const news = await getPostsByCategory(setting(s, "config.news.category", "en"), 4, false, latest.map((p) => p.id));
-  const evDate = (iso: string) => new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "medium", timeZone: "Asia/Kolkata" }).format(new Date(iso));
+  const [news, womenPosts, youthPosts] = await Promise.all([
+    getPostsByCategory(setting(s, "config.news.category", "en"), 4, false, latest.map((p) => p.id)),
+    getPostsByCategory(setting(s, "config.women.category", "en"), 2),
+    getPostsByCategory(setting(s, "config.youth.category", "en"), 1),
+  ]);
+  // the Wings panel takes its heading and wing names from the header menu, so they follow any rename in the admin panel
+  const navLabel = (n: (typeof headerNav)[number]) => pick(lang, n.labelEn, n.labelHi, n.i18n?.label);
+  const wingsMenu = headerNav.find((n) => headerNav.some((c) => c.parentId === n.id && c.href === "/women"));
+  const wingName = (href: string) => {
+    const it = headerNav.find((n) => n.href === href && n.parentId === wingsMenu?.id) ?? headerNav.find((n) => n.href === href);
+    return it ? navLabel(it) : "";
+  };
+  const wings = [
+    { href: "/women", name: wingName("/women"), posts: womenPosts },
+    { href: "/youth", name: wingName("/youth"), posts: youthPosts },
+  ].filter((w) => w.posts.length > 0);
+  const evDate = (iso: string) => new Intl.DateTimeFormat(intlLocale(lang), { dateStyle: "medium", timeZone: "Asia/Kolkata" }).format(new Date(iso));
   const more = (href: string) => (
     <Link href={`/${lang}${href}`} className="-my-2.5 shrink-0 py-2.5 text-sm font-medium text-brand hover:underline">
       {ui.viewAll} →
@@ -70,7 +86,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       {/* LATEST ORDERS, moving slowly (pausable) */}
       <Ticker
         label={t("home.ticker_label")}
-        items={latest.slice(0, 6).map((p) => ({ href: `/${lang}/orders/${p.id}`, text: pick(lang, p.titleEn, p.titleHi), date: new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "medium" }).format(new Date(p.publishedAt + "T00:00:00")) }))}
+        items={latest.slice(0, 6).map((p) => ({ href: `/${lang}/orders/${p.id}`, text: pick(lang, p.titleEn, p.titleHi, p.i18n?.title), date: new Intl.DateTimeFormat(intlLocale(lang), { dateStyle: "medium" }).format(new Date(p.publishedAt + "T00:00:00")) }))}
       />
 
       {/* BANNER: the featured office bearers, as one designed picture (for now; src/components/LeaderBanner.tsx is the photo-based version) */}
@@ -79,7 +95,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         <h1 className="sr-only">{t("org.name")}</h1>
         <Image
           src="/banners/leaders-banner-indian-railways.png"
-          alt={leaders.map((l) => `${pick(lang, l.nameEn, l.nameHi)}, ${pick(lang, l.designationEn, l.designationHi)}`).join("; ")}
+          alt={leaders.map((l) => `${pick(lang, l.nameEn, l.nameHi, l.i18n?.name)}, ${pick(lang, l.designationEn, l.designationHi, l.designationI18n?.name)}`).join("; ")}
           width={2061}
           height={763}
           priority
@@ -89,25 +105,26 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         />
       </section>
 
-      <QuickLinks title={t("home.quick_title")} lang={lang} items={quick.map((q) => ({ id: q.id, href: q.href, label: pick(lang, q.labelEn, q.labelHi) }))} />
+      <QuickLinks title={t("home.quick_title")} lang={lang} items={quick.map((q) => ({ id: q.id, href: q.href, label: pick(lang, q.labelEn, q.labelHi, q.i18n?.label) }))} />
 
       {/* NOTICE BOARD | LEADERS + HIGHLIGHTS */}
       <section className="py-12 lg:py-14">
-        <div className={`${wrap} grid grid-cols-1 items-start gap-6 lg:grid-cols-[1.3fr_1fr]`}>
-          <Panel title={t("home.notice_title")} action={more("/orders")}>
-            <ul className="divide-y divide-line">
+        <div className={`${wrap} grid grid-cols-1 items-start gap-6 lg:grid-cols-[1.3fr_1fr] lg:items-stretch`}>
+          {/* if the right column ends lower, the extra room is shared by the notice rows instead of collecting under the last one */}
+          <Panel title={t("home.notice_title")} action={more("/orders")} className="flex flex-col">
+            <ul className="flex flex-1 flex-col divide-y divide-line">
               {latest.map((p) => {
                 const d = dateParts(p.publishedAt, lang);
                 return (
-                  <li key={p.id}>
-                    <Link href={`/${lang}/orders/${p.id}`} className="group flex items-start gap-4 px-5 py-3.5 transition-colors hover:bg-paper/70">
+                  <li key={p.id} className="flex flex-1">
+                    <Link href={`/${lang}/orders/${p.id}`} className="group flex flex-1 items-start gap-4 px-5 py-3.5 transition-colors hover:bg-paper/70">
                       <time dateTime={p.publishedAt} className="w-14 shrink-0 overflow-hidden rounded border border-line bg-white text-center leading-none">
                         <span className="block bg-brand py-1 text-[0.68rem] font-semibold uppercase tracking-wide text-white">{d.month}</span>
                         <span className="block pt-1.5 text-[1.35rem] font-bold text-ink">{d.day}</span>
                         <span className="block pb-1.5 pt-0.5 text-[0.68rem] text-muted">{d.year}</span>
                       </time>
                       <span className="min-w-0">
-                        <span className="line-clamp-3 text-[0.98rem] font-medium leading-snug group-hover:text-brand sm:line-clamp-2">{pick(lang, p.titleEn, p.titleHi)}</span>
+                        <span className="line-clamp-3 text-[0.98rem] font-medium leading-snug group-hover:text-brand sm:line-clamp-2">{pick(lang, p.titleEn, p.titleHi, p.i18n?.title)}</span>
                         {p.files > 0 && (
                           <span className="mt-1 inline-flex items-center gap-1 text-xs text-muted">
                             <Icon name="pdf" size={13} /> {ui.pdf}
@@ -121,7 +138,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             </ul>
           </Panel>
 
-          <div className="space-y-6">
+          {/* both columns end at the same line: the last panel on the right grows to meet the notice board */}
+          <div className="flex flex-col gap-6 [&>*:last-child]:flex-1">
             <Panel title={t("home.news_title")}>
               {events.upcoming.length > 0 && (
                 <div className="border-b border-line bg-paper px-5 py-4">
@@ -129,7 +147,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                   <ul className="mt-2 space-y-1.5">
                     {events.upcoming.map((e) => (
                       <li key={e.id} className="text-[0.98rem]">
-                        <span className="font-medium">{evDate(e.startsAt)}</span> · {pick(lang, e.titleEn, e.titleHi)}
+                        <span className="font-medium">{evDate(e.startsAt)}</span> · {pick(lang, e.titleEn, e.titleHi, e.i18n?.title)}
                       </li>
                     ))}
                   </ul>
@@ -147,13 +165,43 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                         <span className="mb-1 inline-flex items-center gap-1.5 text-xs font-medium text-brand">
                           <Icon name="calendar" size={13} /> {d.day} {d.month} {d.year}
                         </span>
-                        <span className="line-clamp-2 text-[0.98rem] font-medium leading-snug group-hover:text-brand">{pick(lang, p.titleEn, p.titleHi)}</span>
+                        <span className="line-clamp-2 text-[0.98rem] font-medium leading-snug group-hover:text-brand">{pick(lang, p.titleEn, p.titleHi, p.i18n?.title)}</span>
                       </Link>
                     </li>
                   );
                 })}
               </ul>
             </Panel>
+
+            {wings.length > 0 && wingsMenu && (
+              <Panel title={navLabel(wingsMenu)}>
+                {wings.map((w) => (
+                  <div key={w.href} className="border-b border-line last:border-b-0">
+                    <div className="flex items-baseline justify-between gap-3 bg-paper px-5 py-2.5">
+                      <h3 className="text-sm font-semibold text-brand">{w.name}</h3>
+                      <Link href={`/${lang}${w.href}`} className="shrink-0 text-sm font-medium text-brand hover:underline">
+                        {ui.viewAll} →
+                      </Link>
+                    </div>
+                    <ul className="divide-y divide-line">
+                      {w.posts.map((p) => {
+                        const d = dateParts(p.publishedAt, lang);
+                        return (
+                          <li key={p.id}>
+                            <Link href={`/${lang}/orders/${p.id}`} className="group block px-5 py-3.5 hover:bg-paper">
+                              <span className="mb-1 inline-flex items-center gap-1.5 text-xs font-medium text-brand">
+                                <Icon name="calendar" size={13} /> {d.day} {d.month} {d.year}
+                              </span>
+                              <span className="line-clamp-2 text-[0.98rem] font-medium leading-snug group-hover:text-brand">{pick(lang, p.titleEn, p.titleHi, p.i18n?.title)}</span>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ))}
+              </Panel>
+            )}
           </div>
         </div>
       </section>
@@ -188,11 +236,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               {photos.map((p, i) => (
                 <figure key={p.id} className={`group relative overflow-hidden bg-ink ${i === 0 ? "col-span-2 row-span-2" : ""}`}>
                   <div className={`relative ${i === 0 ? "aspect-square" : "aspect-[4/3]"}`}>
-                    <Photo src={p.url} alt={pick(lang, p.captionEn, p.captionHi)} fill sizes={i === 0 ? "(min-width: 640px) 50vw, 100vw" : "(min-width: 640px) 25vw, 50vw"} className="object-cover transition duration-500 group-hover:scale-[1.03]" />
+                    <Photo src={p.url} alt={pick(lang, p.captionEn, p.captionHi, p.i18n?.caption)} fill sizes={i === 0 ? "(min-width: 640px) 50vw, 100vw" : "(min-width: 640px) 25vw, 50vw"} className="object-cover transition duration-500 group-hover:scale-[1.03]" />
                   </div>
                   {p.captionEn && (
                     <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 to-transparent px-4 pb-3 pt-10 text-sm text-light">
-                      {pick(lang, p.captionEn, p.captionHi)}
+                      {pick(lang, p.captionEn, p.captionHi, p.i18n?.caption)}
                     </figcaption>
                   )}
                 </figure>

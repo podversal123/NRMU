@@ -2,6 +2,7 @@ import { asc, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { SubmitButton } from "../../SubmitButton";
+import OtherLanguages from "../../OtherLanguages";
 import { Card, Notice, PageTitle, inputCls } from "../../ui";
 import { addDepartment, saveDepartment } from "./actions";
 
@@ -45,6 +46,7 @@ export default async function DepartmentsAdmin({ searchParams }: { searchParams:
             <label className="flex min-h-11 items-center gap-2 text-sm font-semibold"><input type="checkbox" name="active" defaultChecked={d.active} className="h-6 w-6" /> Show</label>
             <span className="text-sm text-muted">{count.get(d.id) ?? 0} members</span>
             <SubmitButton className="rounded-full border-2 border-ink px-5 py-2 text-sm font-semibold hover:bg-ink hover:text-white">Save</SubmitButton>
+            <OtherLanguages className="lg:col-span-full" fields={[{ name: "name", label: "Name" }]} value={d.i18n} />
           </form>
         ))}
       </div>

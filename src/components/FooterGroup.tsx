@@ -12,7 +12,7 @@ export default function FooterGroup({ title, headingClass, children }: { title: 
   return (
     <div className="min-w-0 border-t border-white/10 md:border-0">
       <h2 className={headingClass}>
-        <button type="button" aria-expanded={open} aria-controls={id} onClick={() => setOpen((o) => !o)} className="flex min-h-11 w-full items-center justify-between text-left md:hidden">
+        <button type="button" aria-expanded={open} aria-controls={id} onClick={() => setOpen((o) => !o)} className="flex min-h-11 w-full items-center justify-between text-start md:hidden">
           {title}
           <svg width="12" height="12" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden className={`transition-transform ${open ? "rotate-180" : ""}`}>
             <path d="m2 3.5 3 3 3-3" />

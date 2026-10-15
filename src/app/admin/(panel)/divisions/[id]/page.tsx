@@ -4,6 +4,7 @@ import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { DeleteButton, SubmitButton } from "../../../SubmitButton";
+import OtherLanguages from "../../../OtherLanguages";
 import { Card, Field, Notice, PageTitle, inputCls } from "../../../ui";
 import { addBranch, deleteBranch, saveDivision } from "../actions";
 
@@ -34,6 +35,7 @@ export default async function EditDivision({ params, searchParams }: { params: P
           <Field label="Name (Hindi)"><input name="nameHi" defaultValue={d?.nameHi ?? ""} className={inputCls} /></Field>
           <Field label="Description (English)" hint="Optional, shown under the division title."><textarea name="descriptionEn" rows={3} defaultValue={d?.descriptionEn ?? ""} className={inputCls} /></Field>
           <Field label="Description (Hindi)"><textarea name="descriptionHi" rows={3} defaultValue={d?.descriptionHi ?? ""} className={inputCls} /></Field>
+          <OtherLanguages className="sm:col-span-2" fields={[{ name: "name", label: "Name" }, { name: "description", label: "Description", rows: 3 }]} value={d?.i18n} />
         </Card>
         <Card className="space-y-5">
           <Field label="Display order" hint="Smaller numbers show first."><input type="number" name="sort" defaultValue={d?.sort ?? 0} className={inputCls} /></Field>

@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params;
   if (!isLang(lang)) return {};
   const p = await getPage(slug);
-  return p ? { title: pick(lang, p.titleEn, p.titleHi) } : {};
+  return p ? { title: pick(lang, p.titleEn, p.titleHi, p.i18n?.title) } : {};
 }
 
 export default function WomenPageDetail({ params }: Props) {
@@ -36,13 +36,13 @@ async function WomenPageDetailContent({ params }: Props) {
   if (!isLang(lang)) notFound();
   const [page, section] = await Promise.all([getPage(slug), navTitle(lang, "/women")]);
   if (!page) notFound();
-  const title = pick(lang, page.titleEn, page.titleHi);
+  const title = pick(lang, page.titleEn, page.titleHi, page.i18n?.title);
   return (
     <>
       <PageHero lang={lang} title={title} crumbs={[{ href: `/${lang}`, label: (await getUi(lang)).home }, { href: `/${lang}/women`, label: section }, { label: title }]} />
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="rounded-none border border-line bg-white p-6 sm:p-10">
-          <SafeHtml html={pick(lang, page.contentHtml, page.contentHtmlHi)} />
+          <SafeHtml html={pick(lang, page.contentHtml, page.contentHtmlHi, page.i18n?.content)} />
         </div>
       </div>
     </>

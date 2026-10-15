@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import { readI18n } from "@/lib/i18n-form";
 import { toHtml } from "@/lib/text";
 
 export async function savePage(form: FormData) {
@@ -20,6 +21,7 @@ export async function savePage(form: FormData) {
       titleHi: String(form.get("titleHi") ?? "").trim().slice(0, 300) || null,
       contentHtml: toHtml(String(form.get("content") ?? "")),
       contentHtmlHi: hiHtml || null,
+      i18n: readI18n(form, { title: 300, content: 200000 }, "", (field, v) => (field === "content" ? toHtml(v) : v)),
       updatedAt: new Date(),
     })
     .where(eq(schema.pages.id, id));

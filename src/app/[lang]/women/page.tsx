@@ -42,7 +42,7 @@ export default async function WomenPage({ params }: { params: Promise<{ lang: st
                     <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-brand/10 text-brand transition-colors group-hover:bg-brand group-hover:text-white">
                       <Icon name="people" />
                     </span>
-                    <span className="min-w-0 break-words font-display font-bold leading-snug">{pick(lang, p.titleEn, p.titleHi)}</span>
+                    <span className="min-w-0 break-words font-display font-bold leading-snug">{pick(lang, p.titleEn, p.titleHi, p.i18n?.title)}</span>
                   </Link>
                 </li>
               ))}

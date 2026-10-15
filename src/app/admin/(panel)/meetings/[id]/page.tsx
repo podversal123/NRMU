@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import { videoConfigured } from "@/lib/daily";
 import { fmtWhen, meetingState, MODES, relative, reminderOffsets, RSVPS, toIst, videoEnabled } from "@/lib/meetings";
 import UploadField from "../../../UploadField";
+import OtherLanguages from "../../../OtherLanguages";
 import { DeleteButton, SubmitButton } from "../../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls, td, th } from "../../../ui";
 import { CopyAll, SendButtons } from "./InviteeLinks";
@@ -96,6 +97,11 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
           <Field label="Venue (Hindi)"><input name="venueHi" defaultValue={m?.venueHi ?? ""} className={inputCls} /></Field>
           <Field label="Agenda (English)" hint="One point per line."><textarea name="agendaEn" rows={6} defaultValue={m?.agendaEn ?? ""} className={inputCls} /></Field>
           <Field label="Agenda (Hindi)"><textarea name="agendaHi" rows={6} defaultValue={m?.agendaHi ?? ""} className={inputCls} /></Field>
+          <OtherLanguages
+            className="sm:col-span-2"
+            fields={[{ name: "title", label: "Title" }, { name: "venue", label: "Venue" }, { name: "agenda", label: "Agenda", rows: 4 }]}
+            value={m?.i18n}
+          />
           <div className="border-t border-line pt-5 sm:col-span-2">
             <label className="flex items-start gap-3 font-semibold">
               <input type="checkbox" name="isPublic" defaultChecked={m?.isPublic ?? false} className="mt-0.5 h-6 w-6 shrink-0" />
@@ -242,6 +248,7 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
               <Field label="Minutes in text" className="sm:col-span-2"><textarea name="minutesText" rows={8} defaultValue={m.minutesText ?? ""} className={inputCls} /></Field>
               <Field label="Resolutions (English)" hint="One resolution per line. Shown publicly only when the meeting is public."><textarea name="resolutionsEn" rows={5} defaultValue={m.resolutionsEn ?? ""} className={inputCls} /></Field>
               <Field label="Resolutions (Hindi)"><textarea name="resolutionsHi" rows={5} defaultValue={m.resolutionsHi ?? ""} className={inputCls} /></Field>
+              <OtherLanguages className="sm:col-span-2" fields={[{ name: "resolutions", label: "Resolutions", rows: 4 }]} value={m.i18n} />
               <Field label="Private notes" hint="Only you can see these." className="sm:col-span-2"><textarea name="notes" rows={3} defaultValue={m.notes ?? ""} className={inputCls} /></Field>
               <div className="sm:col-span-2"><SubmitButton className="btn-primary px-6 py-3">Save the record</SubmitButton></div>
             </Card>

@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props) {
   const { lang, type } = await params;
   if (!isLang(lang) || !/^\d+$/.test(type)) return {};
   const k = (await getPublicMeetingTypes()).find((x) => x.id === Number(type));
-  return k ? { title: pick(lang, k.nameEn, k.nameHi) } : {};
+  return k ? { title: pick(lang, k.nameEn, k.nameHi, k.i18n?.name) } : {};
 }
 
 export default function MeetingTypePage({ params }: Props) {
@@ -34,7 +34,7 @@ async function Content({ params }: Props) {
   if (!kind) notFound();
   const [ui, s, parent, rows] = await Promise.all([getUi(lang), getSettings(), navTitle(lang, "/meetings"), getPublicMeetings(kind.id)]);
   const t = (k: string) => setting(s, k, lang);
-  const title = pick(lang, kind.nameEn, kind.nameHi);
+  const title = pick(lang, kind.nameEn, kind.nameHi, kind.i18n?.name);
   return (
     <>
       <PageHero lang={lang} title={title} sub={t("meetings.sub")} crumbs={[{ href: `/${lang}`, label: ui.home }, { href: `/${lang}/meetings`, label: parent }, { label: title }]} />
@@ -45,8 +45,8 @@ async function Content({ params }: Props) {
               <li key={m.id}>
                 <Link href={`/${lang}/meetings/${kind.id}/${m.id}`} className="group block py-5 sm:py-6">
                   <p className="font-display text-lg font-bold text-brand">{whenIst(m.startsAt, lang)}</p>
-                  <h2 className="mt-1 text-xl font-medium leading-snug group-hover:underline group-hover:decoration-signal group-hover:decoration-2 group-hover:underline-offset-4">{pick(lang, m.titleEn, m.titleHi)}</h2>
-                  <p className="mt-1 text-muted">{[pick(lang, m.venueEn, m.venueHi), pick(lang, m.divisionEn, m.divisionHi)].filter(Boolean).join(" · ")}</p>
+                  <h2 className="mt-1 text-xl font-medium leading-snug group-hover:underline group-hover:decoration-signal group-hover:decoration-2 group-hover:underline-offset-4">{pick(lang, m.titleEn, m.titleHi, m.i18n?.title)}</h2>
+                  <p className="mt-1 text-muted">{[pick(lang, m.venueEn, m.venueHi, m.i18n?.venue), pick(lang, m.divisionEn, m.divisionHi, m.divisionI18n?.name)].filter(Boolean).join(" · ")}</p>
                 </Link>
               </li>
             ))}

@@ -4,6 +4,7 @@ import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import UploadField from "../../../UploadField";
+import OtherLanguages from "../../../OtherLanguages";
 import { DeleteButton, SubmitButton } from "../../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls } from "../../../ui";
 import { deleteEvent, saveEvent } from "../actions";
@@ -43,6 +44,11 @@ export default async function EditEvent({ params, searchParams }: { params: Prom
           <Field label="Venue (Hindi)"><input name="venueHi" defaultValue={ev?.venueHi ?? ""} className={inputCls} /></Field>
           <Field label="Details (English)"><textarea name="descriptionEn" rows={5} defaultValue={ev?.descriptionEn ?? ""} className={inputCls} /></Field>
           <Field label="Details (Hindi)"><textarea name="descriptionHi" rows={5} defaultValue={ev?.descriptionHi ?? ""} className={inputCls} /></Field>
+          <OtherLanguages
+            className="sm:col-span-2"
+            fields={[{ name: "title", label: "Title" }, { name: "venue", label: "Venue" }, { name: "description", label: "Details", rows: 3 }]}
+            value={ev?.i18n}
+          />
           <UploadField name="agenda" label="Agenda (PDF)" kind="document" folder="events" initial={ev?.agendaUrl ? [ev.agendaUrl] : []} />
           <UploadField name="minutes" label="Minutes (PDF), add after the meeting" kind="document" folder="events" initial={ev?.minutesUrl ? [ev.minutesUrl] : []} />
         </Card>

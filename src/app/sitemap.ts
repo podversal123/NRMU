@@ -19,7 +19,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
   const all = [{ path: "", at: null }, ...rows(nav), ...rows(divisions), ...rows(pages), ...rows(posts), { path: "/join", at: null }, { path: "/grievance", at: null }];
   const seen = new Set<string>();
-  return locales.flatMap((lang) =>
+  // English and Hindi only: in the other languages most text is still shown in English, so those addresses would repeat these.
+  return locales.filter((l) => l === "en" || l === "hi").flatMap((lang) =>
     all
       .filter((x) => !seen.has(lang + x.path) && seen.add(lang + x.path))
       .map((x) => ({ url: `${base}/${lang}${x.path}`, lastModified: x.at ? new Date(x.at) : undefined })),

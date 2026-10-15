@@ -23,9 +23,9 @@ export default async function JoinPage({ params }: { params: Promise<{ lang: str
         <JoinForm
           ui={ui}
           lang={lang}
-          divisions={divisions.map((d) => ({ id: d.id, name: pick(lang, d.nameEn, d.nameHi) }))}
-          branches={branches.map((b) => ({ id: b.id, divisionId: b.divisionId, name: pick(lang, b.nameEn, b.nameHi) }))}
-          departments={departments.map((d) => ({ id: d.id, name: pick(lang, d.nameEn, d.nameHi) }))}
+          divisions={divisions.map((d) => ({ id: d.id, name: pick(lang, d.nameEn, d.nameHi, d.i18n?.name) }))}
+          branches={branches.map((b) => ({ id: b.id, divisionId: b.divisionId, name: pick(lang, b.nameEn, b.nameHi, b.i18n?.name) }))}
+          departments={departments.map((d) => ({ id: d.id, name: pick(lang, d.nameEn, d.nameHi, d.i18n?.name) }))}
         />
       </div>
     </>

@@ -714,5 +714,13 @@
   "subCategoryPick": {
     "en": "Select sub-category",
     "hi": "उप-श्रेणी चुनें"
+  },
+  "gSecContact": {
+    "en": "Contact details",
+    "hi": "संपर्क विवरण"
+  },
+  "gSecDetails": {
+    "en": "Grievance details",
+    "hi": "शिकायत विवरण"
   }
 }

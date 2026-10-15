@@ -2,27 +2,22 @@
 
 import { useActionState } from "react";
 import { trackGrievance, type TrackState } from "../actions";
-import type { Dict, Lang } from "@/lib/i18n";
+import { intlLocale, type Dict, type Lang } from "@/lib/i18n";
 
 const input = "mt-1.5 w-full border border-line bg-white px-4 py-3 text-base focus:border-brand focus:outline-none";
-
-const pickLang = (pair: string | null, lang: Lang) => {
-  if (!pair) return "";
-  const [en, hi] = pair.split("|");
-  return lang === "hi" && hi ? hi : en;
-};
 
 export default function TrackForm({ lang, ui }: { lang: Lang; ui: Dict }) {
   const [state, action, pending] = useActionState<TrackState, FormData>(trackGrievance, {});
   const r = state.result;
   const v = state.values;
   const when = (iso: string) =>
-    new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" }).format(new Date(iso));
+    new Intl.DateTimeFormat(intlLocale(lang), { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" }).format(new Date(iso));
   const statusLabel = (st: string) => ui[`gStatus_${st}` as keyof Dict] ?? st;
 
   return (
     <div className="space-y-8">
       <form key={v ? `${v.ticket}|${v.mobile}` : "fresh"} action={action} className="space-y-5 border border-line bg-white p-6 sm:p-9">
+        <input type="hidden" name="lang" value={lang} />
         {state.error && (
           <p role="alert" className="border border-brand bg-brand/10 px-4 py-3 font-medium text-brand-deep">
             {ui[state.error]}
@@ -54,7 +49,7 @@ export default function TrackForm({ lang, ui }: { lang: Lang; ui: Dict }) {
             </div>
             <div>
               <dt className="text-sm text-muted">{ui.gLevel}</dt>
-              <dd className="mt-0.5 font-semibold">{pickLang(r.levelName, lang)}</dd>
+              <dd className="mt-0.5 font-semibold">{r.levelName}</dd>
             </div>
             <div>
               <dt className="text-sm text-muted">{ui.gTimeline}</dt>
@@ -68,7 +63,7 @@ export default function TrackForm({ lang, ui }: { lang: Lang; ui: Dict }) {
                 <p className="text-sm text-muted">{when(e.at)}</p>
                 <p className="font-medium">
                   {e.kind === "status" && statusLabel(e.value ?? "")}
-                  {(e.kind === "level" || e.kind === "escalated" || e.kind === "created") && pickLang(e.levelName, lang)}
+                  {(e.kind === "level" || e.kind === "escalated" || e.kind === "created") && e.levelName}
                   {e.kind === "note" && e.message}
                 </p>
                 {e.kind === "status" && e.message && <p className="text-muted">{e.message}</p>}

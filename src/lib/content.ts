@@ -1,6 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import type { I18n } from "./i18n";
 
 const { categories, designations, divisions, officeBearers, postCategories, posts } = schema;
 
@@ -24,6 +25,7 @@ export type ListRow = {
   id: number;
   titleEn: string;
   titleHi: string | null;
+  i18n: I18n;
   publishedAt: string;
   files: number;
   labelEn: string | null;
@@ -55,7 +57,7 @@ export async function queryPosts({ q, cat, year, page = 1 }: ListParams) {
 
   const [rows, count] = await Promise.all([
     db.execute(sql`
-      select p.id, p.title_en as "titleEn", p.title_hi as "titleHi", p.published_at::text as "publishedAt",
+      select p.id, p.title_en as "titleEn", p.title_hi as "titleHi", p.i18n, p.published_at::text as "publishedAt",
              (select count(*)::int from post_files pf where pf.post_id = p.id) as files,
              (select c.name_en from post_categories pc join categories c on c.id = pc.category_id
                where pc.post_id = p.id and not c.hidden
@@ -74,7 +76,7 @@ export async function listPostsCached(params: Omit<ListParams, "q">) {
   return queryPosts(params);
 }
 
-export type CategoryNode = { id: number; slug: string; parentId: number | null; nameEn: string; nameHi: string | null; hidden: boolean; n: number; total: number };
+export type CategoryNode = { id: number; slug: string; parentId: number | null; nameEn: string; nameHi: string | null; i18n: I18n; hidden: boolean; n: number; total: number };
 
 export async function getCategoryTree() {
   "use cache";
@@ -86,7 +88,7 @@ export async function getCategoryTree() {
       union all
       select cl.ancestor, k.id from closure cl join categories k on k.parent_id = cl.id
     )
-    select c.id, c.slug, c.parent_id as "parentId", c.name_en as "nameEn", c.name_hi as "nameHi", c.hidden,
+    select c.id, c.slug, c.parent_id as "parentId", c.name_en as "nameEn", c.name_hi as "nameHi", c.i18n, c.hidden,
            (select count(*)::int from post_categories pc where pc.category_id = c.id) as n,
            (select count(distinct pc.post_id)::int from closure cl join post_categories pc on pc.category_id = cl.id where cl.ancestor = c.id) as total
     from categories c order by c.sort`);
@@ -114,7 +116,7 @@ export async function getPost(id: number) {
     .limit(1);
   if (!post) return null;
   const cats = await db
-    .select({ slug: categories.slug, nameEn: categories.nameEn, nameHi: categories.nameHi, id: categories.id })
+    .select({ slug: categories.slug, nameEn: categories.nameEn, nameHi: categories.nameHi, i18n: categories.i18n, id: categories.id })
     .from(postCategories)
     .innerJoin(categories, eq(categories.id, postCategories.categoryId))
     .where(and(eq(postCategories.postId, id), eq(categories.hidden, false)));
@@ -123,6 +125,7 @@ export async function getPost(id: number) {
     id: post.id,
     titleEn: post.titleEn,
     titleHi: post.titleHi,
+    i18n: post.i18n,
     publishedAt: post.publishedAt,
     contentHtml: post.contentHtml,
     files: files.map((f) => ({ url: f.url, name: f.name, kind: f.kind })),
@@ -150,8 +153,10 @@ export async function getOfficials() {
       scope: officeBearers.scope,
       nameEn: officeBearers.nameEn,
       nameHi: officeBearers.nameHi,
+      i18n: officeBearers.i18n,
       designationEn: designations.nameEn,
       designationHi: designations.nameHi,
+      designationI18n: designations.i18n,
       placeLabel: officeBearers.placeLabel,
       addressEn: officeBearers.addressEn,
       phone: officeBearers.phone,
@@ -160,6 +165,7 @@ export async function getOfficials() {
       divisionSlug: divisions.slug,
       divisionEn: divisions.nameEn,
       divisionHi: divisions.nameHi,
+      divisionI18n: divisions.i18n,
     })
     .from(officeBearers)
     .leftJoin(divisions, eq(divisions.id, officeBearers.divisionId))
@@ -172,8 +178,10 @@ export type OfficePerson = {
   id: number;
   nameEn: string;
   nameHi: string | null;
+  i18n: I18n | null;
   designationEn: string | null;
   designationHi: string | null;
+  designationI18n: I18n | null;
   placeLabel: string | null;
   addressEn: string | null;
   phone: string | null;
@@ -201,8 +209,10 @@ export async function getOfficeBearerParts() {
         branchId: officeBearers.branchId,
         nameEn: officeBearers.nameEn,
         nameHi: officeBearers.nameHi,
+        i18n: officeBearers.i18n,
         designationEn: designations.nameEn,
         designationHi: designations.nameHi,
+        designationI18n: designations.i18n,
         placeLabel: officeBearers.placeLabel,
         addressEn: officeBearers.addressEn,
         phone: officeBearers.phone,
@@ -213,7 +223,7 @@ export async function getOfficeBearerParts() {
       .where(eq(officeBearers.active, true))
       .orderBy(asc(designations.sort), asc(officeBearers.sort), asc(officeBearers.id)),
   ]);
-  const strip = ({ id, nameEn, nameHi, designationEn, designationHi, placeLabel, addressEn, phone, photoUrl }: (typeof people)[number]): OfficePerson => ({ id, nameEn, nameHi, designationEn, designationHi, placeLabel, addressEn, phone, photoUrl });
+  const strip = ({ id, nameEn, nameHi, i18n, designationEn, designationHi, designationI18n, placeLabel, addressEn, phone, photoUrl }: (typeof people)[number]): OfficePerson => ({ id, nameEn, nameHi, i18n, designationEn, designationHi, designationI18n, placeLabel, addressEn, phone, photoUrl });
   return {
     central: people.filter((p) => p.scope === "central").map(strip),
     divisions: divs.map((d) => ({
@@ -244,8 +254,10 @@ export async function getDivisionDetail(slug: string) {
         scope: officeBearers.scope,
         nameEn: officeBearers.nameEn,
         nameHi: officeBearers.nameHi,
+        i18n: officeBearers.i18n,
         designationEn: designations.nameEn,
         designationHi: designations.nameHi,
+        designationI18n: designations.i18n,
         placeLabel: officeBearers.placeLabel,
         addressEn: officeBearers.addressEn,
         phone: officeBearers.phone,
@@ -265,9 +277,9 @@ export async function getPages(pattern: string) {
   cacheLife("hours");
   cacheTag("pages");
   const rows = await getDb().execute(
-    sql`select slug, title_en as "titleEn", title_hi as "titleHi" from pages where slug ~* ${pattern} order by title_en`,
+    sql`select slug, title_en as "titleEn", title_hi as "titleHi", i18n from pages where slug ~* ${pattern} order by title_en`,
   );
-  return rowsOf<{ slug: string; titleEn: string; titleHi: string | null }>(rows);
+  return rowsOf<{ slug: string; titleEn: string; titleHi: string | null; i18n: I18n }>(rows);
 }
 
 export async function getPage(slug: string) {
@@ -283,21 +295,23 @@ export async function getDivisionCards() {
   cacheLife("hours");
   cacheTag("divisions", "officials");
   const rows = await getDb().execute(sql`
-    select d.slug, d.name_en as "nameEn", d.name_hi as "nameHi",
+    select d.slug, d.name_en as "nameEn", d.name_hi as "nameHi", d.i18n,
            (select count(*)::int from branches b where b.division_id = d.id) as branches,
            (select count(*)::int from office_bearers o where o.division_id = d.id and o.scope = 'branch_secretary' and o.active) as secretaries,
            (select o.name_en from office_bearers o where o.division_id = d.id and o.scope = 'division_secretary' and o.active order by o.sort, o.id limit 1) as "secretaryEn",
            (select o.name_hi from office_bearers o where o.division_id = d.id and o.scope = 'division_secretary' and o.active order by o.sort, o.id limit 1) as "secretaryHi",
+           (select jsonb_build_object('name', o.i18n->'name') from office_bearers o where o.division_id = d.id and o.scope = 'division_secretary' and o.active order by o.sort, o.id limit 1) as "secretaryI18n",
            (select o.name_en from office_bearers o where o.division_id = d.id and o.scope = 'division_president' and o.active order by o.sort, o.id limit 1) as "presidentEn",
-           (select o.name_hi from office_bearers o where o.division_id = d.id and o.scope = 'division_president' and o.active order by o.sort, o.id limit 1) as "presidentHi"
+           (select o.name_hi from office_bearers o where o.division_id = d.id and o.scope = 'division_president' and o.active order by o.sort, o.id limit 1) as "presidentHi",
+           (select jsonb_build_object('name', o.i18n->'name') from office_bearers o where o.division_id = d.id and o.scope = 'division_president' and o.active order by o.sort, o.id limit 1) as "presidentI18n"
     from divisions d where d.active order by d.sort`);
   return rowsOf<{
-    slug: string; nameEn: string; nameHi: string | null; branches: number; secretaries: number;
-    secretaryEn: string | null; secretaryHi: string | null; presidentEn: string | null; presidentHi: string | null;
+    slug: string; nameEn: string; nameHi: string | null; i18n: I18n; branches: number; secretaries: number;
+    secretaryEn: string | null; secretaryHi: string | null; secretaryI18n: I18n | null; presidentEn: string | null; presidentHi: string | null; presidentI18n: I18n | null;
   }>(rows);
 }
 
-export type CardRow ={ id: number; titleEn: string; titleHi: string | null; publishedAt: string; thumbUrl: string | null };
+export type CardRow = { id: number; titleEn: string; titleHi: string | null; i18n: I18n; publishedAt: string; thumbUrl: string | null };
 
 /** Newest posts of a category (and its sub-categories); `excludeIds` keeps a post from showing twice on the same page. */
 export async function getPostsByCategory(slug: string, limit: number, withImage = false, excludeIds: number[] = []) {
@@ -305,7 +319,7 @@ export async function getPostsByCategory(slug: string, limit: number, withImage 
   cacheLife("hours");
   cacheTag("posts");
   const rows = await getDb().execute(sql`
-    select p.id, p.title_en as "titleEn", p.title_hi as "titleHi", p.published_at::text as "publishedAt", p.thumb_url as "thumbUrl"
+    select p.id, p.title_en as "titleEn", p.title_hi as "titleHi", p.i18n, p.published_at::text as "publishedAt", p.thumb_url as "thumbUrl"
     from posts p
     where p.status = 'published' ${withImage ? sql`and p.thumb_url is not null` : sql``}
       ${excludeIds.length ? sql`and p.id not in (${sql.join(excludeIds.map((i) => sql`${i}`), sql`, `)})` : sql``} and exists (
@@ -321,14 +335,14 @@ export async function getPostsByCategory(slug: string, limit: number, withImage 
 
 /* ------------------------------- Gallery ------------------------------- */
 
-export type GalleryRow = { id: number; url: string; captionEn: string; captionHi: string | null; takenOn: string | null; featured: boolean };
+export type GalleryRow = { id: number; url: string; captionEn: string; captionHi: string | null; i18n: I18n; takenOn: string | null; featured: boolean };
 
 export async function getGalleryPhotos(limit: number, featuredFirst = false): Promise<GalleryRow[]> {
   "use cache";
   cacheLife("hours");
   cacheTag("gallery");
   const rows = await getDb().execute(sql`
-    select id, url, caption_en as "captionEn", caption_hi as "captionHi", taken_on::text as "takenOn", featured
+    select id, url, caption_en as "captionEn", caption_hi as "captionHi", i18n, taken_on::text as "takenOn", featured
     from gallery_photos where active
     order by ${featuredFirst ? sql`featured desc,` : sql``} sort asc, taken_on desc nulls last, id desc
     limit ${limit}`);
@@ -347,15 +361,17 @@ export type EventRow = {
   venueHi: string | null;
   descriptionEn: string | null;
   descriptionHi: string | null;
+  i18n: I18n;
   divisionEn: string | null;
   divisionHi: string | null;
+  divisionI18n: I18n | null;
   agendaUrl: string | null;
   minutesUrl: string | null;
 };
 
 const EVENT_COLS = sql`e.id, e.title_en as "titleEn", e.title_hi as "titleHi", e.starts_at::text as "startsAt", e.ends_at::text as "endsAt",
   e.venue_en as "venueEn", e.venue_hi as "venueHi", e.description_en as "descriptionEn", e.description_hi as "descriptionHi",
-  d.name_en as "divisionEn", d.name_hi as "divisionHi", e.agenda_url as "agendaUrl", e.minutes_url as "minutesUrl"`;
+  e.i18n, d.name_en as "divisionEn", d.name_hi as "divisionHi", d.i18n as "divisionI18n", e.agenda_url as "agendaUrl", e.minutes_url as "minutesUrl"`;
 
 /** Upcoming events (soonest first) and past events (latest first). */
 export async function getEvents(pastLimit = 30, upcomingLimit = 50) {
@@ -381,7 +397,7 @@ export async function getGrievanceTypes() {
 
 /* ------------------------- Public meetings ------------------------- */
 
-export type PublicMeetingType = { id: number; nameEn: string; nameHi: string | null; count: number };
+export type PublicMeetingType = { id: number; nameEn: string; nameHi: string | null; i18n: I18n; count: number };
 
 /**
  * The public Meetings page lists these kinds as its headings. Only meetings the super admin marked public
@@ -392,7 +408,7 @@ export async function getPublicMeetingTypes(): Promise<PublicMeetingType[]> {
   cacheLife("minutes");
   cacheTag("meetings");
   const rows = await getDb().execute(sql`
-    select t.id, t.name_en as "nameEn", t.name_hi as "nameHi",
+    select t.id, t.name_en as "nameEn", t.name_hi as "nameHi", t.i18n,
            (select count(*)::int from meetings m where m.type_id = t.id and m.is_public and m.status <> 'cancelled') as count
     from meeting_types t where t.active and t.show_public order by t.sort, t.id`);
   return rowsOf<PublicMeetingType>(rows);
@@ -411,6 +427,8 @@ export type PublicMeeting = {
   venueHi: string | null;
   divisionEn: string | null;
   divisionHi: string | null;
+  divisionI18n: I18n | null;
+  i18n: I18n;
   agendaEn: string | null;
   agendaHi: string | null;
   resolutionsEn: string | null;
@@ -421,7 +439,7 @@ export type PublicMeeting = {
 };
 
 const MEETING_COLS = sql`m.id, m.type_id as "typeId", m.title_en as "titleEn", m.title_hi as "titleHi", m.starts_at::text as "startsAt", m.ends_at::text as "endsAt",
-  m.mode, m.status, m.venue_en as "venueEn", m.venue_hi as "venueHi", d.name_en as "divisionEn", d.name_hi as "divisionHi",
+  m.mode, m.status, m.venue_en as "venueEn", m.venue_hi as "venueHi", d.name_en as "divisionEn", d.name_hi as "divisionHi", d.i18n as "divisionI18n", m.i18n,
   m.agenda_en as "agendaEn", m.agenda_hi as "agendaHi", m.resolutions_en as "resolutionsEn", m.resolutions_hi as "resolutionsHi",
   m.minutes_url as "minutesUrl", m.minutes_text as "minutesText", m.notice_url as "noticeUrl"`;
 
@@ -460,8 +478,11 @@ export type AlbumCard = {
   divisionId: number | null;
   divisionEn: string | null;
   divisionHi: string | null;
+  divisionI18n: I18n | null;
   branchEn: string | null;
   branchHi: string | null;
+  branchI18n: I18n | null;
+  i18n: I18n;
   cover: string;
   photos: number;
 };
@@ -476,7 +497,7 @@ export async function getGalleryAlbums(divisionId?: number, branchId?: number): 
   else if (divisionId) conds.push(sql`(a.division_id = ${divisionId} or a.branch_id in (select id from branches where division_id = ${divisionId}))`);
   const rows = await getDb().execute(sql`
     select a.id, a.title_en as "titleEn", a.title_hi as "titleHi", a.held_on::text as "heldOn", coalesce(a.division_id, b.division_id) as "divisionId",
-           d.name_en as "divisionEn", d.name_hi as "divisionHi", b.name_en as "branchEn", b.name_hi as "branchHi",
+           d.name_en as "divisionEn", d.name_hi as "divisionHi", d.i18n as "divisionI18n", b.name_en as "branchEn", b.name_hi as "branchHi", b.i18n as "branchI18n", a.i18n,
            (select p.url from gallery_photos p where p.album_id = a.id and p.active order by p.sort, p.id limit 1) as cover,
            (select count(*)::int from gallery_photos p where p.album_id = a.id and p.active) as photos
     from gallery_albums a
@@ -495,15 +516,15 @@ export async function getGalleryAlbum(id: number) {
   const [album] = rowsOf<AlbumCard & { descriptionEn: string | null; descriptionHi: string | null }>(
     await getDb().execute(sql`
       select a.id, a.title_en as "titleEn", a.title_hi as "titleHi", a.description_en as "descriptionEn", a.description_hi as "descriptionHi",
-             a.held_on::text as "heldOn", coalesce(a.division_id, b.division_id) as "divisionId", d.name_en as "divisionEn", d.name_hi as "divisionHi",
-             b.name_en as "branchEn", b.name_hi as "branchHi", '' as cover, 0 as photos
+             a.held_on::text as "heldOn", coalesce(a.division_id, b.division_id) as "divisionId", d.name_en as "divisionEn", d.name_hi as "divisionHi", d.i18n as "divisionI18n",
+             b.name_en as "branchEn", b.name_hi as "branchHi", b.i18n as "branchI18n", a.i18n, '' as cover, 0 as photos
       from gallery_albums a left join branches b on b.id = a.branch_id left join divisions d on d.id = coalesce(a.division_id, b.division_id)
       where a.id = ${id} and a.active limit 1`),
   );
   if (!album) return null;
   const photos = rowsOf<GalleryRow>(
     await getDb().execute(sql`
-      select id, url, caption_en as "captionEn", caption_hi as "captionHi", taken_on::text as "takenOn", featured
+      select id, url, caption_en as "captionEn", caption_hi as "captionHi", i18n, taken_on::text as "takenOn", featured
       from gallery_photos where album_id = ${id} and active order by sort, taken_on desc nulls last, id`),
   );
   return { album, photos };
@@ -515,14 +536,14 @@ export async function getLoosePhotos(limit: number): Promise<GalleryRow[]> {
   cacheLife("hours");
   cacheTag("gallery");
   const rows = await getDb().execute(sql`
-    select id, url, caption_en as "captionEn", caption_hi as "captionHi", taken_on::text as "takenOn", featured
+    select id, url, caption_en as "captionEn", caption_hi as "captionHi", i18n, taken_on::text as "takenOn", featured
     from gallery_photos where active and album_id is null order by sort, taken_on desc nulls last, id desc limit ${limit}`);
   return rowsOf<GalleryRow>(rows);
 }
 
 /* ------------------------------ Wing committees ------------------------------ */
 
-export type CommitteePerson = OfficePerson & { divisionId: number | null; divisionEn: string | null; divisionHi: string | null };
+export type CommitteePerson = OfficePerson & { divisionId: number | null; divisionEn: string | null; divisionHi: string | null; divisionI18n: I18n | null };
 
 /** The committee of a wing (women or youth): central members first, then division by division. */
 export async function getCommittee(wing: "women" | "youth"): Promise<CommitteePerson[]> {
@@ -531,8 +552,9 @@ export async function getCommittee(wing: "women" | "youth"): Promise<CommitteePe
   cacheTag("committee", "divisions");
   const rows = await getDb().execute(sql`
     select c.id, c.name_en as "nameEn", c.name_hi as "nameHi", c.designation_en as "designationEn", c.designation_hi as "designationHi",
+           c.i18n, jsonb_build_object('name', c.i18n->'designation') as "designationI18n",
            null::text as "placeLabel", null::text as "addressEn", c.phone, c.photo_url as "photoUrl",
-           c.division_id as "divisionId", d.name_en as "divisionEn", d.name_hi as "divisionHi"
+           c.division_id as "divisionId", d.name_en as "divisionEn", d.name_hi as "divisionHi", d.i18n as "divisionI18n"
     from committee_members c left join divisions d on d.id = c.division_id
     where c.wing = ${wing} and c.active
     order by (c.division_id is not null), d.sort nulls first, c.sort, c.id`);

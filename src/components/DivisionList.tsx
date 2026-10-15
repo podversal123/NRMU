@@ -1,4 +1,4 @@
-import type { Lang } from "@/lib/i18n";
+import { altLang, intlLocale, type I18n, type Lang } from "@/lib/i18n";
 import { pick } from "@/lib/queries";
 import DivisionBoard, { type BoardItem } from "./DivisionBoard";
 import DivisionCards from "./DivisionCards";
@@ -14,6 +14,9 @@ export type DivisionCardData = {
   secretaryHi: string | null;
   presidentEn: string | null;
   presidentHi: string | null;
+  i18n: I18n;
+  secretaryI18n: I18n | null;
+  presidentI18n: I18n | null;
 };
 
 type Labels = { secretary: string; president?: string; branches: string; branchSecretaries: string; next?: string; previous?: string };
@@ -33,13 +36,13 @@ export default function DivisionList({
   labels: Labels;
   variant?: "board" | "cards" | "deck";
 }) {
-  const num = (n: number) => n.toLocaleString(lang === "hi" ? "hi-IN" : "en-IN");
+  const num = (n: number) => n.toLocaleString(intlLocale(lang));
   const items: BoardItem[] = divisions.map((d) => ({
     href: `/${lang}/divisions/${d.slug}`,
-    name: pick(lang, d.nameEn, d.nameHi),
-    other: (lang === "hi" ? d.nameEn : d.nameHi) ?? "",
-    secretary: pick(lang, d.secretaryEn, d.secretaryHi),
-    president: pick(lang, d.presidentEn, d.presidentHi),
+    name: pick(lang, d.nameEn, d.nameHi, d.i18n?.name),
+    other: lang === "en" && !d.nameHi ? "" : pick(altLang(lang), d.nameEn, d.nameHi, d.i18n?.name),
+    secretary: pick(lang, d.secretaryEn, d.secretaryHi, d.secretaryI18n?.name),
+    president: pick(lang, d.presidentEn, d.presidentHi, d.presidentI18n?.name),
     branches: num(d.branches),
     secretaries: num(d.secretaries),
   }));

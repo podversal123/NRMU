@@ -1,6 +1,6 @@
-import type { Lang } from "./i18n";
+import { intlLocale, type Lang } from "./i18n";
 
-const locale = (lang: Lang) => (lang === "hi" ? "hi-IN" : "en-IN");
+const locale = intlLocale;
 
 export const dayIst = (iso: string, lang: Lang) =>
   new Intl.DateTimeFormat(locale(lang), { dateStyle: "long", timeZone: "Asia/Kolkata" }).format(new Date(iso));

@@ -30,7 +30,7 @@ export default async function DivisionalOfficeBearers({ params }: { params: Prom
             {parts.divisions.map((d) => (
               <li key={d.division.id}>
                 <a href={`#${d.division.slug}`} className="inline-flex min-h-11 items-center border border-line bg-white px-4 text-sm font-medium hover:border-brand">
-                  {pick(lang, d.division.nameEn, d.division.nameHi)}
+                  {pick(lang, d.division.nameEn, d.division.nameHi, d.division.i18n?.name)}
                 </a>
               </li>
             ))}
@@ -42,7 +42,7 @@ export default async function DivisionalOfficeBearers({ params }: { params: Prom
             <section key={d.division.id} id={d.division.slug} aria-labelledby={`h-${d.division.slug}`} className="scroll-mt-24">
               <div className="track-red mb-5 w-24" />
               <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                <h2 id={`h-${d.division.slug}`} className="text-2xl font-medium">{pick(lang, d.division.nameEn, d.division.nameHi)}</h2>
+                <h2 id={`h-${d.division.slug}`} className="text-2xl font-medium">{pick(lang, d.division.nameEn, d.division.nameHi, d.division.i18n?.name)}</h2>
                 <Link href={`/${lang}/divisions/${d.division.slug}`} className="inline-flex min-h-11 items-center font-medium text-brand underline underline-offset-4">
                   {t("officials.division_page")}
                 </Link>

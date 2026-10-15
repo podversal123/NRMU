@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { SubmitButton } from "../../../SubmitButton";
+import OtherLanguages from "../../../OtherLanguages";
 import { Card, Field, Notice, PageTitle, inputCls } from "../../../ui";
 import { savePage } from "../actions";
 
@@ -32,6 +33,7 @@ export default async function EditPage({ params, searchParams }: { params: Promi
         <Card className="space-y-5">
           <Field label="Content (English)" hint="Plain text (blank line = new paragraph) or HTML."><textarea name="content" rows={16} defaultValue={p.contentHtml} className={`${inputCls} font-mono text-base lg:text-sm`} /></Field>
           <Field label="Content (Hindi)" hint="Optional. If empty, English content is shown on the Hindi site."><textarea name="contentHi" rows={10} defaultValue={p.contentHtmlHi ?? ""} className={`${inputCls} font-mono text-base lg:text-sm`} /></Field>
+          <OtherLanguages fields={[{ name: "title", label: "Title" }, { name: "content", label: "Content", rows: 8, mono: true }]} value={p.i18n} />
           <SubmitButton>Save</SubmitButton>
         </Card>
       </form>

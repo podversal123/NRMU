@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import { readI18n } from "@/lib/i18n-form";
 import { deleteBlobs } from "@/lib/blob";
 
 const str = (f: FormData, k: string, max = 300) => String(f.get(k) ?? "").trim().slice(0, max);
@@ -32,6 +33,7 @@ export async function saveOfficial(form: FormData) {
     divisionId,
     nameEn,
     nameHi: str(form, "nameHi") || null,
+    i18n: readI18n(form, { name: 300 }),
     designationId,
     placeLabel: str(form, "placeLabel") || null,
     branchId: Number(str(form, "branchId", 10)) || null,

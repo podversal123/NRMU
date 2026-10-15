@@ -1,5 +1,7 @@
+import { intlLocale, type Lang } from "@/lib/i18n";
+
 /** A band of key numbers, all counted from the database. */
-export default function Figures({ title, items, lang }: { title: string; items: { label: string; value: number }[]; lang: string }) {
+export default function Figures({ title, items, lang }: { title: string; items: { label: string; value: number }[]; lang: Lang }) {
   return (
     <section aria-labelledby="figures-title" className="relative overflow-hidden bg-ink py-12 text-light lg:py-14">
       {/* faint railway-track lines behind the numbers */}
@@ -10,7 +12,7 @@ export default function Figures({ title, items, lang }: { title: string; items: 
           {items.map((f) => (
             <div key={f.label} className="flex flex-col-reverse items-center bg-ink px-4 py-7 text-center">
               <dt className="mt-2 text-sm uppercase tracking-wide text-light/70">{f.label}</dt>
-              <dd className="text-[2.3rem] font-bold leading-none text-white lg:text-[3rem]">{f.value.toLocaleString(lang === "hi" ? "hi-IN" : "en-IN")}</dd>
+              <dd className="text-[2.3rem] font-bold leading-none text-white lg:text-[3rem]">{f.value.toLocaleString(intlLocale(lang))}</dd>
             </div>
           ))}
         </dl>

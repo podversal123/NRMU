@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Icon from "@/components/Icon";
 import PageHero from "@/components/PageHero";
 import { getOfficeBearerParts } from "@/lib/content";
-import { isLang } from "@/lib/i18n";
+import { intlLocale, isLang } from "@/lib/i18n";
 import { navTitle } from "@/lib/nav";
 import { getSettings, getUi, setting } from "@/lib/queries";
 
@@ -38,7 +38,7 @@ export default async function OfficialsPage({ params }: { params: Promise<{ lang
                 <h2 className="mt-5 text-xl font-medium leading-snug">{c.title}</h2>
                 <p className="mt-2 text-muted">{c.sub}</p>
                 <p className="mt-auto pt-6 text-sm text-muted">
-                  <strong className="text-2xl font-bold text-ink">{c.count.toLocaleString(lang === "hi" ? "hi-IN" : "en-IN")}</strong> {c.unit}
+                  <strong className="text-2xl font-bold text-ink">{c.count.toLocaleString(intlLocale(lang))}</strong> {c.unit}
                 </p>
                 <span className="mt-3 inline-flex min-h-11 items-center gap-2 font-medium text-brand">
                   {t("officials.open")} <Icon name="arrow" size={18} className="transition group-hover:translate-x-1" />

@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params;
   if (!isLang(lang)) return {};
   const p = await getPage(slug);
-  return p ? { title: pick(lang, p.titleEn, p.titleHi) } : {};
+  return p ? { title: pick(lang, p.titleEn, p.titleHi, p.i18n?.title) } : {};
 }
 
 /** Any static page stored in the database (handbooks, results, committee lists …). */
@@ -37,13 +37,13 @@ async function StaticPageContent({ params }: Props) {
   const page = await getPage(slug);
   if (!page || !page.contentHtml.trim()) notFound();
   const ui = await getUi(lang);
-  const title = pick(lang, page.titleEn, page.titleHi);
+  const title = pick(lang, page.titleEn, page.titleHi, page.i18n?.title);
   return (
     <>
       <PageHero lang={lang} title={title} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: title }]} />
       <div className="mx-auto max-w-5xl px-5 py-12 sm:px-8">
         <div className="border border-line bg-white p-6 sm:p-10">
-          <SafeHtml html={pick(lang, page.contentHtml, page.contentHtmlHi)} />
+          <SafeHtml html={pick(lang, page.contentHtml, page.contentHtmlHi, page.i18n?.content)} />
         </div>
       </div>
     </>

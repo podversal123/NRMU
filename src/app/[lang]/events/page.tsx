@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import PageHero from "@/components/PageHero";
-import { isLang, type Lang } from "@/lib/i18n";
+import { intlLocale, isLang, type Lang } from "@/lib/i18n";
 import { getEvents, type EventRow } from "@/lib/content";
 import { getSettings, getUi, pick, setting } from "@/lib/queries";
 import { navTitle } from "@/lib/nav";
@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 }
 
 export const eventDate = (iso: string, lang: Lang) =>
-  `${new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { dateStyle: "long", timeZone: "Asia/Kolkata" }).format(new Date(iso))}, ${new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { timeStyle: "short", timeZone: "Asia/Kolkata" }).format(new Date(iso))}`;
+  `${new Intl.DateTimeFormat(intlLocale(lang), { dateStyle: "long", timeZone: "Asia/Kolkata" }).format(new Date(iso))}, ${new Intl.DateTimeFormat(intlLocale(lang), { timeStyle: "short", timeZone: "Asia/Kolkata" }).format(new Date(iso))}`;
 
 export default async function EventsPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
@@ -21,11 +21,11 @@ export default async function EventsPage({ params }: { params: Promise<{ lang: s
   const Card = ({ e }: { e: EventRow }) => (
     <article className="border-t-2 border-signal pt-5">
       <p className="font-display text-xl font-bold text-brand">{eventDate(e.startsAt, lang)}</p>
-      <h3 className="mt-1 text-[1.3rem] leading-tight">{pick(lang, e.titleEn, e.titleHi)}</h3>
+      <h3 className="mt-1 text-[1.3rem] leading-tight">{pick(lang, e.titleEn, e.titleHi, e.i18n?.title)}</h3>
       <p className="mt-2 text-muted">
-        {[pick(lang, e.venueEn, e.venueHi), pick(lang, e.divisionEn, e.divisionHi)].filter(Boolean).join(" · ")}
+        {[pick(lang, e.venueEn, e.venueHi, e.i18n?.venue), pick(lang, e.divisionEn, e.divisionHi, e.divisionI18n?.name)].filter(Boolean).join(" · ")}
       </p>
-      {(e.descriptionEn || e.descriptionHi) && <p className="mt-3 max-w-2xl whitespace-pre-line">{pick(lang, e.descriptionEn, e.descriptionHi)}</p>}
+      {(e.descriptionEn || e.descriptionHi) && <p className="mt-3 max-w-2xl whitespace-pre-line">{pick(lang, e.descriptionEn, e.descriptionHi, e.i18n?.description)}</p>}
       {(e.agendaUrl || e.minutesUrl) && (
         <p className="mt-4 flex flex-wrap gap-5">
           {e.agendaUrl && <a href={e.agendaUrl} target="_blank" rel="noopener noreferrer" className="inline-block py-2.5 font-medium underline decoration-signal decoration-2 underline-offset-4 hover:text-brand">{ui.agenda}</a>}

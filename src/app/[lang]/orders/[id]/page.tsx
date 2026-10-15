@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, id } = await params;
   if (!isLang(lang) || !/^\d+$/.test(id)) return {};
   const post = await getPost(Number(id));
-  return post ? { title: pick(lang, post.titleEn, post.titleHi) } : {};
+  return post ? { title: pick(lang, post.titleEn, post.titleHi, post.i18n?.title) } : {};
 }
 
 const fileName = (url: string) => {
@@ -48,7 +48,7 @@ async function OrderPageContent({ params }: Props) {
   const [post, ordersTitle] = await Promise.all([getPost(Number(id)), navTitle(lang, "/orders")]);
   if (!post) notFound();
   const ui = await getUi(lang);
-  const title = pick(lang, post.titleEn, post.titleHi);
+  const title = pick(lang, post.titleEn, post.titleHi, post.i18n?.title);
 
   return (
     <>
@@ -63,7 +63,7 @@ async function OrderPageContent({ params }: Props) {
             <div className="mt-3 flex flex-wrap gap-1.5">
               {post.cats.map((c) => (
                 <Link key={c.id} href={`/${lang}/orders?cat=${c.slug}`} className="border border-line px-2.5 py-1 text-sm text-brand hover:border-brand">
-                  {pick(lang, c.nameEn, c.nameHi)}
+                  {pick(lang, c.nameEn, c.nameHi, c.i18n?.name)}
                 </Link>
               ))}
             </div>

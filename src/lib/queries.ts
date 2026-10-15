@@ -1,28 +1,42 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import { UI_KEYS, type Dict, type Lang } from "./i18n";
+import { UI_KEYS, intlLocale, type Dict, type ExtraLang, type I18n, type Lang } from "./i18n";
 import { noEmDash } from "./text";
 
 const { categories, designations, divisions, navItems, officeBearers, postCategories, posts, searchChips, siteSettings } = schema;
 
-/** Pick the Hindi value when the language is Hindi and a translation exists. */
-export const pick = (lang: Lang, en: string | null | undefined, hi: string | null | undefined) =>
-  noEmDash(lang === "hi" && hi ? hi : (en ?? ""));
+/** One field's text in the languages other than English and Hindi (one entry of an `i18n` column). */
+export type Tr = Partial<Record<ExtraLang, string>> | null | undefined;
+
+/**
+ * The text for the visitor's language: Hindi from the Hindi column, the other languages from the `i18n` column
+ * (pass `row.i18n.<field>`). Text not translated yet is shown in English.
+ */
+export const pick = (lang: Lang, en: string | null | undefined, hi: string | null | undefined, tr: Tr) => {
+  const own = lang === "en" ? en : lang === "hi" ? hi : tr?.[lang];
+  return noEmDash(own || (en ?? ""));
+};
+
+/** `pick` for a row with `<field>En`, `<field>Hi` and `i18n` (for example `tr(lang, division, "name")`). */
+export function tr<F extends string>(lang: Lang, row: { [K in `${F}En` | `${F}Hi`]?: string | null } & { i18n?: I18n | null }, field: F) {
+  const r = row as Record<string, string | null | undefined>;
+  return pick(lang, r[`${field}En`], r[`${field}Hi`], row.i18n?.[field]);
+}
 
 /* ----------------------------- Site config ----------------------------- */
 
-export type Settings = Record<string, { en: string; hi: string | null }>;
+export type Settings = Record<string, { en: string; hi: string | null; tr: Tr }>;
 
 export async function getSettings(): Promise<Settings> {
   "use cache";
   cacheLife("hours");
   cacheTag("settings");
   const rows = await getDb().select().from(siteSettings);
-  return Object.fromEntries(rows.map((r) => [r.key, { en: r.valueEn, hi: r.valueHi }]));
+  return Object.fromEntries(rows.map((r) => [r.key, { en: r.valueEn, hi: r.valueHi, tr: r.i18n.value }]));
 }
 
-export const setting = (s: Settings, key: string, lang: Lang) => pick(lang, s[key]?.en, s[key]?.hi);
+export const setting = (s: Settings, key: string, lang: Lang) => pick(lang, s[key]?.en, s[key]?.hi, s[key]?.tr);
 
 /** `withHidden` also returns items switched off in the admin (used for page titles of sections taken out of the menu). */
 export async function getNav(area: "header" | "footer" | "quick", withHidden = false) {
@@ -58,7 +72,7 @@ export async function getBranches() {
   cacheLife("hours");
   cacheTag("divisions");
   return getDb()
-    .select({ id: schema.branches.id, divisionId: schema.branches.divisionId, nameEn: schema.branches.nameEn, nameHi: schema.branches.nameHi })
+    .select({ id: schema.branches.id, divisionId: schema.branches.divisionId, nameEn: schema.branches.nameEn, nameHi: schema.branches.nameHi, i18n: schema.branches.i18n })
     .from(schema.branches)
     .orderBy(asc(schema.branches.divisionId), asc(schema.branches.sort));
 }
@@ -80,10 +94,12 @@ export async function getFeaturedLeaders() {
       id: officeBearers.id,
       nameEn: officeBearers.nameEn,
       nameHi: officeBearers.nameHi,
+      i18n: officeBearers.i18n,
       photoUrl: officeBearers.photoUrl,
       placeLabel: officeBearers.placeLabel,
       designationEn: designations.nameEn,
       designationHi: designations.nameHi,
+      designationI18n: designations.i18n,
     })
     .from(officeBearers)
     .leftJoin(designations, eq(designations.id, officeBearers.designationId))
@@ -105,9 +121,10 @@ export type PostCard = {
   id: number;
   titleEn: string;
   titleHi: string | null;
+  i18n: I18n;
   publishedAt: string;
   files: number;
-  label: { en: string; hi: string | null } | null;
+  label: { en: string; hi: string | null; tr: Tr } | null;
 };
 
 export async function getLatestPosts(limit: number): Promise<PostCard[]> {
@@ -116,7 +133,7 @@ export async function getLatestPosts(limit: number): Promise<PostCard[]> {
   cacheTag("posts");
   const db = getDb();
   const rows = await db
-    .select({ id: posts.id, titleEn: posts.titleEn, titleHi: posts.titleHi, publishedAt: posts.publishedAt, files: sql<number>`(select count(*) from post_files pf where pf.post_id = ${posts.id})` })
+    .select({ id: posts.id, titleEn: posts.titleEn, titleHi: posts.titleHi, i18n: posts.i18n, publishedAt: posts.publishedAt, files: sql<number>`(select count(*) from post_files pf where pf.post_id = ${posts.id})` })
     .from(posts)
     .where(eq(posts.status, "published"))
     .orderBy(desc(posts.publishedAt), desc(posts.id))
@@ -146,16 +163,17 @@ export async function getLatestPosts(limit: number): Promise<PostCard[]> {
       id: r.id,
       titleEn: r.titleEn,
       titleHi: r.titleHi,
+      i18n: r.i18n,
       publishedAt: r.publishedAt,
       files: Number(r.files),
-      label: cat ? { en: cat.nameEn, hi: cat.nameHi } : null,
+      label: cat ? { en: cat.nameEn, hi: cat.nameHi, tr: cat.i18n.name } : null,
     };
   });
 }
 
 export function formatDate(iso: string, lang: Lang) {
   const d = new Date(iso + "T00:00:00");
-  return new Intl.DateTimeFormat(lang === "hi" ? "hi-IN" : "en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(d);
+  return new Intl.DateTimeFormat(intlLocale(lang), { day: "2-digit", month: "short", year: "numeric" }).format(d);
 }
 
 /* ------------------------- Interface wording (database) ------------------------- */
@@ -165,13 +183,13 @@ export function formatDate(iso: string, lang: Lang) {
 export async function getUi(lang: Lang): Promise<Dict> {
   const s = await getSettings();
   const out = {} as Dict;
-  for (const k of UI_KEYS) out[k] = pick(lang, s[`ui.${k}`]?.en, s[`ui.${k}`]?.hi);
+  for (const k of UI_KEYS) out[k] = setting(s, `ui.${k}`, lang);
   return out;
 }
 
 /* ------------------------------ Portal layout ------------------------------ */
 
-export type MenuItem = { id: number; labelEn: string; labelHi: string | null; href: string; children: MenuItem[] };
+export type MenuItem = { id: number; labelEn: string; labelHi: string | null; i18n: I18n; href: string; children: MenuItem[] };
 
 /** Header menu as a tree: top-level items, each with its dropdown entries. */
 export async function getMenu(): Promise<MenuItem[]> {
@@ -186,7 +204,7 @@ export async function getMenu(): Promise<MenuItem[]> {
   const byParent = new Map<number | null, typeof rows>();
   for (const r of rows) byParent.set(r.parentId, [...(byParent.get(r.parentId) ?? []), r]);
   const build = (parent: number | null): MenuItem[] =>
-    (byParent.get(parent) ?? []).map((r) => ({ id: r.id, labelEn: r.labelEn, labelHi: r.labelHi, href: r.href, children: build(r.id) }));
+    (byParent.get(parent) ?? []).map((r) => ({ id: r.id, labelEn: r.labelEn, labelHi: r.labelHi, i18n: r.i18n, href: r.href, children: build(r.id) }));
   return build(null);
 }
 

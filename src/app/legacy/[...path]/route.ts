@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { isLang } from "@/lib/i18n";
 
 /**
  * Resolves addresses from the old WordPress website to the new ones (permanent redirects):
@@ -14,7 +15,8 @@ import { getDb, schema } from "@/db";
 export async function GET(request: NextRequest) {
   const raw = request.nextUrl.pathname.replace(/^\/legacy/, "") || "/";
   const path = decodeURIComponent(raw).replace(/\/+$/, "");
-  const lang = request.cookies.get("nrmu-lang")?.value === "hi" ? "hi" : "en";
+  const saved = request.cookies.get("nrmu-lang")?.value ?? "";
+  const lang = isLang(saved) ? saved : "en";
   const to = (p: string) => NextResponse.redirect(new URL(`/${lang}${p}`, request.url), 301);
   const db = getDb();
 

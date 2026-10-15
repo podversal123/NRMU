@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props) {
   const { lang, id } = await params;
   if (!isLang(lang) || !/^\d+$/.test(id)) return {};
   const data = await getGalleryAlbum(Number(id));
-  return data ? { title: pick(lang, data.album.titleEn, data.album.titleHi) } : {};
+  return data ? { title: pick(lang, data.album.titleEn, data.album.titleHi, data.album.i18n?.title) } : {};
 }
 
 export default function AlbumPage({ params }: Props) {
@@ -33,9 +33,9 @@ async function Content({ params }: Props) {
   if (!data) notFound();
   const [ui, s, parent] = await Promise.all([getUi(lang), getSettings(), navTitle(lang, "/gallery")]);
   const { album, photos } = data;
-  const title = pick(lang, album.titleEn, album.titleHi);
-  const place = [pick(lang, album.divisionEn, album.divisionHi), pick(lang, album.branchEn, album.branchHi)].filter(Boolean).join(" · ") || setting(s, "gallery.whole_union", lang);
-  const about = pick(lang, album.descriptionEn, album.descriptionHi);
+  const title = pick(lang, album.titleEn, album.titleHi, album.i18n?.title);
+  const place = [pick(lang, album.divisionEn, album.divisionHi, album.divisionI18n?.name), pick(lang, album.branchEn, album.branchHi, album.branchI18n?.name)].filter(Boolean).join(" · ") || setting(s, "gallery.whole_union", lang);
+  const about = pick(lang, album.descriptionEn, album.descriptionHi, album.i18n?.description);
   return (
     <>
       <PageHero lang={lang} title={title} sub={[place, album.heldOn ? formatDate(album.heldOn, lang) : ""].filter(Boolean).join(" · ")} crumbs={[{ href: `/${lang}`, label: ui.home }, { href: `/${lang}/gallery`, label: parent }, { label: title }]} />

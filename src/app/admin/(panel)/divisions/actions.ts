@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import { readI18n } from "@/lib/i18n-form";
 import { slugify } from "@/lib/text";
 
 const str = (f: FormData, k: string, max = 300) => String(f.get(k) ?? "").trim().slice(0, max);
@@ -20,6 +21,7 @@ export async function saveDivision(form: FormData) {
     nameHi: str(form, "nameHi") || null,
     descriptionEn: str(form, "descriptionEn", 1000) || null,
     descriptionHi: str(form, "descriptionHi", 1000) || null,
+    i18n: readI18n(form, { name: 300, description: 1000 }),
     sort: Number(str(form, "sort", 6)) || 0,
     active: form.get("active") === "on",
   };

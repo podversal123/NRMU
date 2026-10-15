@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import { readI18n } from "@/lib/i18n-form";
 
 const str = (f: FormData, k: string, max = 120) => String(f.get(k) ?? "").trim().slice(0, max);
 
@@ -26,7 +27,7 @@ export async function saveDepartment(form: FormData) {
   if (!id || !nameEn) redirect("/admin/departments?error=name");
   await getDb()
     .update(schema.departments)
-    .set({ nameEn, nameHi: str(form, "nameHi") || null, active: form.get("active") === "on", sort: Number(str(form, "sort", 6)) || 0 })
+    .set({ nameEn, nameHi: str(form, "nameHi") || null, i18n: readI18n(form, { name: 120 }), active: form.get("active") === "on", sort: Number(str(form, "sort", 6)) || 0 })
     .where(eq(schema.departments.id, id));
   updateTag("departments");
   redirect("/admin/departments?saved=1");

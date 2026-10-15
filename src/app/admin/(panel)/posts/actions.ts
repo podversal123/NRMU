@@ -6,6 +6,7 @@ import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { deleteBlobs } from "@/lib/blob";
+import { readI18n } from "@/lib/i18n-form";
 import { htmlToText, slugify, toHtml } from "@/lib/text";
 
 const str = (f: FormData, k: string, max = 500) => String(f.get(k) ?? "").trim().slice(0, max);
@@ -28,6 +29,7 @@ export async function savePost(form: FormData) {
   const values = {
     titleEn,
     titleHi: str(form, "titleHi", 500) || null,
+    i18n: readI18n(form, { title: 500 }),
     excerpt: text.slice(0, 220),
     contentHtml: html,
     bodyText: text.slice(0, 30000),

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import { readI18n } from "@/lib/i18n-form";
 import { deleteBlobs, isOwnBlobUrl } from "@/lib/blob";
 
 const str = (f: FormData, k: string, max = 300) => String(f.get(k) ?? "").trim().slice(0, max);
@@ -25,11 +26,12 @@ export async function addPhotos(form: FormData) {
   if (!urls.length) redirect("/admin/gallery?error=none");
   const caption = str(form, "captionEn");
   const captionHi = str(form, "captionHi");
+  const i18n = readI18n(form, { caption: 300 });
   const takenOn = date(str(form, "takenOn", 10));
   const albumId = await albumOrNull(num(form, "albumId"));
   await getDb()
     .insert(schema.galleryPhotos)
-    .values(urls.map((url) => ({ url, captionEn: caption, captionHi: captionHi || null, takenOn, albumId })));
+    .values(urls.map((url) => ({ url, captionEn: caption, captionHi: captionHi || null, i18n, takenOn, albumId })));
   updateTag("gallery");
   redirect("/admin/gallery?saved=1");
 }
@@ -43,6 +45,7 @@ export async function updatePhoto(form: FormData) {
       .set({
         captionEn: str(form, "captionEn"),
         captionHi: str(form, "captionHi") || null,
+        i18n: readI18n(form, { caption: 300 }),
         takenOn: date(str(form, "takenOn", 10)),
         albumId: await albumOrNull(num(form, "albumId")),
         featured: form.get("featured") === "on",
@@ -74,6 +77,7 @@ function albumValues(form: FormData) {
     titleHi: str(form, "titleHi") || null,
     descriptionEn: str(form, "descriptionEn", 2000) || null,
     descriptionHi: str(form, "descriptionHi", 2000) || null,
+    i18n: readI18n(form, { title: 300, description: 2000 }),
     branchId,
     divisionId: branchId ? null : num(form, "divisionId"),
     heldOn: date(str(form, "heldOn", 10)),

@@ -1,5 +1,20 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Noto_Sans_Devanagari, Roboto } from "next/font/google";
+import {
+  Geist_Mono,
+  Noto_Naskh_Arabic,
+  Noto_Sans_Bengali,
+  Noto_Sans_Devanagari,
+  Noto_Sans_Gujarati,
+  Noto_Sans_Gurmukhi,
+  Noto_Sans_Kannada,
+  Noto_Sans_Malayalam,
+  Noto_Sans_Meetei_Mayek,
+  Noto_Sans_Ol_Chiki,
+  Noto_Sans_Oriya,
+  Noto_Sans_Tamil,
+  Noto_Sans_Telugu,
+  Roboto,
+} from "next/font/google";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import "../globals.css";
@@ -7,7 +22,7 @@ import Header from "@/components/Header";
 import { TEXT_SIZES } from "@/lib/text-size";
 import Footer from "@/components/Footer";
 import BackToTop from "@/components/BackToTop";
-import { isLang, locales } from "@/lib/i18n";
+import { altLang, isLang, isRtl } from "@/lib/i18n";
 import { getMenu, getSettings, pick, setting, getUi } from "@/lib/queries";
 
 const roboto = Roboto({
@@ -21,9 +36,23 @@ const notoDevanagari = Noto_Sans_Devanagari({
   weight: ["400", "500", "700"],
 });
 const mono = Geist_Mono({ variable: "--font-mono", subsets: ["latin"] });
+// Fonts for the scripts of the other languages. Not preloaded: a browser downloads one only when the page has text in that script.
+const bengali = Noto_Sans_Bengali({ variable: "--font-noto-beng", subsets: ["bengali"], weight: ["400", "500", "700"], preload: false });
+const gujarati = Noto_Sans_Gujarati({ variable: "--font-noto-gujr", subsets: ["gujarati"], weight: ["400", "500", "700"], preload: false });
+const gurmukhi = Noto_Sans_Gurmukhi({ variable: "--font-noto-guru", subsets: ["gurmukhi"], weight: ["400", "500", "700"], preload: false });
+const kannada = Noto_Sans_Kannada({ variable: "--font-noto-knda", subsets: ["kannada"], weight: ["400", "500", "700"], preload: false });
+const malayalam = Noto_Sans_Malayalam({ variable: "--font-noto-mlym", subsets: ["malayalam"], weight: ["400", "500", "700"], preload: false });
+const oriya = Noto_Sans_Oriya({ variable: "--font-noto-orya", subsets: ["oriya"], weight: ["400", "500", "700"], preload: false });
+const tamil = Noto_Sans_Tamil({ variable: "--font-noto-taml", subsets: ["tamil"], weight: ["400", "500", "700"], preload: false });
+const telugu = Noto_Sans_Telugu({ variable: "--font-noto-telu", subsets: ["telugu"], weight: ["400", "500", "700"], preload: false });
+const olChiki = Noto_Sans_Ol_Chiki({ variable: "--font-noto-olck", subsets: ["ol-chiki"], weight: ["400", "500", "700"], preload: false });
+const meetei = Noto_Sans_Meetei_Mayek({ variable: "--font-noto-mtei", subsets: ["meetei-mayek"], weight: ["400", "500", "700"], preload: false });
+const arabic = Noto_Naskh_Arabic({ variable: "--font-noto-arab", subsets: ["arabic"], weight: ["400", "500", "700"], preload: false });
+const scripts = [bengali, gujarati, gurmukhi, kannada, malayalam, oriya, tamil, telugu, olChiki, meetei, arabic];
 
+/** English and Hindi are built ahead; the other languages are rendered on the first visit and then kept. */
 export function generateStaticParams() {
-  return locales.map((lang) => ({ lang }));
+  return [{ lang: "en" }, { lang: "hi" }];
 }
 
 export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Promise<Metadata> {
@@ -47,17 +76,22 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   const menu = menuTree.map((m) => ({
     id: m.id,
     href: m.href,
-    label: pick(lang, m.labelEn, m.labelHi),
+    label: pick(lang, m.labelEn, m.labelHi, m.i18n?.label),
     children: m.children.map((c) => ({
       href: c.href,
-      label: pick(lang, c.labelEn, c.labelHi),
-      children: c.children.map((g) => ({ href: g.href, label: pick(lang, g.labelEn, g.labelHi) })),
+      label: pick(lang, c.labelEn, c.labelHi, c.i18n?.label),
+      children: c.children.map((g) => ({ href: g.href, label: pick(lang, g.labelEn, g.labelHi, g.i18n?.label) })),
     })),
   }));
-  const other = lang === "en" ? "hi" : "en";
+  const other = altLang(lang);
 
   return (
-    <html lang={lang} suppressHydrationWarning className={`${roboto.variable} ${notoDevanagari.variable} ${mono.variable} antialiased`}>
+    <html
+      lang={lang}
+      dir={isRtl(lang) ? "rtl" : "ltr"}
+      suppressHydrationWarning
+      className={`${roboto.variable} ${notoDevanagari.variable} ${scripts.map((f) => f.variable).join(" ")} ${mono.variable} antialiased`}
+    >
       <body className="flex min-h-screen flex-col">
         {/* Applies the visitor's saved text size before the first paint, so the page does not jump when it loads. */}
         <script

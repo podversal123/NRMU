@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import { readI18n } from "@/lib/i18n-form";
 import { deleteBlobs, isOwnBlobUrl } from "@/lib/blob";
 
 const str = (f: FormData, k: string, max = 200) => String(f.get(k) ?? "").trim().slice(0, max);
@@ -23,6 +24,7 @@ function values(form: FormData) {
     nameHi: str(form, "nameHi") || null,
     designationEn: str(form, "designationEn") || null,
     designationHi: str(form, "designationHi") || null,
+    i18n: readI18n(form, { name: 200, designation: 200 }),
     divisionId: Number(str(form, "divisionId", 10)) || null,
     phone: phoneOf(str(form, "phone", 30)),
     photoUrl: isOwnBlobUrl(photo) ? photo : null,

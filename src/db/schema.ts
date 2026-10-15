@@ -5,6 +5,7 @@ import {
   date,
   index,
   integer,
+  jsonb,
   pgTable,
   primaryKey,
   serial,
@@ -13,6 +14,7 @@ import {
   uniqueIndex,
   boolean,
 } from "drizzle-orm/pg-core";
+import type { I18n } from "@/lib/i18n";
 
 const tsvector = customType<{ data: string }>({
   dataType() {
@@ -32,6 +34,8 @@ export const categories = pgTable(
     nameHi: text("name_hi"),
     hidden: boolean("hidden").notNull().default(false),
     sort: integer("sort").notNull().default(0),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
   },
   (t) => [index("categories_parent_idx").on(t.parentId)],
 );
@@ -54,6 +58,8 @@ export const posts = pgTable(
     search: tsvector("search").generatedAlwaysAs(
       sql`setweight(to_tsvector('simple', coalesce(title_en, '')), 'A') || setweight(to_tsvector('simple', coalesce(excerpt, '')), 'B') || setweight(to_tsvector('simple', coalesce(body_text, '')), 'C')`,
     ),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
   },
   (t) => [
     index("posts_published_idx").on(t.status, t.publishedAt.desc(), t.id.desc()),
@@ -98,6 +104,8 @@ export const pages = pgTable("pages", {
   contentHtml: text("content_html").notNull().default(""),
   contentHtmlHi: text("content_html_hi"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+  i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
 });
 
 /* --------------------------- Organisation ---------------------------- */
@@ -113,6 +121,8 @@ export const divisions = pgTable("divisions", {
   legacySlug: text("legacy_slug"),
   sort: integer("sort").notNull().default(0),
   active: boolean("active").notNull().default(true),
+  /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+  i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
 });
 
 export const branches = pgTable(
@@ -126,6 +136,8 @@ export const branches = pgTable(
     nameHi: text("name_hi"),
     members: integer("members"),
     sort: integer("sort").notNull().default(0),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
   },
   (t) => [index("branches_division_idx").on(t.divisionId)],
 );
@@ -137,6 +149,8 @@ export const designations = pgTable("designations", {
   nameEn: text("name_en").notNull(),
   nameHi: text("name_hi"),
   sort: integer("sort").notNull().default(0),
+  /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+  i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
 });
 
 /** scope: central | division_president | division_secretary | branch_secretary */
@@ -158,6 +172,8 @@ export const officeBearers = pgTable(
     featured: boolean("featured").notNull().default(false),
     sort: integer("sort").notNull().default(0),
     active: boolean("active").notNull().default(true),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
   },
   (t) => [index("office_bearers_scope_idx").on(t.scope, t.divisionId, t.sort)],
 );
@@ -169,6 +185,8 @@ export const siteSettings = pgTable("site_settings", {
   valueEn: text("value_en").notNull().default(""),
   valueHi: text("value_hi"),
   group: text("group").notNull().default("general"),
+  /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+  i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
 });
 
 export const navItems = pgTable("nav_items", {
@@ -181,6 +199,8 @@ export const navItems = pgTable("nav_items", {
   href: text("href").notNull(), // path without language prefix
   sort: integer("sort").notNull().default(0),
   active: boolean("active").notNull().default(true),
+  /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+  i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
 });
 
 export const searchChips = pgTable("search_chips", {
@@ -246,6 +266,8 @@ export const galleryPhotos = pgTable(
     sort: integer("sort").notNull().default(0),
     active: boolean("active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
   },
   (t) => [index("gallery_photos_idx").on(t.active, t.featured, t.takenOn.desc()), index("gallery_photos_album_idx").on(t.albumId)],
 );
@@ -266,6 +288,8 @@ export const galleryAlbums = pgTable(
     sort: integer("sort").notNull().default(0),
     active: boolean("active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
   },
   (t) => [index("gallery_albums_idx").on(t.active, t.heldOn.desc()), index("gallery_albums_division_idx").on(t.divisionId)],
 );
@@ -286,6 +310,8 @@ export const committeeMembers = pgTable(
     sort: integer("sort").notNull().default(0),
     active: boolean("active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
   },
   (t) => [index("committee_members_idx").on(t.wing, t.active, t.sort)],
 );
@@ -309,6 +335,8 @@ export const events = pgTable(
     minutesUrl: text("minutes_url"),
     published: boolean("published").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
   },
   (t) => [index("events_start_idx").on(t.published, t.startsAt.desc())],
 );
@@ -322,6 +350,8 @@ export const departments = pgTable("departments", {
   nameHi: text("name_hi"),
   sort: integer("sort").notNull().default(0),
   active: boolean("active").notNull().default(true),
+  /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+  i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
 });
 
 /**
@@ -376,6 +406,8 @@ export const meetingTypes = pgTable("meeting_types", {
   showPublic: boolean("show_public").notNull().default(false),
   sort: integer("sort").notNull().default(0),
   active: boolean("active").notNull().default(true),
+  /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+  i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
 });
 
 /**
@@ -423,6 +455,8 @@ export const meetings = pgTable(
     createdBy: integer("created_by").references(() => adminUsers.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
   },
   (t) => [index("meetings_start_idx").on(t.startsAt.desc()), index("meetings_status_idx").on(t.status, t.startsAt), index("meetings_public_idx").on(t.isPublic, t.typeId, t.startsAt.desc())],
 );
@@ -482,6 +516,8 @@ export const grievanceTypes = pgTable("grievance_types", {
   nameHi: text("name_hi"),
   sort: integer("sort").notNull().default(0),
   active: boolean("active").notNull().default(true),
+  /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+  i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
 });
 
 /**

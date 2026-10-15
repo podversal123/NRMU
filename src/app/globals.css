@@ -34,8 +34,11 @@
   --color-muted: var(--muted);
   --color-light: var(--light);
   --color-dim: var(--dim);
-  --font-display: var(--font-roboto), var(--font-noto-deva), "Segoe UI", Arial, sans-serif;
-  --font-sans: var(--font-roboto), var(--font-noto-deva), "Segoe UI", Arial, sans-serif;
+  /* One font per script; each covers only its own letters, so the browser picks the right one character by character. */
+  --font-scripts: var(--font-noto-deva), var(--font-noto-beng), var(--font-noto-gujr), var(--font-noto-guru), var(--font-noto-knda), var(--font-noto-mlym),
+    var(--font-noto-orya), var(--font-noto-taml), var(--font-noto-telu), var(--font-noto-olck), var(--font-noto-mtei), var(--font-noto-arab);
+  --font-display: var(--font-roboto), var(--font-scripts), "Segoe UI", Arial, sans-serif;
+  --font-sans: var(--font-roboto), var(--font-scripts), "Segoe UI", Arial, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;
   /* Page width in rem (73.75rem = the old 1180px) so it grows together with the text on large screens. */
   --container-wrap: 73.75rem;
@@ -62,6 +65,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 h1, h2, h3, h4, .font-display { font-family: var(--font-display); font-weight: 500; letter-spacing: 0; line-height: 1.25; }
+/* Urdu, Sindhi and Kashmiri: Roboto is named without its stand-in font (Arial), because Arial also has Arabic letters and would
+   draw them before the Arabic-script font. Roboto has no Arabic letters, so those fall through to Noto Naskh Arabic. */
+html:lang(ur), html:lang(sd), html:lang(ks) {
+  --font-sans: "Roboto", "Noto Naskh Arabic", var(--font-scripts), "Segoe UI", Arial, sans-serif;
+  --font-display: var(--font-sans);
+}
 
 @layer components {
 /* Buttons */
@@ -622,5 +631,25 @@ html[data-contrast="high"] {
   --oxblood-deep: #560000;
 }
 html[data-contrast="high"] a { text-decoration: underline; text-underline-offset: 3px; }
+/* header menus without a page of their own yet (Wings, Media, Others) are buttons, but they read as links too */
+html[data-contrast="high"] button[data-sub] { text-decoration: underline; text-underline-offset: 3px; }
 html[data-contrast="high"] :focus-visible { outline: 3px solid #ffd400; outline-offset: 2px; }
 html[data-contrast="high"] img { filter: contrast(1.1); }
+
+/* Grievance form: on opening, its two halves slide in from opposite sides like drawers and the bar below rises.
+   It plays once and is short, so it is kept on for visitors who prefer less motion too. */
+@keyframes drawer-l { from { opacity: 0; transform: translateX(-64px); } to { opacity: 1; transform: none; } }
+@keyframes drawer-r { from { opacity: 0; transform: translateX(64px); } to { opacity: 1; transform: none; } }
+@keyframes drawer-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.drawer-l { animation: drawer-l 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.drawer-r { animation: drawer-r 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) 0.08s both; }
+.drawer-up { animation: drawer-up 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s both; }
+/* the ticket button on the grievance form: the arrow runs through the stub on hover, and keeps running once the
+   form has everything it needs */
+.ticket-btn:hover .ticket-stub svg { animation: ticket-arrow 0.7s cubic-bezier(0.5, 0, 0.3, 1); }
+.ticket-btn.is-ready .ticket-stub svg { animation: ticket-arrow 1.6s cubic-bezier(0.5, 0, 0.3, 1) infinite; }
+
+/* Tailwind 4 leaves buttons with the arrow cursor; give every clickable button the hand, as links have */
+@layer base {
+  button:not(:disabled), [role="button"]:not([aria-disabled="true"]), [role="option"], summary { cursor: pointer; }
+}

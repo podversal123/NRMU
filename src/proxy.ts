@@ -1,9 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-
-const locales = ["en", "hi"];
+import { locales } from "@/lib/i18n";
 
 /**
- * - Paths already under /en or /hi pass through.
+ * - Paths already under a language (/en, /hi, /ta ...) pass through.
  * - "/" goes to the visitor's language.
  * - Any other path (old WordPress addresses such as /2016/06/26/post-name/, /category/..., /delhi-division/,
  *   or an address typed without a language) is sent to the legacy resolver, which redirects to the new address.
@@ -13,7 +12,7 @@ export function proxy(request: NextRequest) {
   if (locales.some((l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`))) return;
 
   const saved = request.cookies.get("nrmu-lang")?.value;
-  const lang = saved && locales.includes(saved) ? saved : "en";
+  const lang = saved && (locales as readonly string[]).includes(saved) ? saved : "en";
 
   if (pathname === "/") {
     request.nextUrl.pathname = `/${lang}`;

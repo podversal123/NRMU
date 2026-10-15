@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { TEXT_SIZES } from "@/lib/text-size";
+import { intlLocale, type Lang } from "@/lib/i18n";
+import LanguageMenu from "./LanguageMenu";
 
 type Child = { href: string; label: string; children?: Child[] };
 export type MenuNode = { id: number; href: string; label: string; children: Child[] };
@@ -42,7 +44,7 @@ export default function Header({
   join,
   labels,
 }: {
-  lang: "en" | "hi";
+  lang: Lang;
   orgName: string;
   orgAltName: string;
   orgShort: string;
@@ -156,8 +158,6 @@ export default function Header({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openSub?.id, open]);
 
-  const other = lang === "en" ? "hi" : "en";
-  const swapped = pathname.replace(/^\/(en|hi)(?=\/|$)/, `/${other}`);
   const full = (href: string) => `/${lang}${href}`;
   const isActive = (href: string) => {
     if (href === "#") return false;
@@ -165,7 +165,7 @@ export default function Header({
     return p === "" ? pathname === `/${lang}` : pathname.startsWith(full(p));
   };
   const sizeBtn = "grid h-[44px] min-w-[44px] place-items-center px-1 text-xs font-semibold text-light/85 hover:text-signal lg:h-6 lg:min-w-6";
-  const locale = lang === "hi" ? "hi-IN" : "en-IN";
+  const locale = intlLocale(lang);
   const dateText = now ? new Intl.DateTimeFormat(locale, { dateStyle: "full", timeZone: "Asia/Kolkata" }).format(now) : "";
   const timeText = now ? new Intl.DateTimeFormat(locale, { timeStyle: "medium", timeZone: "Asia/Kolkata" }).format(now) : "";
 
@@ -197,7 +197,7 @@ export default function Header({
               </span>
             )}
           </div>
-          <div className="ml-auto flex items-center gap-0.5 lg:gap-1.5">
+          <div className="ms-auto flex items-center gap-0.5 lg:gap-1.5">
             <span className="hidden text-light/70 sm:inline">{labels.textSize}</span>
             <button className={`${sizeBtn} disabled:opacity-35`} aria-label={labels.textSmaller} disabled={size === 0} onClick={() => choose(size - 1)}>
               A−
@@ -215,16 +215,7 @@ export default function Header({
               </svg>
             </button>
             <span className="mx-0.5 h-3.5 w-px bg-white/25 sm:mx-1.5" />
-            <a
-              href={swapped}
-              hrefLang={other}
-              onClick={() => {
-                document.cookie = `nrmu-lang=${other}; path=/; max-age=31536000`;
-              }}
-              className="grid h-[44px] place-items-center px-2 font-semibold text-light hover:text-signal sm:px-3 lg:h-auto lg:px-2 lg:py-0.5"
-            >
-              {labels.langSwitch}
-            </a>
+            <LanguageMenu lang={lang} />
           </div>
         </div>
       </div>
@@ -293,21 +284,21 @@ export default function Header({
                     </button>
                   ) : (
                     <div className="flex items-stretch">
-                      <Link href={full(m.href)} aria-current={isActive(m.href) ? "page" : undefined} className={`${tab} pl-4 pr-1`}>
+                      <Link href={full(m.href)} aria-current={isActive(m.href) ? "page" : undefined} className={`${tab} ps-4 pe-1`}>
                         {m.label}
                       </Link>
-                      <button type="button" data-sub={m.id} aria-label={m.label} aria-expanded={isOpen} onClick={toggle} className={`${tab} pl-1 pr-3`}>
+                      <button type="button" data-sub={m.id} aria-label={m.label} aria-expanded={isOpen} onClick={toggle} className={`${tab} ps-1 pe-3`}>
                         <Caret open={isOpen} />
                       </button>
                     </div>
                   )}
                   {kids && isOpen && (
-                    <ul className={`absolute ${mi >= menu.length - 2 ? "right-0" : "left-0"} top-full z-50 min-w-[16rem] border border-line border-t-2 border-t-signal bg-white py-2 text-ink shadow-[0_12px_28px_rgba(0,0,0,0.18)]`}>
+                    <ul className={`absolute ${mi >= menu.length - 2 ? "end-0" : "start-0"} top-full z-50 min-w-[16rem] border border-line border-t-2 border-t-signal bg-white text-ink shadow-[0_12px_28px_rgba(0,0,0,0.18)]`}>
                       {m.children.map((c) =>
                         c.children?.length ? (
                           <li key={c.href} className="group/fly relative" onPointerLeave={() => setFlyout(null)}>
-                            <div className="flex items-stretch hover:bg-paper">
-                              <Link href={full(c.href)} onClick={closeSub} className="block flex-1 whitespace-nowrap py-2.5 pl-5 pr-2 text-[0.95rem] hover:text-brand">
+                            <div className="group/row flex items-stretch hover:bg-brand hover:text-white">
+                              <Link href={full(c.href)} onClick={closeSub} className="block flex-1 whitespace-nowrap py-2.5 ps-5 pe-2 text-[0.95rem]">
                                 {c.label}
                               </Link>
                               <button
@@ -315,17 +306,17 @@ export default function Header({
                                 aria-label={c.label}
                                 aria-expanded={flyout === c.href}
                                 onClick={() => setFlyout(flyout === c.href ? null : c.href)}
-                                className="grid w-10 shrink-0 place-items-center text-muted hover:text-brand"
+                                className="grid w-10 shrink-0 place-items-center text-muted group-hover/row:text-white"
                               >
                                 <Caret side />
                               </button>
                             </div>
                             <ul
-                              className={`absolute top-0 ${mi >= menu.length - 2 ? "right-full" : "left-full"} z-50 -mt-2 min-w-[16rem] border border-line border-t-2 border-t-signal bg-white py-2 shadow-[0_12px_28px_rgba(0,0,0,0.18)] ${flyout === c.href ? "block" : "hidden group-hover/fly:block group-focus-within/fly:block"}`}
+                              className={`absolute top-0 ${mi >= menu.length - 2 ? "end-full" : "start-full"} z-50 -mt-0.5 min-w-[16rem] border border-line border-t-2 border-t-signal bg-white shadow-[0_12px_28px_rgba(0,0,0,0.18)] ${flyout === c.href ? "block" : "hidden group-hover/fly:block group-focus-within/fly:block"}`}
                             >
                               {c.children.map((g) => (
                                 <li key={g.href}>
-                                  <Link href={full(g.href)} onClick={closeSub} className="block whitespace-nowrap px-5 py-2.5 text-[0.95rem] hover:bg-paper hover:text-brand">
+                                  <Link href={full(g.href)} onClick={closeSub} className="block whitespace-nowrap px-5 py-2.5 text-[0.95rem] hover:bg-brand hover:text-white">
                                     {g.label}
                                   </Link>
                                 </li>
@@ -334,7 +325,7 @@ export default function Header({
                           </li>
                         ) : (
                           <li key={c.href}>
-                            <Link href={full(c.href)} onClick={closeSub} className="block px-5 py-2.5 text-[0.95rem] hover:bg-paper hover:text-brand">
+                            <Link href={full(c.href)} onClick={closeSub} className="block px-5 py-2.5 text-[0.95rem] hover:bg-brand hover:text-white">
                               {c.label}
                             </Link>
                           </li>
@@ -381,13 +372,13 @@ export default function Header({
                         type="button"
                         aria-expanded={openMobileSub === m.id}
                         onClick={() => setMobileSub(openMobileSub === m.id ? null : { id: m.id, path: pathname })}
-                        className="flex w-full items-center justify-between py-3.5 text-left text-[1.05rem]"
+                        className="flex w-full items-center justify-between py-3.5 text-start text-[1.05rem]"
                       >
                         {m.label}
                         <Caret open={openMobileSub === m.id} />
                       </button>
                       {openMobileSub === m.id && (
-                        <ul className="pb-3 pl-4">
+                        <ul className="pb-3 ps-4">
                           {m.href !== "#" && (
                             <li>
                               <Link href={full(m.href)} onClick={() => setOpen(false)} className="block py-2 text-light/80">
@@ -401,7 +392,7 @@ export default function Header({
                                 {c.label}
                               </Link>
                               {!!c.children?.length && (
-                                <ul className="pl-4">
+                                <ul className="ps-4">
                                   {c.children.map((g) => (
                                     <li key={g.href}>
                                       <Link href={full(g.href)} onClick={() => setOpen(false)} className="block py-2 text-light/70">
@@ -435,7 +426,7 @@ export default function Header({
 /** `side` points the caret at a flyout that opens to the side. */
 function Caret({ open = false, side = false }: { open?: boolean; side?: boolean }) {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden className={`transition-transform ${open ? "rotate-180" : side ? "-rotate-90" : ""}`}>
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden className={`transition-transform ${open ? "rotate-180" : side ? "-rotate-90 rtl:rotate-90" : ""}`}>
       <path d="m2 3.5 3 3 3-3" />
     </svg>
   );

@@ -36,7 +36,8 @@ export default function Icon({ name, size = 22, className = "" }: { name: string
       strokeWidth="1.9"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={className}
+      // the arrow points the way the text reads, so it turns round for right-to-left languages
+      className={name === "arrow" ? `rtl:-scale-x-100 ${className}` : className}
       aria-hidden="true"
     >
       {paths[name]}

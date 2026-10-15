@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { isLang } from "@/lib/i18n";
+import { tr } from "@/lib/queries";
 import { limited } from "@/lib/rate-limit";
 
 const TOKEN = /^[0-9a-f]{64}$/;
@@ -43,9 +44,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ lang
   const { m } = row;
 
   const link = `${new URL(request.url).origin}/${lang}/meet/${token}`;
-  const title = (lang === "hi" && m.titleHi) || m.titleEn;
-  const agenda = (lang === "hi" && m.agendaHi) || m.agendaEn || "";
-  const venue = m.mode === "online" ? "Online (video call)" : (lang === "hi" && m.venueHi) || m.venueEn || "";
+  const title = tr(lang, m, "title");
+  const agenda = tr(lang, m, "agenda");
+  const venue = m.mode === "online" ? "Online (video call)" : tr(lang, m, "venue");
   const description = [agenda && `${agenda}`, `${link}`].filter(Boolean).join("\n\n");
 
   const lines = [

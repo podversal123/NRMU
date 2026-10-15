@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import Icon from "@/components/Icon";
 import PageHero from "@/components/PageHero";
 import OrdersFilters, { type CatOption } from "./OrdersFilters";
-import { isLang, type Lang } from "@/lib/i18n";
+import { intlLocale, isLang, type Lang } from "@/lib/i18n";
 import { getCategoryTree, getYears, listPostsCached, PAGE_SIZE, queryPosts } from "@/lib/content";
 import { getSettings, pick, setting, getUi } from "@/lib/queries";
 import { navTitle } from "@/lib/nav";
@@ -62,13 +62,13 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
   const totalPages = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
   const filtered = Boolean(q || cat || year);
 
-  const num = (n: number) => n.toLocaleString(lang === "hi" ? "hi-IN" : "en-IN");
+  const num = (n: number) => n.toLocaleString(intlLocale(lang));
   // dropdown options: each main category followed by its sub-categories
   const catOptions: CatOption[] = roots.flatMap((r) => [
-    { slug: r.slug, label: pick(lang, r.nameEn, r.nameHi) },
+    { slug: r.slug, label: pick(lang, r.nameEn, r.nameHi, r.i18n?.name) },
     ...tree
       .filter((c) => c.parentId === r.id && c.total > 0)
-      .map((c) => ({ slug: c.slug, label: pick(lang, c.nameEn, c.nameHi), parent: r.slug })),
+      .map((c) => ({ slug: c.slug, label: pick(lang, c.nameEn, c.nameHi, c.i18n?.name), parent: r.slug })),
   ]);
 
   return (
@@ -89,7 +89,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
               href={href({ cat: undefined, page: undefined })}
               className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand/[0.06] py-1 pl-3 pr-2 text-brand hover:border-brand"
             >
-              {pick(lang, activeCat.nameEn, activeCat.nameHi)}
+              {pick(lang, activeCat.nameEn, activeCat.nameHi, activeCat.i18n?.name)}
               <span aria-label={ui.clear} className="text-base leading-none">×</span>
             </Link>
           )}
@@ -118,7 +118,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
           <ul className="orders-list mt-4 divide-y divide-line overflow-hidden rounded-lg border border-line bg-white">
             {data.rows.map((p) => {
               const d = new Date(p.publishedAt + "T00:00:00");
-              const loc = lang === "hi" ? "hi-IN" : "en-IN";
+              const loc = intlLocale(lang);
               return (
                 <li key={p.id}>
                   <Link href={`/${lang}/orders/${p.id}`} className="group flex items-start gap-4 px-4 py-4 transition-colors hover:bg-paper/60 sm:items-center sm:gap-5 sm:px-5">
@@ -130,7 +130,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
                       <span className="block pb-1.5 pt-0.5 text-[0.68rem] text-muted">{d.getFullYear()}</span>
                     </time>
                     <div className="min-w-0 flex-1">
-                      <h3 className="line-clamp-2 text-[1.02rem] font-medium leading-snug text-ink group-hover:text-brand">{pick(lang, p.titleEn, p.titleHi)}</h3>
+                      <h3 className="line-clamp-2 text-[1.02rem] font-medium leading-snug text-ink group-hover:text-brand">{pick(lang, p.titleEn, p.titleHi, p.i18n?.title)}</h3>
                       {p.files > 0 && (
                         <p className="mt-1.5 inline-flex items-center gap-1 text-[0.8rem] text-muted">
                           <Icon name="pdf" size={13} /> {ui.pdf}

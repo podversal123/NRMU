@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params;
   if (!isLang(lang)) return {};
   const d = await getDivisionDetail(slug);
-  return d ? { title: pick(lang, d.division.nameEn, d.division.nameHi) } : {};
+  return d ? { title: pick(lang, d.division.nameEn, d.division.nameHi, d.division.i18n?.name) } : {};
 }
 
 export default function DivisionPage({ params }: Props) {
@@ -37,7 +37,7 @@ async function DivisionPageContent({ params }: Props) {
   const [data, divTitle] = await Promise.all([getDivisionDetail(slug), navTitle(lang, "/divisions")]);
   if (!data) notFound();
   const ui = await getUi(lang);
-  const name = pick(lang, data.division.nameEn, data.division.nameHi);
+  const name = pick(lang, data.division.nameEn, data.division.nameHi, data.division.i18n?.name);
   const leaders = data.people.filter((p) => p.scope !== "branch_secretary");
   const secretaries = data.people.filter((p) => p.scope === "branch_secretary");
 
@@ -46,7 +46,7 @@ async function DivisionPageContent({ params }: Props) {
       <PageHero
         lang={lang}
         title={name}
-        sub={pick(lang, data.division.descriptionEn, data.division.descriptionHi) || undefined}
+        sub={pick(lang, data.division.descriptionEn, data.division.descriptionHi, data.division.i18n?.description) || undefined}
         crumbs={[{ href: `/${lang}`, label: ui.home }, { href: `/${lang}/divisions`, label: divTitle }, { label: name }]}
       />
       <div className="mx-auto max-w-wrap space-y-14 px-5 py-14 sm:px-8">
@@ -67,7 +67,7 @@ async function DivisionPageContent({ params }: Props) {
             <ul className="mt-6 flex flex-wrap gap-2">
               {data.branches.map((b) => (
                 <li key={b.id} className="rounded-full border border-line bg-white px-4 py-2 text-[0.95rem] font-semibold">
-                  {pick(lang, b.nameEn, b.nameHi)}
+                  {pick(lang, b.nameEn, b.nameHi, b.i18n?.name)}
                 </li>
               ))}
             </ul>

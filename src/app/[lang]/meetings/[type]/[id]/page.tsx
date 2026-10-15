@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props) {
   const { lang, id } = await params;
   if (!isLang(lang) || !/^\d+$/.test(id)) return {};
   const m = await getPublicMeeting(Number(id));
-  return m ? { title: pick(lang, m.titleEn, m.titleHi) } : {};
+  return m ? { title: pick(lang, m.titleEn, m.titleHi, m.i18n?.title) } : {};
 }
 
 export default function MeetingPage({ params }: Props) {
@@ -36,15 +36,15 @@ async function Content({ params }: Props) {
   const [ui, s, parent, kinds] = await Promise.all([getUi(lang), getSettings(), navTitle(lang, "/meetings"), getPublicMeetingTypes()]);
   const t = (k: string) => setting(s, k, lang);
   const kind = kinds.find((x) => x.id === m.typeId);
-  const kindName = kind ? pick(lang, kind.nameEn, kind.nameHi) : parent;
-  const title = pick(lang, m.titleEn, m.titleHi);
-  const venue = pick(lang, m.venueEn, m.venueHi);
-  const agenda = pick(lang, m.agendaEn, m.agendaHi);
-  const resolutions = pick(lang, m.resolutionsEn, m.resolutionsHi);
+  const kindName = kind ? pick(lang, kind.nameEn, kind.nameHi, kind.i18n?.name) : parent;
+  const title = pick(lang, m.titleEn, m.titleHi, m.i18n?.title);
+  const venue = pick(lang, m.venueEn, m.venueHi, m.i18n?.venue);
+  const agenda = pick(lang, m.agendaEn, m.agendaHi, m.i18n?.agenda);
+  const resolutions = pick(lang, m.resolutionsEn, m.resolutionsHi, m.i18n?.resolutions);
   const facts: [string, string][] = [
     [t("meetings.when"), whenIst(m.startsAt, lang)],
     ...(venue ? ([[t("meetings.place"), venue]] as [string, string][]) : []),
-    [t("meetings.for"), pick(lang, m.divisionEn, m.divisionHi) || t("meetings.whole_union")],
+    [t("meetings.for"), pick(lang, m.divisionEn, m.divisionHi, m.divisionI18n?.name) || t("meetings.whole_union")],
   ];
   return (
     <>

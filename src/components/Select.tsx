@@ -39,6 +39,7 @@ export default function Select({
   submitOnChange?: boolean;
   /** false for a required choice: the placeholder is only a prompt, not an option in the list */
   clearable?: boolean;
+  /** also disabled on its own while there are no options, e.g. branches before a division is picked */
   disabled?: boolean;
   className?: string;
 }) {
@@ -50,7 +51,8 @@ export default function Select({
   const [inner, setInner] = useState(defaultValue);
   const current = value ?? inner;
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(0);
+  // the highlighted row; -1 means none, so opening the list does not paint the first option as if it were picked
+  const [active, setActive] = useState(-1);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const wrap = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLUListElement>(null);
@@ -73,7 +75,7 @@ export default function Select({
     if (selected?.parent) start.add(selected.parent);
     setExpanded(start);
     const shown = all.filter((o) => !o.parent || start.has(o.parent));
-    setActive(Math.max(0, shown.findIndex((o) => o.value === current)));
+    setActive(shown.findIndex((o) => o.value === current && o.value !== ""));
     setOpen(true);
   };
 
@@ -107,9 +109,17 @@ export default function Select({
     return () => document.removeEventListener("pointerdown", off);
   }, [open]);
 
+  // the list always opens below the field; if it would run past the bottom of the window, scroll the page just
+  // enough to show all of it (opening upwards would slide it under the sticky header)
+  useEffect(() => {
+    if (!open || !list.current) return;
+    const over = list.current.getBoundingClientRect().bottom - window.innerHeight + 16;
+    if (over > 0) window.scrollBy({ top: over });
+  }, [open]);
+
   // keep the highlighted option in view
   useEffect(() => {
-    if (open) list.current?.children[active]?.scrollIntoView({ block: "nearest" });
+    if (open && active >= 0) list.current?.children[active]?.scrollIntoView({ block: "nearest" });
   }, [open, active]);
 
   const onKey = (e: React.KeyboardEvent) => {
@@ -161,11 +171,11 @@ export default function Select({
         aria-expanded={open}
         aria-controls={listId}
         aria-label={label}
-        aria-activedescendant={open ? `${listId}-${active}` : undefined}
-        disabled={disabled}
+        aria-activedescendant={open && active >= 0 ? `${listId}-${active}` : undefined}
+        disabled={disabled || all.length === 0}
         onClick={() => (open ? setOpen(false) : openList())}
         onKeyDown={onKey}
-        className={`flex w-full items-center justify-between gap-3 text-left disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+        className={`flex w-full items-center justify-between gap-3 text-start disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
       >
         <span className={`truncate ${selected && selected.value !== "" ? "text-ink" : "text-muted"}`}>{selected?.label ?? placeholder ?? ""}</span>
         <svg aria-hidden viewBox="0 0 20 20" className={`size-4 shrink-0 text-muted transition-transform ${open ? "rotate-180 text-brand" : ""}`}>
@@ -179,7 +189,10 @@ export default function Select({
           id={listId}
           role="listbox"
           aria-labelledby={buttonId}
-          className="absolute right-0 top-full z-30 mt-1.5 max-h-80 w-max min-w-full max-w-[min(26rem,90vw)] overflow-y-auto rounded-lg border border-line bg-white py-1.5 shadow-[0_18px_40px_-16px_rgba(21,22,26,0.35)] [scrollbar-color:var(--line)_transparent] [scrollbar-width:thin]"
+          onPointerLeave={(e) => {
+            if (e.pointerType === "mouse") setActive(-1);
+          }}
+          className={`absolute right-0 top-full z-30 mt-1.5 max-h-80 w-max min-w-full max-w-[min(26rem,90vw)] overflow-y-auto overscroll-contain rounded-lg border border-line bg-white shadow-[0_18px_40px_-16px_rgba(21,22,26,0.35)] [scrollbar-color:var(--line)_transparent] [scrollbar-width:thin]`}
         >
           {visible.map((o, i) => {
             const on = o.value === current;
@@ -194,8 +207,8 @@ export default function Select({
                 onPointerEnter={() => setActive(i)}
                 onClick={() => choose(o.value)}
                 className={`relative flex cursor-pointer items-center gap-2 py-2 pr-3 text-[0.95rem] ${o.parent ? "pl-11" : "pl-2"} ${
-                  i === active ? "bg-paper" : ""
-                } ${on ? "font-semibold text-brand" : o.parent ? "text-ink/85" : "text-ink"}`}
+                  i === active ? "bg-brand text-white" : on ? "text-brand" : o.parent ? "text-ink/85" : "text-ink"
+                } ${on ? "font-semibold" : ""}`}
               >
                 {o.parent && (
                   // tree lines: a stem down from the parent (stopping half way at the last child) and a short branch to this row
@@ -212,26 +225,26 @@ export default function Select({
                       e.stopPropagation();
                       toggle(o.value);
                     }}
-                    className={`grid size-6 shrink-0 place-items-center rounded ${isParent ? "text-muted hover:bg-line/60 hover:text-brand" : ""}`}
+                    className={`grid size-6 shrink-0 place-items-center rounded ${isParent ? (i === active ? "text-white hover:bg-white/20" : "text-muted hover:bg-line/60 hover:text-brand") : ""}`}
                   >
                     {isParent && (
-                      <svg viewBox="0 0 20 20" className={`size-3.5 transition-transform ${isOpen ? "rotate-90 text-brand" : ""}`}>
+                      <svg viewBox="0 0 20 20" className={`size-3.5 transition-transform ${isOpen ? `rotate-90 ${i === active ? "" : "text-brand"}` : ""}`}>
                         <path d="M7.5 5l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     )}
                   </span>
                 )}
                 {!tree && (
-                  <span aria-hidden className={`w-4 shrink-0 pl-1 text-brand ${on ? "" : "invisible"}`}>
+                  <span aria-hidden className={`w-4 shrink-0 pl-1 ${i === active ? "" : "text-brand"} ${on ? "" : "invisible"}`}>
                     ✓
                   </span>
                 )}
                 <span className="min-w-0 flex-1 truncate">{o.label}</span>
                 {o.hint && (
-                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[0.7rem] font-normal tabular-nums ${on ? "bg-brand text-white" : "bg-paper text-muted"}`}>{o.hint}</span>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[0.7rem] font-normal tabular-nums ${i === active ? "bg-white/20 text-white" : on ? "bg-brand text-white" : "bg-paper text-muted"}`}>{o.hint}</span>
                 )}
                 {tree && on && (
-                  <span aria-hidden className="shrink-0 text-brand">
+                  <span aria-hidden className={`shrink-0 ${i === active ? "" : "text-brand"}`}>
                     ✓
                   </span>
                 )}

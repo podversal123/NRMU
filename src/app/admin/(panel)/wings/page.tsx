@@ -3,6 +3,7 @@ import { asc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import UploadField from "../../UploadField";
+import OtherLanguages from "../../OtherLanguages";
 import { DeleteButton, SubmitButton } from "../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls } from "../../ui";
 import { addMember, deleteMember, saveMember } from "./actions";
@@ -33,6 +34,7 @@ export default async function WingsAdmin({ searchParams }: { searchParams: Promi
       <Field label="Name (Hindi)"><input name="nameHi" defaultValue={r?.nameHi ?? ""} className={inputCls} /></Field>
       <Field label="Post (English)" hint="For example President, Secretary, Member."><input name="designationEn" defaultValue={r?.designationEn ?? ""} className={inputCls} /></Field>
       <Field label="Post (Hindi)"><input name="designationHi" defaultValue={r?.designationHi ?? ""} className={inputCls} /></Field>
+      <OtherLanguages className="lg:col-span-2" fields={[{ name: "name", label: "Name" }, { name: "designation", label: "Post" }]} value={r?.i18n} />
       <Field label="Division" hint="Leave on Central for a member of the central committee.">
         <select name="divisionId" defaultValue={r?.divisionId ?? ""} className={inputCls}>
           <option value="">Central</option>

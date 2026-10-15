@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import type { I18n } from "@/lib/i18n";
+import { readI18n } from "@/lib/i18n-form";
 import { deleteBlobs, isOwnBlobUrl } from "@/lib/blob";
 import { createRoom, deleteRoom, DailyError, listRecordings, updateRoom, videoConfigured } from "@/lib/daily";
 import { fromIst, MODES, reminderOffsets, RSVPS, videoEnabled } from "@/lib/meetings";
@@ -98,18 +100,21 @@ export async function saveMeeting(form: FormData) {
     noticeUrl: isOwnBlobUrl(str(form, "notice", 600)) ? str(form, "notice", 600) : null,
     updatedAt: new Date(),
   };
+  const i18n = readI18n(form, { title: 300, venue: 300, agenda: 5000 });
+  if (mode === "online") i18n.venue = {};
 
   const db = getDb();
   let id = Number(idRaw);
   if (id) {
     const [before] = await db.select({ startsAt: schema.meetings.startsAt, noticeUrl: schema.meetings.noticeUrl }).from(schema.meetings).where(eq(schema.meetings.id, id)).limit(1);
     if (!before) redirect("/admin/meetings");
-    await db.update(schema.meetings).set(values).where(eq(schema.meetings.id, id));
+    // The record form saves the resolutions into the same column, so only these fields are replaced.
+    await db.update(schema.meetings).set({ ...values, i18n: mergeI18n(i18n) }).where(eq(schema.meetings.id, id));
     if (before.noticeUrl && before.noticeUrl !== values.noticeUrl) await deleteBlobs([before.noticeUrl]);
     // A new time means every reminder is due again.
     if (before.startsAt.getTime() !== startsAt!.getTime()) await planReminders(id);
   } else {
-    const [row] = await db.insert(schema.meetings).values({ ...values, createdBy: admin.id }).returning({ id: schema.meetings.id });
+    const [row] = await db.insert(schema.meetings).values({ ...values, i18n, createdBy: admin.id }).returning({ id: schema.meetings.id });
     id = row.id;
     await planReminders(id);
   }
@@ -187,6 +192,7 @@ export async function saveRecord(form: FormData) {
       minutesText: str(form, "minutesText", 20000) || null,
       resolutionsEn: str(form, "resolutionsEn", 10000) || null,
       resolutionsHi: str(form, "resolutionsHi", 10000) || null,
+      i18n: mergeI18n(readI18n(form, { resolutions: 10000 })),
       recordingUrl: str(form, "recordingUrl", 600) || null,
       notes: str(form, "notes", 5000) || null,
       status,
@@ -198,6 +204,9 @@ export async function saveRecord(form: FormData) {
   const video = status === "completed" ? "ok" : await syncRoom(id);
   redirect(`/admin/meetings/${id}?saved=1${video === "failed" ? "&video=failed" : ""}#record`);
 }
+
+/** Replaces the given fields of a meeting's `i18n` and keeps the others. */
+const mergeI18n = (part: I18n) => sql`${schema.meetings.i18n} || ${JSON.stringify(part)}::jsonb`;
 
 const cleanMobile = (v: string) => {
   const d = v.replace(/[^\d+]/g, "");

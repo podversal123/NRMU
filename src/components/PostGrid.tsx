@@ -22,7 +22,7 @@ export default function PostGrid({ rows, lang, photos = false }: { rows: CardRow
             <div className="flex flex-1 flex-col p-5">
               <p className="font-mono text-xs font-bold text-muted">{formatDate(p.publishedAt, lang)}</p>
               <h3 className="mt-2 line-clamp-3 font-sans text-[1.05rem] font-medium leading-snug group-hover:text-brand">
-                {pick(lang, p.titleEn, p.titleHi)}
+                {pick(lang, p.titleEn, p.titleHi, p.i18n?.title)}
               </h3>
             </div>
           </Link>

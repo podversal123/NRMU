@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { Lang } from "@/lib/i18n";
+import type { I18n, Lang } from "@/lib/i18n";
 import { pick } from "@/lib/queries";
 
 export type Person = {
@@ -7,6 +7,8 @@ export type Person = {
   nameHi: string | null;
   designationEn: string | null;
   designationHi: string | null;
+  i18n?: I18n | null;
+  designationI18n?: I18n | null;
   placeLabel?: string | null;
   addressEn: string | null;
   phone: string | null;
@@ -34,9 +36,9 @@ export default function PersonCard({ p, lang, callLabel }: { p: Person; lang: La
         </div>
       )}
       <div className="min-w-0 break-words">
-        <h3 className="text-[1.05rem] font-semibold leading-snug">{pick(lang, p.nameEn, p.nameHi)}</h3>
+        <h3 className="text-[1.05rem] font-semibold leading-snug">{pick(lang, p.nameEn, p.nameHi, p.i18n?.name)}</h3>
         <p className="text-sm font-semibold text-brand">
-          {pick(lang, p.designationEn, p.designationHi)}
+          {pick(lang, p.designationEn, p.designationHi, p.designationI18n?.name)}
           {p.placeLabel ? ` · ${p.placeLabel}` : ""}
         </p>
         {p.addressEn && <p className="mt-2 text-sm leading-relaxed text-muted">{p.addressEn}</p>}
