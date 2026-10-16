@@ -60,7 +60,6 @@ async function DivisionPageContent({ params }: Props) {
 
         {data.branches.length > 0 && (
           <section>
-            <div className="track-red mb-5 w-24" />
             <h2 className="font-display text-2xl font-semibold sm:text-2xl">
               {ui.branches} <span className="text-muted">({data.branches.length})</span>
             </h2>
@@ -76,7 +75,6 @@ async function DivisionPageContent({ params }: Props) {
 
         {secretaries.length > 0 && (
           <section>
-            <div className="track-red mb-5 w-24" />
             <h2 className="font-display text-2xl font-semibold sm:text-2xl">{ui.branchSecretaries}</h2>
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {secretaries.map((p) => (

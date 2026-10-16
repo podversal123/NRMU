@@ -1,4 +1,5 @@
 import PersonCard from "@/components/PersonCard";
+import { WingEmpty, WingHeading } from "@/components/WingParts";
 import type { CommitteePerson } from "@/lib/content";
 import type { Lang } from "@/lib/i18n";
 import { pick } from "@/lib/queries";
@@ -29,10 +30,9 @@ export default function CommitteeSection({
   // id: the menu links to this section (/women#committee, /youth#committee); the margin keeps it clear of the sticky header
   return (
     <section id="committee" className="scroll-mt-28">
-      <div className="track-red mb-5 w-24" />
-      <h2 className="text-2xl font-medium">{title}</h2>
+      <WingHeading title={title} count={people.length || undefined} />
       {groups.length ? (
-        <div className="mt-6 space-y-10">
+        <div className="space-y-10">
           {groups.map((g) => (
             <div key={g.key}>
               {groups.length > 1 && <h3 className="mb-4 text-lg font-semibold text-muted">{g.label}</h3>}
@@ -45,7 +45,7 @@ export default function CommitteeSection({
           ))}
         </div>
       ) : (
-        <p className="mt-4 text-muted">{pending}</p>
+        <WingEmpty text={pending} />
       )}
     </section>
   );

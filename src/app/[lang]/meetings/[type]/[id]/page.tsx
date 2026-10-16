@@ -72,21 +72,18 @@ async function Content({ params }: Props) {
 
         {agenda && (
           <section className="mt-10">
-            <div className="track-red mb-4 w-24" />
             <h2 className="text-2xl font-medium">{ui.agenda}</h2>
             <p className="mt-4 whitespace-pre-line break-words">{agenda}</p>
           </section>
         )}
         {resolutions && (
           <section className="mt-10">
-            <div className="track-red mb-4 w-24" />
             <h2 className="text-2xl font-medium">{t("meetings.resolutions")}</h2>
             <p className="mt-4 whitespace-pre-line break-words">{resolutions}</p>
           </section>
         )}
         {m.minutesText && (
           <section className="mt-10">
-            <div className="track-red mb-4 w-24" />
             <h2 className="text-2xl font-medium">{ui.minutes}</h2>
             <p className="mt-4 whitespace-pre-line break-words">{m.minutesText}</p>
           </section>

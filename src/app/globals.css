@@ -114,7 +114,6 @@ html:lang(ur), html:lang(sd), html:lang(ks) {
 }
 .track::before { top: 7px; }
 .track::after { top: 14px; }
-.track-red { height: 2px; background: var(--oxblood); }
 
 @keyframes marquee {
   from { transform: translateX(0); }

@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import Icon from "@/components/Icon";
+import MobileInput, { mobileDigits } from "@/components/MobileInput";
 import Select from "@/components/Select";
 import { useActionState, useState } from "react";
 import { submitGrievance, type SubmitState } from "./actions";
 import type { Dict } from "@/lib/i18n";
 
-const input = "mt-1.5 w-full rounded-md border border-line bg-white px-4 py-3 text-base field-bare transition-colors focus:border-brand focus:outline-none";
+const field = "w-full rounded-md border border-line bg-white px-4 py-3 text-base field-bare transition-colors focus:border-brand focus:outline-none";
+const input = `mt-1.5 ${field}`;
 // no overflow-hidden, and a layer above the bar below: the dropdowns inside must open past the card's edge and over the bar
 const card = "relative z-10 focus-within:z-20 flex flex-col rounded-md border border-line bg-white shadow-[0_1px_2px_rgba(21,22,26,0.04),0_8px_24px_-12px_rgba(21,22,26,0.12)]";
 const DETAILS_MAX = 4000;
@@ -90,12 +92,12 @@ function FormBody({
 }) {
   const v = state.values ?? {};
   // the required fields, followed as the visitor types so the bar below can show how far along the form is
-  const [f, setF] = useState({ name: v.name ?? "", mobile: v.mobile ?? "", division: v.division ?? "", subject: v.subject ?? "", details: v.details ?? "" });
+  const [f, setF] = useState({ name: v.name ?? "", mobile: mobileDigits(v.mobile ?? ""), division: v.division ?? "", subject: v.subject ?? "", details: v.details ?? "" });
   const track = (k: keyof typeof f) => (e: { target: { value: string } }) => setF((p) => ({ ...p, [k]: e.target.value }));
   // the same minimums the server checks (actions.ts), so a full bar means the form will go through
   const done = [
     f.name.trim().length >= 2,
-    /^[6-9]\d{9}$/.test(f.mobile.replace(/\D/g, "").slice(-10)),
+    /^[6-9]\d{9}$/.test(f.mobile),
     f.division !== "",
     f.subject.trim().length >= 3,
     f.details.trim().length >= 20,
@@ -129,7 +131,7 @@ function FormBody({
           <label className="block font-medium">
             {ui.formMobile}
             <Req />
-            <input name="mobile" required inputMode="tel" autoComplete="tel" maxLength={13} defaultValue={v.mobile} onChange={track("mobile")} className={input} />
+            <MobileInput name="mobile" required defaultValue={v.mobile} onValue={(mobile) => setF((p) => ({ ...p, mobile }))} className={field} />
           </label>
           <label className="block font-medium">
             {ui.formEmail}

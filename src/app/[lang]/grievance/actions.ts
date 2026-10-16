@@ -74,7 +74,13 @@ export type TrackResult = {
 export type TrackState = { error?: UiKey; result?: TrackResult; values?: { ticket: string; mobile: string } };
 
 export async function trackGrievance(_prev: TrackState, form: FormData): Promise<TrackState> {
-  const ticket = clean(form.get("ticket"), 40).toUpperCase();
+  // same clean-up as the form: spaces or underscores in place of dashes, nothing but capitals, digits and dashes
+  const ticket = clean(form.get("ticket"), 40)
+    .toUpperCase()
+    .replace(/[\s_]+/g, "-")
+    .replace(/[^A-Z0-9-]/g, "")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-|-$/g, "");
   const mobile = normMobile(clean(form.get("mobile"), 20));
   const values = { ticket, mobile };
   if (!ticket || !mobile) return { error: "errTicket", values };

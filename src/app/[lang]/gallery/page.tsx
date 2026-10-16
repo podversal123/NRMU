@@ -88,7 +88,6 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
 
       {albums.length > 0 && (
         <section>
-          <div className="track-red mb-5 w-24" />
           <h2 className="text-2xl font-medium">{t("gallery.albums_title")}</h2>
           <ul className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {albums.map((a) => {
@@ -118,7 +117,6 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
         <section className={albums.length ? "mt-16" : ""}>
           {albums.length > 0 && (
             <>
-              <div className="track-red mb-5 w-24" />
               <h2 className="mb-6 text-2xl font-medium">{t("gallery.loose_title")}</h2>
             </>
           )}
