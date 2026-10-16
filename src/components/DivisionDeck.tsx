@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import type { BoardItem } from "./DivisionBoard";
 import { DEVANAGARI, PHOTOS, StationDrawing } from "./DivisionCards";
@@ -14,7 +13,7 @@ const FLING = 90; // pixels a card has to be dragged before it flies off
 /**
  * Home page divisions as a deck of cards. The top card can be dragged sideways (or clicked) to send it to the back,
  * the next and previous buttons and the arrow keys step through the deck, and the list of names beside it jumps
- * straight to a division. The round arrow on each card opens that division's page.
+ * straight to a division.
  */
 export default function DivisionDeck({ items, labels }: { items: BoardItem[]; labels: Labels }) {
   const n = items.length;
@@ -124,7 +123,7 @@ export default function DivisionDeck({ items, labels }: { items: BoardItem[]; la
                     </div>
                   </div>
                 </div>
-                {/* details: the president and the secretary side by side, then the branch and branch secretary counts beside the link to the division */}
+                {/* details: the president and the secretary side by side, then the branch and branch secretary counts */}
                 <div className="px-5 pb-6 pt-12 sm:px-7">
                   <dl className="grid gap-4 sm:grid-cols-2 sm:gap-6">
                     {[
@@ -150,13 +149,6 @@ export default function DivisionDeck({ items, labels }: { items: BoardItem[]; la
                         <dd className="mt-1 text-[1.9rem] font-bold leading-none tabular-nums text-brand">{d.secretaries}</dd>
                       </div>
                     </dl>
-                    <Link
-                      href={d.href}
-                      aria-label={english || hindi}
-                      className="grid size-12 shrink-0 place-items-center rounded-full bg-brand text-lg text-white transition hover:bg-brand-deep"
-                    >
-                      →
-                    </Link>
                   </div>
                 </div>
               </article>
