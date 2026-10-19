@@ -75,6 +75,10 @@ export default function Header({
   const [compact, setCompact] = useState(false);
   const [contrast, setContrast] = useState(false);
   const [atFooter, setAtFooter] = useState(false);
+  // The menu bar only slides away at the footer once it is pinned, i.e. the name row has scrolled off. On a short page
+  // the footer shows from the start, and sliding the menu up there would cover the name row.
+  const [nameRowSeen, setNameRowSeen] = useState(true);
+  const nameRowRef = useRef<HTMLDivElement>(null);
   const [now, setNow] = useState<Date | null>(null);
 
   // The clock shows seconds, so tick on each whole second rather than drifting with a plain interval.
@@ -135,6 +139,15 @@ export default function Header({
     io.observe(footer);
     return () => io.disconnect();
   }, [pathname]);
+
+  useEffect(() => {
+    const row = nameRowRef.current;
+    if (!row) return;
+    // the top 44px is under the pinned utility bar, so a name row hidden behind it counts as scrolled off
+    const io = new IntersectionObserver(([e]) => setNameRowSeen(e.isIntersecting), { rootMargin: "-44px 0px 0px 0px" });
+    io.observe(row);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!openSub && !open) return;
@@ -221,7 +234,7 @@ export default function Header({
       </div>
 
       {/* 2. organisation name */}
-      <div className="print-chrome border-b border-line bg-white">
+      <div ref={nameRowRef} className="print-chrome border-b border-line bg-white">
         <div className="mx-auto flex max-w-wrap items-center justify-between gap-6 px-5 py-4 sm:px-8">
           <Link href={`/${lang}`} className="flex items-center gap-4" aria-label={orgName}>
             <Image src="/logo.jpg" alt="" width={72} height={72} priority className="h-14 w-14 rounded-full sm:h-[4.5rem] sm:w-[4.5rem]" />
@@ -249,7 +262,7 @@ export default function Header({
       {/* 3. menu bar: deep oxblood, like the divisions band, with a thin gold line under it that keeps it apart from the red ticker tag */}
       <nav
         aria-label={labels.navPrimary}
-        className={`print-chrome sticky top-11 z-40 border-b border-signal/60 bg-brand-deep lg:top-9 text-light transition-transform duration-300 ${atFooter && !open ? "-translate-y-full" : "translate-y-0"}`}
+        className={`print-chrome sticky top-11 z-40 border-b border-signal/60 bg-brand-deep lg:top-9 text-light transition-transform duration-300 ${atFooter && !nameRowSeen && !open ? "-translate-y-full" : "translate-y-0"}`}
       >
         <div className="mx-auto flex max-w-wrap items-center justify-between px-5 sm:px-8">
           <ul ref={navRef} className={`hidden items-stretch ${compact ? "" : "lg:flex"}`}>

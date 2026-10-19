@@ -722,5 +722,25 @@
   "gSecDetails": {
     "en": "Grievance details",
     "hi": "शिकायत विवरण"
+  },
+  "memSecPersonal": {
+    "en": "Personal details",
+    "hi": "व्यक्तिगत विवरण"
+  },
+  "memSecWork": {
+    "en": "Work details",
+    "hi": "कार्य विवरण"
+  },
+  "memSecAccount": {
+    "en": "Account",
+    "hi": "खाता"
+  },
+  "pwShow": {
+    "en": "Show password",
+    "hi": "पासवर्ड दिखाएँ"
+  },
+  "pwHide": {
+    "en": "Hide password",
+    "hi": "पासवर्ड छिपाएँ"
   }
 }

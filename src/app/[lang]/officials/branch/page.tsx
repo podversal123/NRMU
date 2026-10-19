@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import FlipCard from "@/components/FlipCard";
 import PageHero from "@/components/PageHero";
 import { getOfficeBearerParts } from "@/lib/content";
 import { isLang } from "@/lib/i18n";
@@ -29,8 +30,8 @@ export default async function BranchOfficeBearers({ params }: { params: Promise<
           <ul className="flex flex-wrap gap-2">
             {withBranches.map((d) => (
               <li key={d.division.id}>
-                <a href={`#${d.division.slug}`} className="inline-flex min-h-11 items-center border border-line bg-white px-4 text-sm font-medium hover:border-brand">
-                  {pick(lang, d.division.nameEn, d.division.nameHi, d.division.i18n?.name)} <span className="ml-2 text-muted">{d.branches.length}</span>
+                <a href={`#${d.division.slug}`} className="group inline-flex min-h-11 items-center rounded-full border border-line bg-white px-5 text-sm font-medium shadow-[0_1px_4px_-2px_rgba(111,26,23,0.2)] transition-colors duration-200 hover:border-brand hover:bg-brand hover:text-white">
+                  {pick(lang, d.division.nameEn, d.division.nameHi, d.division.i18n?.name)} <span className="ml-2 text-muted transition-colors duration-200 group-hover:text-white/80">{d.branches.length}</span>
                 </a>
               </li>
             ))}
@@ -48,23 +49,25 @@ export default async function BranchOfficeBearers({ params }: { params: Promise<
               </div>
               <ul className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {d.branches.map(({ branch, secretaries }) => (
-                  <li key={branch.id} className="min-w-0 border border-line bg-white p-4">
-                    <h3 className="break-words font-medium leading-snug">{pick(lang, branch.nameEn, branch.nameHi, branch.i18n?.name)}</h3>
-                    {secretaries.length ? (
-                      secretaries.map((p) => (
-                        <div key={p.id} className="mt-2 break-words">
-                          <p className="text-sm text-brand">{pick(lang, p.designationEn, p.designationHi, p.designationI18n?.name)}</p>
-                          <p className="font-medium">{pick(lang, p.nameEn, p.nameHi, p.i18n?.name)}</p>
-                          {p.phone && (
-                            <a href={`tel:${p.phone.replace(/\s/g, "")}`} aria-label={`${ui.call} ${p.phone}`} className="inline-flex min-h-11 items-center text-sm font-bold hover:text-brand">
-                              ☎ {p.phone}
-                            </a>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <p className="mt-2 text-sm text-muted">{t("officials.pending")}</p>
-                    )}
+                  <li key={branch.id} className="min-w-0">
+                    <FlipCard className="p-4">
+                      <h3 className="break-words font-medium leading-snug">{pick(lang, branch.nameEn, branch.nameHi, branch.i18n?.name)}</h3>
+                      {secretaries.length ? (
+                        secretaries.map((p) => (
+                          <div key={p.id} className="mt-2 break-words">
+                            <p className="text-sm text-brand">{pick(lang, p.designationEn, p.designationHi, p.designationI18n?.name)}</p>
+                            <p className="font-medium">{pick(lang, p.nameEn, p.nameHi, p.i18n?.name)}</p>
+                            {p.phone && (
+                              <a href={`tel:${p.phone.replace(/\s/g, "")}`} aria-label={`${ui.call} ${p.phone}`} className="inline-flex min-h-11 items-center text-sm font-bold hover:text-brand">
+                                ☎ {p.phone}
+                              </a>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <p className="mt-2 text-sm text-muted">{t("officials.pending")}</p>
+                      )}
+                    </FlipCard>
                   </li>
                 ))}
               </ul>

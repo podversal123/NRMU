@@ -55,7 +55,8 @@ export default function TrackForm({ lang, ui }: { lang: Lang; ui: Dict }) {
               {ui[state.error]}
             </p>
           )}
-          <div className="grid gap-5 sm:grid-cols-2">
+          {/* on wide screens the button sits in the same row as the two fields, like a search bar; its height matches theirs */}
+          <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end md:gap-4">
             <label className="block font-medium">
               {ui.gTicket}
               <TicketInput defaultValue={v?.ticket ?? ""} />
@@ -64,10 +65,12 @@ export default function TrackForm({ lang, ui }: { lang: Lang; ui: Dict }) {
               {ui.formMobile}
               <MobileInput name="mobile" required defaultValue={v?.mobile} className={field} />
             </label>
-          </div>
-          <div className="flex justify-end">
-            <button type="submit" disabled={pending} className="btn-primary inline-flex items-center gap-2 disabled:opacity-60">
-              <Icon name="search" size={18} />
+            <button
+              type="submit"
+              disabled={pending}
+              className="group inline-flex h-[calc(3rem+2px)] w-full items-center justify-center gap-2 rounded-md bg-brand px-6 font-semibold text-white shadow-[0_6px_16px_-8px_rgba(111,26,23,0.6)] transition hover:bg-brand-deep hover:shadow-[0_10px_22px_-10px_rgba(111,26,23,0.75)] active:translate-y-px disabled:cursor-wait disabled:opacity-60 sm:col-span-2 md:col-span-1 md:w-auto"
+            >
+              <Icon name="search" size={18} className="transition group-hover:scale-110" />
               {pending ? ui.submitting : ui.gTrackButton}
             </button>
           </div>

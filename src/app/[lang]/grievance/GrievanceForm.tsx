@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Req, Step } from "@/components/FormParts";
 import Icon from "@/components/Icon";
 import MobileInput, { mobileDigits } from "@/components/MobileInput";
 import Select from "@/components/Select";
@@ -13,27 +14,6 @@ const input = `mt-1.5 ${field}`;
 // no overflow-hidden, and a layer above the bar below: the dropdowns inside must open past the card's edge and over the bar
 const card = "relative z-10 focus-within:z-20 flex flex-col rounded-md border border-line bg-white shadow-[0_1px_2px_rgba(21,22,26,0.04),0_8px_24px_-12px_rgba(21,22,26,0.12)]";
 const DETAILS_MAX = 4000;
-
-/** Marks a field the form cannot be sent without; screen readers get this from the field's `required`. */
-const Req = () => (
-  <span aria-hidden className="ms-0.5 text-brand">
-    *
-  </span>
-);
-
-/** Title bar of one half of the form: a step number and the section name. */
-function Step({ n, id, title }: { n: number; id: string; title: string }) {
-  return (
-    <header className="flex items-center gap-3 rounded-t-md border-b border-line bg-gradient-to-b from-paper/70 to-white px-6 py-4">
-      <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-full bg-brand text-sm font-bold text-white">
-        {n}
-      </span>
-      <h2 id={id} className="text-lg font-semibold leading-tight">
-        {title}
-      </h2>
-    </header>
-  );
-}
 
 export default function GrievanceForm({
   lang,

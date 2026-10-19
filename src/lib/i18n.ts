@@ -79,6 +79,7 @@ export const UI_KEYS = [
   "mInvite", "mInvitedName", "mWhen", "mWhere", "mHeldOnline", "mHeldInPerson", "mHeldHybrid", "mAttend", "mYes", "mMaybe", "mNo", "mYourReply", "mNoReply", "mSaved", "mBadLink", "mBadLinkText", "mCancelled", "mOver", "mLive", "mVideoLater", "mJoin", "mCallNotYet", "mCallLoading", "mCallLeft", "mCallAgain", "mCallBack", "mCallError", "mCalendar", "mYourTime",
   // members
   "memBranch", "memBranchPick", "memDepartment", "memDepartmentPick", "memPassword", "memPasswordHint", "memPassword2", "memConsent", "memConsentLink", "memErrBranch", "memErrDepartment", "memErrPassword", "memErrPassword2", "memErrConsent", "memErrExists", "memThanksTitle", "memThanksText", "memHaveAccount", "memLoginTitle", "memLoginSub", "memLoginPassword", "memLoginButton", "memLoginWrong", "memLoginPending", "memLoginInactive", "memLoginLocked", "memNotMember", "memHeaderLogin", "memForgot", "memAccountTitle", "memJoinNow", "memCardTitle", "memNo", "memStatusLabel", "memActive", "memValid", "memOngoing", "memPrint", "memSignOut", "memChangeTitle", "memCurrent", "memNew", "memChangeButton", "memChanged", "memErrCurrent", "memMustChange",
+  "memSecPersonal", "memSecWork", "memSecAccount", "pwShow", "pwHide",
 ] as const;
 export type UiKey = (typeof UI_KEYS)[number];
 export type Dict = Record<UiKey, string>;

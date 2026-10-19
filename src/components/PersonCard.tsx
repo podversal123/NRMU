@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { I18n, Lang } from "@/lib/i18n";
 import { pick } from "@/lib/queries";
+import FlipCard from "./FlipCard";
 
 export type Person = {
   nameEn: string;
@@ -25,9 +26,9 @@ const initialsOf = (name: string) =>
     .slice(0, 2)
     .toUpperCase();
 
-export default function PersonCard({ p, lang, callLabel }: { p: Person; lang: Lang; callLabel: string }) {
-  return (
-    <article className="flex min-w-0 gap-4 border border-line bg-white p-4 sm:p-5">
+export default function PersonCard({ p, lang, callLabel, flip = false }: { p: Person; lang: Lang; callLabel: string; flip?: boolean }) {
+  const body = (
+    <>
       {p.photoUrl ? (
         <Image src={p.photoUrl} alt="" width={64} height={64} className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-signal" />
       ) : (
@@ -48,6 +49,13 @@ export default function PersonCard({ p, lang, callLabel }: { p: Person; lang: La
           </a>
         )}
       </div>
-    </article>
+    </>
   );
+  if (flip)
+    return (
+      <article className="min-w-0">
+        <FlipCard className="flex gap-4 p-4 sm:p-5">{body}</FlipCard>
+      </article>
+    );
+  return <article className="flex min-w-0 gap-4 border border-line bg-white p-4 sm:p-5">{body}</article>;
 }

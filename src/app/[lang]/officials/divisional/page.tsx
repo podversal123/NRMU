@@ -29,7 +29,7 @@ export default async function DivisionalOfficeBearers({ params }: { params: Prom
           <ul className="flex flex-wrap gap-2">
             {parts.divisions.map((d) => (
               <li key={d.division.id}>
-                <a href={`#${d.division.slug}`} className="inline-flex min-h-11 items-center border border-line bg-white px-4 text-sm font-medium hover:border-brand">
+                <a href={`#${d.division.slug}`} className="inline-flex min-h-11 items-center rounded-full border border-line bg-white px-5 text-sm font-medium shadow-[0_1px_4px_-2px_rgba(111,26,23,0.2)] transition-colors duration-200 hover:border-brand hover:bg-brand hover:text-white">
                   {pick(lang, d.division.nameEn, d.division.nameHi, d.division.i18n?.name)}
                 </a>
               </li>
@@ -49,7 +49,7 @@ export default async function DivisionalOfficeBearers({ params }: { params: Prom
               {d.leaders.length ? (
                 <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {d.leaders.map((p) => (
-                    <PersonCard key={p.id} p={p} lang={lang} callLabel={ui.call} />
+                    <PersonCard key={p.id} p={p} lang={lang} callLabel={ui.call} flip />
                   ))}
                 </div>
               ) : (

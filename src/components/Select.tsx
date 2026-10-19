@@ -205,7 +205,11 @@ export default function Select({
                 role="option"
                 aria-selected={on}
                 onPointerEnter={() => setActive(i)}
-                onClick={() => choose(o.value)}
+                onClick={(e) => {
+                  // inside a <label>, the click would also reach the button and open the list again
+                  e.preventDefault();
+                  choose(o.value);
+                }}
                 className={`relative flex cursor-pointer items-center gap-2 py-2 pr-3 text-[0.95rem] ${o.parent ? "pl-11" : "pl-2"} ${
                   i === active ? "bg-brand text-white" : on ? "text-brand" : o.parent ? "text-ink/85" : "text-ink"
                 } ${on ? "font-semibold" : ""}`}
@@ -222,6 +226,7 @@ export default function Select({
                     aria-hidden
                     onClick={(e) => {
                       if (!isParent) return;
+                      e.preventDefault();
                       e.stopPropagation();
                       toggle(o.value);
                     }}
