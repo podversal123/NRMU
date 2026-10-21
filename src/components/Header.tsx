@@ -171,6 +171,22 @@ export default function Header({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openSub?.id, open]);
 
+  // Where the pinned header ends, for bars further down the page that stick under it (the wall's tabs). Measured, since
+  // the text size changes the header's height, and kept up to date as the menu bar slides away at the footer and back.
+  const menuAway = atFooter && !nameRowSeen && !open;
+  const menuBarRef = useRef<HTMLElement>(null);
+  useLayoutEffect(() => {
+    const bar = menuBarRef.current;
+    if (!bar) return;
+    const set = () => {
+      const top = parseFloat(getComputedStyle(bar).top) || 0;
+      document.documentElement.style.setProperty("--below-header", `${Math.round(menuAway ? top : top + bar.offsetHeight - 1)}px`);
+    };
+    set();
+    window.addEventListener("resize", set);
+    return () => window.removeEventListener("resize", set);
+  }, [menuAway, size, compact]);
+
   const full = (href: string) => `/${lang}${href}`;
   const isActive = (href: string) => {
     if (href === "#") return false;
@@ -244,15 +260,27 @@ export default function Header({
             </span>
           </Link>
           <div className={`hidden shrink-0 items-center gap-3 ${compact ? "" : "lg:flex"}`}>
-            <Link href={full("/member")} className="btn-outline inline-flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-                <circle cx="12" cy="8" r="4" />
-                <path d="M4 21a8 8 0 0 1 16 0" />
-              </svg>
+            {/* a pill pair: sign in on soft cream with the person icon in a maroon dot, join in solid maroon with a gold arrow */}
+            <Link
+              href={full("/member")}
+              className="group inline-flex h-11 items-center gap-2.5 rounded-full border border-brand/15 bg-[#f7efdc] pl-1.5 pr-5 font-medium text-brand-deep transition hover:border-brand/40 hover:bg-[#f1e4c8] hover:shadow-[0_6px_16px_-10px_rgba(111,26,23,0.5)]"
+            >
+              <span aria-hidden className="grid size-8 place-items-center rounded-full bg-brand text-white transition group-hover:bg-brand-deep">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 21a8 8 0 0 1 16 0" />
+                </svg>
+              </span>
               {labels.memberLogin}
             </Link>
-            <Link href={full("/join")} className="btn-primary inline-block">
+            <Link
+              href={full("/join")}
+              className="group inline-flex h-11 items-center gap-2 rounded-full border border-transparent bg-brand pl-6 pr-5 font-semibold text-white shadow-[0_6px_16px_-8px_rgba(111,26,23,0.6)] transition hover:bg-brand-deep hover:shadow-[0_10px_22px_-10px_rgba(111,26,23,0.75)]"
+            >
               {join}
+              <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-signal transition-transform group-hover:translate-x-0.5">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
             </Link>
           </div>
           <span className="sr-only">{orgShort}</span>
@@ -261,8 +289,9 @@ export default function Header({
 
       {/* 3. menu bar: deep oxblood, like the divisions band, with a thin gold line under it that keeps it apart from the red ticker tag */}
       <nav
+        ref={menuBarRef}
         aria-label={labels.navPrimary}
-        className={`print-chrome sticky top-11 z-40 border-b border-signal/60 bg-brand-deep lg:top-9 text-light transition-transform duration-300 ${atFooter && !nameRowSeen && !open ? "-translate-y-full" : "translate-y-0"}`}
+        className={`print-chrome sticky top-11 z-40 border-b border-signal/60 bg-brand-deep lg:top-9 text-light transition-transform duration-300 ${menuAway ? "-translate-y-full" : "translate-y-0"}`}
       >
         <div className="mx-auto flex max-w-wrap items-center justify-between px-5 sm:px-8">
           <ul ref={navRef} className={`hidden items-stretch ${compact ? "" : "lg:flex"}`}>
@@ -364,8 +393,15 @@ export default function Header({
           </button>
 
           <div className="flex items-center gap-1">
-            <Link href={full("/join")} className={`btn-gold !px-3 !py-2.5 text-sm sm:!px-4 ${compact ? "" : "lg:hidden"}`}>
+            {/* the same maroon pill as the join button in the name row; a thin gold edge keeps it apart from the maroon bar */}
+            <Link
+              href={full("/join")}
+              className={`group inline-flex h-9 items-center gap-1.5 rounded-full border border-signal/60 bg-brand pl-4 pr-3 text-sm font-semibold text-white shadow-[0_4px_12px_-6px_rgba(0,0,0,0.6)] transition hover:border-signal hover:bg-brand-deep ${compact ? "" : "lg:hidden"}`}
+            >
               {join}
+              <svg aria-hidden width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="text-signal transition-transform group-hover:translate-x-0.5">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
             </Link>
           </div>
         </div>

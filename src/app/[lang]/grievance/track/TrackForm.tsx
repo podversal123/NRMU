@@ -6,8 +6,8 @@ import MobileInput from "@/components/MobileInput";
 import { trackGrievance, type TrackState } from "../actions";
 import { intlLocale, type Dict, type Lang } from "@/lib/i18n";
 
-// field-bare: the border (with a soft ring) shows focus, so the site-wide gold focus outline is left off
-const field = "w-full rounded-md border border-line bg-white px-4 py-3 text-base field-bare transition focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10";
+// field-bare: the border shows focus, so the site-wide gold focus outline is left off
+const field = "w-full rounded-md border border-line bg-white px-4 py-3 text-base field-bare transition focus:border-brand focus:outline-none";
 // the same card as the grievance form, so raising and tracking look like one service
 const card = "rounded-md border border-line bg-white shadow-[0_1px_2px_rgba(21,22,26,0.04),0_8px_24px_-12px_rgba(21,22,26,0.12)]";
 
@@ -59,11 +59,11 @@ export default function TrackForm({ lang, ui }: { lang: Lang; ui: Dict }) {
           <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end md:gap-4">
             <label className="block font-medium">
               {ui.gTicket}
-              <TicketInput defaultValue={v?.ticket ?? ""} />
+              <TicketInput defaultValue={v?.ticket ?? ""} placeholder={ui.phTicket} />
             </label>
             <label className="block font-medium">
               {ui.formMobile}
-              <MobileInput name="mobile" required defaultValue={v?.mobile} className={field} />
+              <MobileInput name="mobile" required placeholder={ui.phMobile} defaultValue={v?.mobile} className={field} />
             </label>
             <button
               type="submit"
@@ -120,7 +120,7 @@ export default function TrackForm({ lang, ui }: { lang: Lang; ui: Dict }) {
   );
 }
 
-function TicketInput({ defaultValue }: { defaultValue: string }) {
+function TicketInput({ defaultValue, placeholder }: { defaultValue: string; placeholder: string }) {
   const [value, setValue] = useState(() => ticketChars(defaultValue));
   return (
     <input
@@ -129,6 +129,7 @@ function TicketInput({ defaultValue }: { defaultValue: string }) {
       autoComplete="off"
       autoCapitalize="characters"
       spellCheck={false}
+      placeholder={placeholder}
       value={value}
       onChange={(e) => setValue(ticketChars(e.target.value))}
       className={`mt-1.5 ${field} font-mono tracking-wider`}

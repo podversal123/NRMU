@@ -72,13 +72,25 @@ function FormBody({
 }) {
   const v = state.values ?? {};
   // the required fields, followed as the visitor types so the bar below can show how far along the form is
-  const [f, setF] = useState({ name: v.name ?? "", mobile: mobileDigits(v.mobile ?? ""), division: v.division ?? "", subject: v.subject ?? "", details: v.details ?? "" });
+  const [f, setF] = useState({
+    name: v.name ?? "",
+    mobile: mobileDigits(v.mobile ?? ""),
+    email: v.email ?? "",
+    employeeId: v.employeeId ?? "",
+    division: v.division ?? "",
+    type: v.type ?? "",
+    subject: v.subject ?? "",
+    details: v.details ?? "",
+  });
   const track = (k: keyof typeof f) => (e: { target: { value: string } }) => setF((p) => ({ ...p, [k]: e.target.value }));
   // the same minimums the server checks (actions.ts), so a full bar means the form will go through
   const done = [
     f.name.trim().length >= 2,
     /^[6-9]\d{9}$/.test(f.mobile),
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email.trim()),
+    f.employeeId.trim() !== "",
     f.division !== "",
+    ...(types.length > 0 ? [f.type !== ""] : []),
     f.subject.trim().length >= 3,
     f.details.trim().length >= 20,
   ];
@@ -106,20 +118,22 @@ function FormBody({
           <label className="block font-medium">
             {ui.formName}
             <Req />
-            <input name="name" required autoComplete="name" defaultValue={v.name} onChange={track("name")} className={input} />
+            <input name="name" required autoComplete="name" placeholder={ui.phName} defaultValue={v.name} onChange={track("name")} className={input} />
           </label>
           <label className="block font-medium">
             {ui.formMobile}
             <Req />
-            <MobileInput name="mobile" required defaultValue={v.mobile} onValue={(mobile) => setF((p) => ({ ...p, mobile }))} className={field} />
+            <MobileInput name="mobile" required placeholder={ui.phMobile} defaultValue={v.mobile} onValue={(mobile) => setF((p) => ({ ...p, mobile }))} className={field} />
           </label>
           <label className="block font-medium">
             {ui.formEmail}
-            <input name="email" type="email" autoComplete="email" defaultValue={v.email} className={input} />
+            <Req />
+            <input name="email" type="email" required autoComplete="email" placeholder={ui.phEmail} defaultValue={v.email} onChange={track("email")} className={input} />
           </label>
           <label className="block font-medium">
             {ui.formEmployeeId}
-            <input name="employeeId" defaultValue={v.employeeId} className={input} />
+            <Req />
+            <input name="employeeId" required placeholder={ui.phEmployeeId} defaultValue={v.employeeId} onChange={track("employeeId")} className={input} />
           </label>
           <label className="block font-medium sm:col-span-2">
             {ui.formDivision}
@@ -143,10 +157,13 @@ function FormBody({
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="block font-medium">
               {ui.gType}
+              {types.length > 0 && <Req />}
               <Select
                 name="type"
                 defaultValue={v.type ?? ""}
                 placeholder={ui.gTypePick}
+                clearable={false}
+                onChange={(type) => setF((p) => ({ ...p, type }))}
                 options={types.map((t) => ({ value: String(t.id), label: t.name }))}
                 className={`${input} font-normal`}
               />
@@ -154,7 +171,7 @@ function FormBody({
             <label className="block font-medium">
               {ui.gSubject}
               <Req />
-              <input name="subject" required maxLength={200} defaultValue={v.subject} onChange={track("subject")} className={input} />
+              <input name="subject" required maxLength={200} placeholder={ui.phSubject} defaultValue={v.subject} onChange={track("subject")} className={input} />
             </label>
           </div>
           {/* the description box takes whatever height is left, so both halves end on the same line */}
@@ -168,6 +185,7 @@ function FormBody({
               required
               rows={5}
               maxLength={DETAILS_MAX}
+              placeholder={ui.phDetails}
               defaultValue={v.details}
               onChange={track("details")}
               aria-describedby="g-count"

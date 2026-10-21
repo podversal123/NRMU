@@ -4,6 +4,7 @@ import Photo from "@/components/Photo";
 import { notFound } from "next/navigation";
 import { GrievanceEnvelope, MemberPocket, TrackTrain } from "@/components/CtaProps";
 import DivisionList from "@/components/DivisionList";
+import WallStrip from "@/components/feed/WallStrip";
 import Icon from "@/components/Icon";
 import QuickLinks from "@/components/QuickLinks";
 import Ticker from "@/components/Ticker";
@@ -205,6 +206,9 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           </div>
         </div>
       </section>
+
+      {/* THE WALL: newest orders and members' posts, sideways; the whole wall is one click away */}
+      <WallStrip lang={lang} />
 
       {/* DIVISIONS */}
       <section className="overflow-x-clip bg-brand-deep py-14 text-light lg:py-16">

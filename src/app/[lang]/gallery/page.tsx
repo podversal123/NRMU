@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Select from "@/components/Select";
+import Icon from "@/components/Icon";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import PageHero from "@/components/PageHero";
@@ -32,7 +33,9 @@ export default async function GalleryPage({ params, searchParams }: { params: Pr
   );
 }
 
-const select = "min-h-11 rounded-md border border-line bg-white px-3 text-base focus:border-brand focus:outline-none";
+// the same filter boxes as the orders page: a white box whose border turns brand while its dropdown has focus
+const box = "mt-1.5 rounded-lg border border-line bg-white font-normal transition-colors focus-within:border-brand";
+const trigger = "field-bare rounded-lg py-3.5 pl-4 pr-4 text-base";
 
 async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP }) {
   const sp = await searchParams;
@@ -52,35 +55,39 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
 
   return (
     <div className="mx-auto max-w-wrap px-5 py-12 sm:px-8 sm:py-14">
-      <form method="get" className="mb-10 grid grid-cols-1 items-end gap-4 rounded-lg border border-line bg-paper/60 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-[1fr_1fr_auto]">
+      <form method="get" className="mb-10 grid grid-cols-1 items-end gap-3 sm:grid-cols-[repeat(2,16rem)_auto] sm:gap-4">
         <label className="block text-sm font-semibold">
           {t("gallery.filter_division")}
-          <Select
-            name="division"
-            defaultValue={divisionId ? String(divisionId) : ""}
-            placeholder={t("gallery.all")}
-            options={divisions.map((d) => ({ value: String(d.id), label: pick(lang, d.nameEn, d.nameHi, d.i18n?.name) }))}
-            submitOnChange
-            className={`${select} mt-1.5 font-normal`}
-          />
+          <div className={box}>
+            <Select
+              name="division"
+              defaultValue={divisionId ? String(divisionId) : ""}
+              placeholder={t("gallery.all")}
+              options={divisions.map((d) => ({ value: String(d.id), label: pick(lang, d.nameEn, d.nameHi, d.i18n?.name) }))}
+              submitOnChange
+              className={trigger}
+            />
+          </div>
         </label>
         <label className="block text-sm font-semibold">
           {t("gallery.filter_branch")}
-          <Select
-            name="branch"
-            defaultValue={branchId ? String(branchId) : ""}
-            placeholder={t("gallery.all")}
-            options={divisions.flatMap((d) =>
-              branches
-                .filter((b) => b.divisionId === d.id)
-                .map((b) => ({ value: String(b.id), label: pick(lang, b.nameEn, b.nameHi, b.i18n?.name), hint: pick(lang, d.nameEn, d.nameHi, d.i18n?.name) })),
-            )}
-            submitOnChange
-            className={`${select} mt-1.5 font-normal`}
-          />
+          <div className={box}>
+            <Select
+              name="branch"
+              defaultValue={branchId ? String(branchId) : ""}
+              placeholder={t("gallery.all")}
+              options={divisions.flatMap((d) =>
+                branches
+                  .filter((b) => b.divisionId === d.id)
+                  .map((b) => ({ value: String(b.id), label: pick(lang, b.nameEn, b.nameHi, b.i18n?.name), hint: pick(lang, d.nameEn, d.nameHi, d.i18n?.name) })),
+              )}
+              submitOnChange
+              className={trigger}
+            />
+          </div>
         </label>
         {filtered && (
-          <Link href={`/${lang}/gallery`} className="inline-flex min-h-11 items-center justify-center font-medium text-brand underline underline-offset-4">
+          <Link href={`/${lang}/gallery`} className="inline-flex min-h-[3.25rem] items-center font-medium text-brand underline underline-offset-4 sm:px-2">
             {t("gallery.back")}
           </Link>
         )}
@@ -111,7 +118,7 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
         </section>
       )}
 
-      {filtered && albums.length === 0 && <p className="text-muted">{t("gallery.empty_filter")}</p>}
+      {filtered && albums.length === 0 && <Empty text={t("gallery.empty_filter")} />}
 
       {!filtered && loose.length > 0 && (
         <section className={albums.length ? "mt-16" : ""}>
@@ -124,7 +131,18 @@ async function Results({ lang, searchParams }: { lang: Lang; searchParams: SP })
         </section>
       )}
 
-      {!filtered && albums.length === 0 && loose.length === 0 && <p className="text-muted">{ui.noItems}</p>}
+      {!filtered && albums.length === 0 && loose.length === 0 && <Empty text={ui.noItems} />}
+    </div>
+  );
+}
+
+function Empty({ text }: { text: string }) {
+  return (
+    <div className="flex flex-col items-center rounded-lg border border-line bg-paper/50 px-5 py-16 text-center">
+      <span aria-hidden className="grid size-14 place-items-center rounded-full bg-white text-brand ring-1 ring-line">
+        <Icon name="image" size={26} />
+      </span>
+      <p className="mt-4 text-muted">{text}</p>
     </div>
   );
 }

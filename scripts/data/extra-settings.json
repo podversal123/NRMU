@@ -413,5 +413,70 @@
     "en": "",
     "hi": "",
     "group": "social"
+  },
+  "feed.include_orders": {
+    "en": "1",
+    "hi": "1",
+    "group": "feed"
+  },
+  "feed.page_size": {
+    "en": "10",
+    "hi": "10",
+    "group": "feed"
+  },
+  "feed.post_max_chars": {
+    "en": "2000",
+    "hi": "2000",
+    "group": "feed"
+  },
+  "feed.comment_max_chars": {
+    "en": "1000",
+    "hi": "1000",
+    "group": "feed"
+  },
+  "feed.max_media": {
+    "en": "4",
+    "hi": "4",
+    "group": "feed"
+  },
+  "feed.max_image_mb": {
+    "en": "10",
+    "hi": "10",
+    "group": "feed"
+  },
+  "feed.max_video_mb": {
+    "en": "50",
+    "hi": "50",
+    "group": "feed"
+  },
+  "feed.posts_per_day": {
+    "en": "5",
+    "hi": "5",
+    "group": "feed"
+  },
+  "feed.comments_per_hour": {
+    "en": "30",
+    "hi": "30",
+    "group": "feed"
+  },
+  "feed.comments_shown": {
+    "en": "20",
+    "hi": "20",
+    "group": "feed"
+  },
+  "feed.home_count": {
+    "en": "6",
+    "hi": "6",
+    "group": "feed"
+  },
+  "feed.guest_likes": {
+    "en": "1",
+    "hi": "1",
+    "group": "feed"
+  },
+  "feed.guest_likes_per_hour": {
+    "en": "120",
+    "hi": "120",
+    "group": "feed"
   }
 }

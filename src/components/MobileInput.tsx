@@ -22,6 +22,7 @@ export default function MobileInput({
   className = "",
   onValue,
   autoComplete = "tel-national",
+  placeholder,
 }: {
   name: string;
   defaultValue?: string;
@@ -30,6 +31,7 @@ export default function MobileInput({
   onValue?: (digits: string) => void;
   /** "username" on a sign-in form, so password managers pair the number with the password */
   autoComplete?: "tel-national" | "username";
+  placeholder?: string;
 }) {
   const [value, setValue] = useState(() => mobileDigits(defaultValue));
   const ok = VALID.test(value);
@@ -47,6 +49,7 @@ export default function MobileInput({
         // no maxLength: the browser would cut a pasted "+91 98765 43210" to "+91 98765 " before mobileDigits could
         // drop the prefix; mobileDigits already stops at ten digits
         required={required}
+        placeholder={placeholder}
         value={value}
         onChange={(e) => {
           const d = mobileDigits(e.target.value);

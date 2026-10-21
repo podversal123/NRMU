@@ -31,6 +31,10 @@
     "en": "Category",
     "hi": "श्रेणी"
   },
+  "issuedOn": {
+    "en": "Issued on",
+    "hi": "जारी तिथि"
+  },
   "clear": {
     "en": "Clear filters",
     "hi": "फ़िल्टर हटाएँ"
@@ -68,8 +72,8 @@
     "hi": "फ़िल्टर"
   },
   "formDesignation": {
-    "en": "Designation (optional)",
-    "hi": "पदनाम (वैकल्पिक)"
+    "en": "Designation",
+    "hi": "पदनाम"
   },
   "formDivision": {
     "en": "Division",
@@ -80,12 +84,12 @@
     "hi": "अपना मंडल चुनें"
   },
   "formEmail": {
-    "en": "Email (optional)",
-    "hi": "ईमेल (वैकल्पिक)"
+    "en": "Email",
+    "hi": "ईमेल"
   },
   "formEmployeeId": {
-    "en": "Employee / HRMS ID (optional)",
-    "hi": "कर्मचारी / HRMS आईडी (वैकल्पिक)"
+    "en": "Employee / HRMS ID",
+    "hi": "कर्मचारी / HRMS आईडी"
   },
   "formMessage": {
     "en": "Message (optional)",
@@ -742,5 +746,289 @@
   "pwHide": {
     "en": "Hide password",
     "hi": "पासवर्ड छिपाएँ"
+  },
+  "fdShare": {
+    "en": "Share a post",
+    "hi": "पोस्ट साझा करें"
+  },
+  "fdPlaceholder": {
+    "en": "Write your grievance, suggestion or news for fellow members…",
+    "hi": "अपनी शिकायत, सुझाव या साथियों के लिए जानकारी लिखें…"
+  },
+  "fdTopic": {
+    "en": "Topic",
+    "hi": "विषय"
+  },
+  "fdTopicPick": {
+    "en": "Choose a topic",
+    "hi": "विषय चुनें"
+  },
+  "fdAddMedia": {
+    "en": "Add photos or a video",
+    "hi": "फ़ोटो या वीडियो जोड़ें"
+  },
+  "fdMediaHint": {
+    "en": "Up to {n} files. Photos up to {img} MB, video up to {vid} MB.",
+    "hi": "अधिकतम {n} फ़ाइलें। फ़ोटो {img} MB तक, वीडियो {vid} MB तक।"
+  },
+  "fdAnonymous": {
+    "en": "Hide my name (only my division is shown)",
+    "hi": "मेरा नाम छिपाएँ (केवल मेरा मंडल दिखेगा)"
+  },
+  "fdSubmit": {
+    "en": "Send for approval",
+    "hi": "स्वीकृति के लिए भेजें"
+  },
+  "fdSent": {
+    "en": "Sent. An admin will check it before it appears in the feed.",
+    "hi": "भेज दिया गया। फ़ीड में दिखने से पहले एडमिन इसकी जाँच करेंगे।"
+  },
+  "fdAnonName": {
+    "en": "Member, {division}",
+    "hi": "सदस्य, {division}"
+  },
+  "fdAnonNoDiv": {
+    "en": "Member",
+    "hi": "सदस्य"
+  },
+  "fdAll": {
+    "en": "All",
+    "hi": "सभी"
+  },
+  "fdFromUnion": {
+    "en": "From the union",
+    "hi": "यूनियन से"
+  },
+  "fdFromMembers": {
+    "en": "From members",
+    "hi": "सदस्यों से"
+  },
+  "fdLike": {
+    "en": "Like",
+    "hi": "पसंद करें"
+  },
+  "fdUnlike": {
+    "en": "Remove like",
+    "hi": "पसंद हटाएँ"
+  },
+  "fdLikesCount": {
+    "en": "{n} likes",
+    "hi": "{n} पसंद"
+  },
+  "fdComment": {
+    "en": "Comment",
+    "hi": "टिप्पणी"
+  },
+  "fdComments": {
+    "en": "Comments",
+    "hi": "टिप्पणियाँ"
+  },
+  "fdCommentsCount": {
+    "en": "{n} comments",
+    "hi": "{n} टिप्पणियाँ"
+  },
+  "fdSuggestion": {
+    "en": "Suggestion",
+    "hi": "सुझाव"
+  },
+  "fdWriteComment": {
+    "en": "Write a comment",
+    "hi": "टिप्पणी लिखें"
+  },
+  "fdWriteSuggestion": {
+    "en": "Write a suggestion",
+    "hi": "सुझाव लिखें"
+  },
+  "fdSend": {
+    "en": "Post",
+    "hi": "भेजें"
+  },
+  "fdNoComments": {
+    "en": "No comments yet.",
+    "hi": "अभी कोई टिप्पणी नहीं।"
+  },
+  "fdReport": {
+    "en": "Report",
+    "hi": "रिपोर्ट करें"
+  },
+  "fdReportReason": {
+    "en": "What is wrong with it? (optional)",
+    "hi": "इसमें क्या गलत है? (वैकल्पिक)"
+  },
+  "fdReportSend": {
+    "en": "Send report",
+    "hi": "रिपोर्ट भेजें"
+  },
+  "fdReported": {
+    "en": "Thank you. An admin will look at it.",
+    "hi": "धन्यवाद। एडमिन इसे देखेंगे।"
+  },
+  "fdDelete": {
+    "en": "Delete",
+    "hi": "हटाएँ"
+  },
+  "fdCancel": {
+    "en": "Cancel",
+    "hi": "रद्द करें"
+  },
+  "fdSignInToAct": {
+    "en": "Sign in as a member to comment or post.",
+    "hi": "टिप्पणी या पोस्ट करने के लिए सदस्य के रूप में साइन इन करें।"
+  },
+  "fdOpenOrder": {
+    "en": "Open the order",
+    "hi": "आदेश खोलें"
+  },
+  "fdLoadMore": {
+    "en": "Show older posts",
+    "hi": "पुरानी पोस्ट देखें"
+  },
+  "fdMyPosts": {
+    "en": "My posts",
+    "hi": "मेरी पोस्ट"
+  },
+  "fdSt_pending": {
+    "en": "Waiting for approval",
+    "hi": "स्वीकृति की प्रतीक्षा"
+  },
+  "fdSt_approved": {
+    "en": "Published",
+    "hi": "प्रकाशित"
+  },
+  "fdSt_rejected": {
+    "en": "Not approved",
+    "hi": "स्वीकृत नहीं"
+  },
+  "fdSt_removed": {
+    "en": "Removed",
+    "hi": "हटाई गई"
+  },
+  "fdAdminNote": {
+    "en": "Note from the union",
+    "hi": "यूनियन की टिप्पणी"
+  },
+  "fdErrBody": {
+    "en": "Please write something first.",
+    "hi": "पहले कुछ लिखें।"
+  },
+  "fdErrTopic": {
+    "en": "Please choose a topic.",
+    "hi": "कृपया विषय चुनें।"
+  },
+  "fdErrFile": {
+    "en": "This file could not be added: {name}",
+    "hi": "यह फ़ाइल नहीं जुड़ सकी: {name}"
+  },
+  "fdErrTooMany": {
+    "en": "You can add up to {n} files.",
+    "hi": "अधिकतम {n} फ़ाइलें जोड़ सकते हैं।"
+  },
+  "fdErrGeneric": {
+    "en": "Something went wrong. Please try again.",
+    "hi": "कुछ गड़बड़ हुई। कृपया फिर से प्रयास करें।"
+  },
+  "fdUploading": {
+    "en": "Uploading…",
+    "hi": "अपलोड हो रहा है…"
+  },
+  "fdRemove": {
+    "en": "Remove",
+    "hi": "हटाएँ"
+  },
+  "fdViewPost": {
+    "en": "View post",
+    "hi": "पोस्ट देखें"
+  },
+  "fdNoPosts": {
+    "en": "You have not posted yet.",
+    "hi": "आपने अभी कोई पोस्ट नहीं की है।"
+  },
+  "fdOfficial": {
+    "en": "Official",
+    "hi": "आधिकारिक"
+  },
+  "fdStart": {
+    "en": "What would you like to share?",
+    "hi": "आप क्या साझा करना चाहेंगे?"
+  },
+  "fdTopics": {
+    "en": "Topics",
+    "hi": "विषय"
+  },
+  "fdShareBtn": {
+    "en": "Share",
+    "hi": "साझा करें"
+  },
+  "fdTagline": {
+    "en": "News from the union and the voice of its members",
+    "hi": "यूनियन की खबरें और सदस्यों की आवाज़"
+  },
+  "phName": {
+    "en": "Enter full name",
+    "hi": "पूरा नाम लिखें"
+  },
+  "phMobile": {
+    "en": "Enter mobile number",
+    "hi": "मोबाइल नंबर लिखें"
+  },
+  "phEmail": {
+    "en": "Enter email",
+    "hi": "ईमेल लिखें"
+  },
+  "phDesignation": {
+    "en": "Enter designation",
+    "hi": "पदनाम लिखें"
+  },
+  "phEmployeeId": {
+    "en": "Enter HRMS ID",
+    "hi": "HRMS आईडी लिखें"
+  },
+  "phPassword": {
+    "en": "Enter a password",
+    "hi": "पासवर्ड लिखें"
+  },
+  "phPassword2": {
+    "en": "Enter the password again",
+    "hi": "पासवर्ड दोबारा लिखें"
+  },
+  "phLoginPassword": {
+    "en": "Enter password",
+    "hi": "पासवर्ड लिखें"
+  },
+  "phSubject": {
+    "en": "Enter the subject",
+    "hi": "विषय लिखें"
+  },
+  "phDetails": {
+    "en": "Enter grievance in detail",
+    "hi": "शिकायत विस्तार से लिखें"
+  },
+  "phTicket": {
+    "en": "Enter ticket number",
+    "hi": "टिकट नंबर लिखें"
+  },
+  "phCurrent": {
+    "en": "Enter current password",
+    "hi": "वर्तमान पासवर्ड लिखें"
+  },
+  "phNew": {
+    "en": "Enter a new password",
+    "hi": "नया पासवर्ड लिखें"
+  },
+  "phNew2": {
+    "en": "Enter the new password again",
+    "hi": "नया पासवर्ड दोबारा लिखें"
+  },
+  "errDesignation": {
+    "en": "Please enter your designation.",
+    "hi": "कृपया अपना पदनाम लिखें।"
+  },
+  "errEmployeeId": {
+    "en": "Please enter your HRMS ID.",
+    "hi": "कृपया अपनी HRMS आईडी लिखें।"
+  },
+  "errType": {
+    "en": "Please select a type.",
+    "hi": "कृपया प्रकार चुनें।"
   }
 }

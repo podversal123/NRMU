@@ -66,7 +66,7 @@ export default function OrdersFilters({
   const sub = chosen?.parent ? chosen.slug : "";
   const subs = cats.filter((c) => c.parent && c.parent === main);
 
-  const box = "rounded-lg border border-line bg-white shadow-[0_1px_4px_-2px_rgba(21,22,26,0.12)] transition focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(138,33,29,0.12)]";
+  const box = "rounded-lg border border-line bg-white transition-colors focus-within:border-brand";
   const trigger = "field-bare rounded-lg py-3.5 pl-4 pr-4 text-base";
 
   return (

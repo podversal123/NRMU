@@ -6,6 +6,7 @@ import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { deleteBlobs } from "@/lib/blob";
+import { purgeFeedTarget } from "@/lib/feed";
 import { readI18n } from "@/lib/i18n-form";
 import { htmlToText, slugify, toHtml } from "@/lib/text";
 
@@ -56,7 +57,7 @@ export async function savePost(form: FormData) {
         postId: id,
         url,
         name: decodeURIComponent(url.split("/").pop() ?? "").replace(/\.[A-Za-z0-9]+$/, "").replace(/[-_]+/g, " ").trim() || null,
-        kind: /\.pdf$/i.test(url) ? "pdf" : /\.(docx?|rtf)$/i.test(url) ? "doc" : /\.(xlsx?|csv)$/i.test(url) ? "sheet" : /\.(jpe?g|png|gif|webp)$/i.test(url) ? "image" : "file",
+        kind: /\.pdf$/i.test(url) ? "pdf" : /\.(docx?|rtf)$/i.test(url) ? "doc" : /\.(xlsx?|csv)$/i.test(url) ? "sheet" : /\.(jpe?g|png|gif|webp)$/i.test(url) ? "image" : /\.(mp4|m4v|webm|mov)$/i.test(url) ? "video" : "file",
         sort: i,
       })),
     );
@@ -71,6 +72,7 @@ export async function savePost(form: FormData) {
   await deleteBlobs(before.map((f) => f.url).filter((u) => !files.includes(u) && !html.includes(u)));
 
   updateTag("posts");
+  updateTag("feed");
   updateTag(`post-${id}`);
   redirect(`/admin/posts/${id}?saved=1`);
 }
@@ -81,8 +83,10 @@ export async function deletePost(form: FormData) {
   if (id) {
     const files = await getDb().select({ url: schema.postFiles.url }).from(schema.postFiles).where(eq(schema.postFiles.postId, id));
     await getDb().delete(schema.posts).where(inArray(schema.posts.id, [id]));
+    await purgeFeedTarget("order", id);
     await deleteBlobs(files.map((f) => f.url));
     updateTag("posts");
+    updateTag("feed");
     updateTag(`post-${id}`);
   }
   redirect("/admin/posts?deleted=1");

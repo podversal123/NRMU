@@ -13,6 +13,7 @@ export default function PasswordInput({
   minLength,
   onValue,
   describedBy,
+  placeholder,
 }: {
   name: string;
   autoComplete: "current-password" | "new-password";
@@ -23,6 +24,7 @@ export default function PasswordInput({
   minLength?: number;
   onValue?: (value: string) => void;
   describedBy?: string;
+  placeholder?: string;
 }) {
   const [shown, setShown] = useState(false);
   return (
@@ -34,6 +36,7 @@ export default function PasswordInput({
         required={required}
         minLength={minLength}
         aria-describedby={describedBy}
+        placeholder={placeholder}
         onChange={(e) => onValue?.(e.target.value)}
         className={`${className} pr-12`}
       />

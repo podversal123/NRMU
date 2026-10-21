@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { changePassword, type PasswordState } from "./actions";
 import type { Dict, Lang } from "@/lib/i18n";
 
-const input = "mt-1.5 w-full border border-line bg-white px-4 py-3 text-base focus:border-brand focus:outline-none";
+const input = "mt-1.5 w-full rounded-md border border-line bg-white px-4 py-3 text-base field-bare transition-colors focus:border-brand focus:outline-none";
 
 export default function ChangePasswordForm({ ui, lang }: { ui: Dict; lang: Lang }) {
   const [state, action, pending] = useActionState<PasswordState, FormData>(changePassword, {});
@@ -17,16 +17,16 @@ export default function ChangePasswordForm({ ui, lang }: { ui: Dict; lang: Lang 
         {state.done && <p role="status" className="border-2 border-brand bg-soft/40 px-4 py-3 font-semibold">{ui.memChanged}</p>}
         <label className="block font-semibold">
           {ui.memCurrent}
-          <input name="current" type="password" required autoComplete="current-password" className={input} />
+          <input name="current" type="password" required autoComplete="current-password" placeholder={ui.phCurrent} className={input} />
         </label>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block font-semibold">
             {ui.memNew}
-            <input name="next" type="password" required minLength={8} autoComplete="new-password" className={input} />
+            <input name="next" type="password" required minLength={8} autoComplete="new-password" placeholder={ui.phNew} className={input} />
           </label>
           <label className="block font-semibold">
             {ui.memPassword2}
-            <input name="again" type="password" required minLength={8} autoComplete="new-password" className={input} />
+            <input name="again" type="password" required minLength={8} autoComplete="new-password" placeholder={ui.phNew2} className={input} />
           </label>
         </div>
         <button type="submit" disabled={pending} className="btn-primary min-h-12 px-8 disabled:opacity-60">

@@ -17,7 +17,7 @@ export default async function MemberLoginPage({ params }: { params: Promise<{ la
   return (
     <>
       <PageHero lang={lang} title={ui.memLoginTitle} sub={ui.memLoginSub} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: ui.memLoginTitle }]} />
-      <div className="mx-auto max-w-xl px-5 py-12 sm:px-8 sm:py-14">
+      <div className="mx-auto max-w-xl px-5 pb-12 pt-6 sm:px-8 sm:pb-14">
         <LoginForm ui={ui} lang={lang} />
       </div>
     </>

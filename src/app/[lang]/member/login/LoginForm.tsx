@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { CardTitle, memberButton, memberCard, memberField as field } from "@/components/FormParts";
+import { memberButton, memberCard, memberField as field } from "@/components/FormParts";
 import MobileInput from "@/components/MobileInput";
 import PasswordInput from "@/components/PasswordInput";
 import { memberLogin, type LoginState } from "../actions";
@@ -13,8 +13,8 @@ export default function LoginForm({ ui, lang }: { ui: Dict; lang: Lang }) {
   return (
     <form action={action} className={`${memberCard} drawer-l`} noValidate>
       <input type="hidden" name="lang" value={lang} />
-      <CardTitle title={ui.memLoginTitle} />
-      <div className="space-y-5 p-6 sm:p-8">
+      {/* no title band: the page title right above already names the form, and leaving it out keeps the whole card on one screen */}
+      <div className="space-y-4 px-6 pb-[1.375rem] pt-6 sm:px-8">
         {state.error && (
           <p role="alert" className="rounded-md border border-brand bg-brand/10 px-4 py-3 font-medium text-brand-deep">
             {ui[state.error]}
@@ -23,11 +23,11 @@ export default function LoginForm({ ui, lang }: { ui: Dict; lang: Lang }) {
         <label className="block font-medium">
           {ui.formMobile}
           {/* remount on each answer so the number the server sends back is shown */}
-          <MobileInput key={state.mobile ?? ""} name="mobile" required autoComplete="username" defaultValue={state.mobile} className={field} />
+          <MobileInput key={state.mobile ?? ""} name="mobile" required autoComplete="username" placeholder={ui.phMobile} defaultValue={state.mobile} className={field} />
         </label>
         <label className="block font-medium">
           {ui.memLoginPassword}
-          <PasswordInput name="password" autoComplete="current-password" required showLabel={ui.pwShow} hideLabel={ui.pwHide} className={field} />
+          <PasswordInput name="password" autoComplete="current-password" required placeholder={ui.phLoginPassword} showLabel={ui.pwShow} hideLabel={ui.pwHide} className={field} />
         </label>
         <button type="submit" disabled={pending} className={memberButton}>
           {pending ? ui.submitting : ui.memLoginButton}

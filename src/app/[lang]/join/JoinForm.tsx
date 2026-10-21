@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CardTitle, memberButton, memberCard, memberField as field, Req, Section } from "@/components/FormParts";
+import { memberButton, memberCard, memberField as field, Req, Section } from "@/components/FormParts";
 import MobileInput from "@/components/MobileInput";
 import PasswordInput from "@/components/PasswordInput";
 import Select from "@/components/Select";
@@ -30,7 +30,6 @@ export default function JoinForm(props: Props) {
   if (state.ok) {
     return (
       <div role="status" className={`${memberCard} drawer-l`}>
-        <CardTitle title={ui.memJoinNow} />
         <div className="p-8 sm:p-10">
           <span aria-hidden className="grid size-12 place-items-center rounded-full bg-green-100 text-green-800">
             <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
@@ -56,8 +55,8 @@ function FormBody({ ui, lang, divisions, branches, departments, state, action, p
   const shown = branches.filter((b) => String(b.divisionId) === division);
 
   return (
+    // wide and low: three fields to a row on a large screen, two on a tablet, one on a phone; no title band, the page title names it
     <form action={action} className={`${memberCard} drawer-l`} noValidate>
-      <CardTitle title={ui.memJoinNow} />
       <div className="space-y-8 p-6 sm:p-8">
         {state.error && (
           <p role="alert" className="rounded-md border border-brand bg-brand/10 px-4 py-3 font-medium text-brand-deep">
@@ -73,27 +72,28 @@ function FormBody({ ui, lang, divisions, branches, departments, state, action, p
 
         <section aria-labelledby="j-personal">
           <Section n={1} id="j-personal" title={ui.memSecPersonal} />
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <label className="block font-medium sm:col-span-2">
+          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <label className="block font-medium sm:col-span-2 lg:col-span-1">
               {ui.formName}
               <Req />
-              <input name="name" required autoComplete="name" defaultValue={v.name} className={input} />
+              <input name="name" required autoComplete="name" placeholder={ui.phName} defaultValue={v.name} className={input} />
             </label>
             <label className="block font-medium">
               {ui.formMobile}
               <Req />
-              <MobileInput name="mobile" required defaultValue={v.mobile} className={field} />
+              <MobileInput name="mobile" required placeholder={ui.phMobile} defaultValue={v.mobile} className={field} />
             </label>
             <label className="block font-medium">
               {ui.formEmail}
-              <input name="email" type="email" autoComplete="email" defaultValue={v.email} className={input} />
+              <Req />
+              <input name="email" type="email" required autoComplete="email" placeholder={ui.phEmail} defaultValue={v.email} className={input} />
             </label>
           </div>
         </section>
 
         <section aria-labelledby="j-work">
           <Section n={2} id="j-work" title={ui.memSecWork} />
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <label className="block font-medium">
               {ui.formDivision}
               <Req />
@@ -135,32 +135,34 @@ function FormBody({ ui, lang, divisions, branches, departments, state, action, p
             </label>
             <label className="block font-medium">
               {ui.formDesignation}
-              <input name="designation" defaultValue={v.designation} className={input} />
+              <Req />
+              <input name="designation" required placeholder={ui.phDesignation} defaultValue={v.designation} className={input} />
             </label>
-            <label className="block font-medium sm:col-span-2">
+            <label className="block font-medium sm:col-span-2 lg:col-span-1">
               {ui.formEmployeeId}
-              <input name="employeeId" defaultValue={v.employeeId} className={input} />
+              <Req />
+              <input name="employeeId" required placeholder={ui.phEmployeeId} defaultValue={v.employeeId} className={input} />
             </label>
           </div>
         </section>
 
         <section aria-labelledby="j-account">
           <Section n={3} id="j-account" title={ui.memSecAccount} />
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <label className="block font-medium">
               {ui.memPassword}
               <Req />
-              <PasswordInput name="password" autoComplete="new-password" required minLength={8} describedBy="j-pw-hint" showLabel={ui.pwShow} hideLabel={ui.pwHide} className={field} />
+              <PasswordInput name="password" autoComplete="new-password" required minLength={8} describedBy="j-pw-hint" placeholder={ui.phPassword} showLabel={ui.pwShow} hideLabel={ui.pwHide} className={field} />
             </label>
             <label className="block font-medium">
               {ui.memPassword2}
               <Req />
-              <PasswordInput name="password2" autoComplete="new-password" required minLength={8} showLabel={ui.pwShow} hideLabel={ui.pwHide} className={field} />
+              <PasswordInput name="password2" autoComplete="new-password" required minLength={8} placeholder={ui.phPassword2} showLabel={ui.pwShow} hideLabel={ui.pwHide} className={field} />
             </label>
-            <p id="j-pw-hint" className="-mt-2 text-sm text-muted sm:col-span-2">
+            <p id="j-pw-hint" className="-mt-2 text-sm text-muted sm:col-span-2 lg:col-span-3">
               {ui.memPasswordHint}
             </p>
-            <label className="flex items-start gap-3 rounded-md border border-line bg-paper/60 p-4 sm:col-span-2">
+            <label className="flex items-start gap-3 rounded-md border border-line bg-paper/60 p-4 sm:col-span-2 lg:col-span-3">
               <input type="checkbox" name="consent" required className="mt-0.5 size-5 shrink-0 accent-[var(--color-brand)]" />
               <span>
                 {ui.memConsent}{" "}
@@ -172,11 +174,11 @@ function FormBody({ ui, lang, divisions, branches, departments, state, action, p
           </div>
         </section>
 
-        <div className="space-y-4">
-          <button type="submit" disabled={pending} className={memberButton}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
+          <button type="submit" disabled={pending} className={`${memberButton} lg:w-80`}>
             {pending ? ui.submitting : ui.submit}
           </button>
-          <p className="text-center text-sm text-muted">
+          <p className="text-center text-sm text-muted lg:text-start">
             {ui.memHaveAccount}{" "}
             <Link href={`/${lang}/member/login`} className="font-semibold text-brand underline underline-offset-4">
               {ui.memLoginButton}

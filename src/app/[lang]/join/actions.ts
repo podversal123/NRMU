@@ -44,10 +44,12 @@ export async function submitJoin(_prev: JoinState, form: FormData): Promise<Join
   if (await tooMany("join-ip", await clientKey(), 20, 3600)) return { error: "errLimit", values };
   if (name.length < 2) return { error: "errName", values };
   if (!/^[6-9]\d{9}$/.test(mobile)) return { error: "errMobile", values };
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "errEmail", values };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "errEmail", values };
   if (!divisionId) return { error: "errDivision", values };
   if (!branchId) return { error: "memErrBranch", values };
   if (!departmentId) return { error: "memErrDepartment", values };
+  if (!designation) return { error: "errDesignation", values };
+  if (!employeeId) return { error: "errEmployeeId", values };
   if (password.length < 8 || password.includes(mobile)) return { error: "memErrPassword", values };
   if (password !== password2) return { error: "memErrPassword2", values };
   if (form.get("consent") !== "on") return { error: "memErrConsent", values };

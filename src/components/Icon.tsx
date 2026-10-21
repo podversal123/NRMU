@@ -6,6 +6,10 @@ const paths: Record<string, React.ReactNode> = {
   people: (<><circle cx="9" cy="8" r="3" /><circle cx="17" cy="9" r="2.5" /><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M15 14.5c3 0 6 1.5 6 5.5" /></>),
   mail: (<><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>),
   arrow: (<><path d="M5 12h14M13 6l6 6-6 6" /></>),
+  chevron: (<path d="m9 6 6 6-6 6" />),
+  home: (<><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V20h14V9.5" /></>),
+  print: (<><path d="M7 9V3h10v6" /><rect x="3" y="9" width="18" height="8" rx="2" /><path d="M7 14h10v7H7z" /></>),
+  link: (<><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>),
   pdf: (<><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5" /></>),
   calendar: (<><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>),
   camera: (<><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></>),
@@ -17,6 +21,14 @@ const paths: Record<string, React.ReactNode> = {
   clock: (<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>),
   external: (<><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></>),
   up: (<><path d="M12 19V5M6 11l6-6 6 6" /></>),
+  heart: (<path d="M12 20s-7.5-4.6-9.2-9.4C1.7 7.3 3.8 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.1 0 5.2 2.8 4.1 6.1C19.5 15.4 12 20 12 20z" />),
+  chat: (<path d="M4 5h16v11H9l-5 4z" />),
+  flag: (<><path d="M5 21V4" /><path d="M5 4h11l-2 4 2 4H5" /></>),
+  share: (<><circle cx="18" cy="5" r="2.5" /><circle cx="6" cy="12" r="2.5" /><circle cx="18" cy="19" r="2.5" /><path d="m8.2 10.8 7.6-4.5M8.2 13.2l7.6 4.5" /></>),
+  plus: (<path d="M12 5v14M5 12h14" />),
+  alert: (<><path d="M12 3 2.5 20h19z" /><path d="M12 10v4.5M12 17.5v.01" /></>),
+  bulb: (<><path d="M9 18h6M10 21h4" /><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" /></>),
+  image: (<><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="m21 17-5-5-8 8" /></>),
   instagram: (<><rect x="3.5" y="3.5" width="17" height="17" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" /></>),
   whatsapp: (<><path d="M4 20l1.3-4A8.5 8.5 0 1 1 8.4 19z" /><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2.2-1-1 .9a5 5 0 0 1-2.6-2.6l.9-1-1-2.2z" /></>),
   // brand marks drawn filled
@@ -24,6 +36,9 @@ const paths: Record<string, React.ReactNode> = {
   youtube: (<path fill="currentColor" stroke="none" fillRule="evenodd" d="M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4a2.5 2.5 0 0 0-1.8 1.8A26 26 0 0 0 2 12c0 1.6.1 3.2.4 4.8a2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.3-1.6.4-3.2.4-4.8s-.1-3.2-.4-4.8zM10 15V9l5.2 3z" />),
   x: (<path fill="currentColor" stroke="none" d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L2 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z" />),
 };
+
+/** Every icon name, for choices made in the admin panel (for example the icon of a wall topic). */
+export const ICON_NAMES = Object.keys(paths);
 
 export default function Icon({ name, size = 22, className = "" }: { name: string; size?: number; className?: string }) {
   return (
@@ -36,8 +51,8 @@ export default function Icon({ name, size = 22, className = "" }: { name: string
       strokeWidth="1.9"
       strokeLinecap="round"
       strokeLinejoin="round"
-      // the arrow points the way the text reads, so it turns round for right-to-left languages
-      className={name === "arrow" ? `rtl:-scale-x-100 ${className}` : className}
+      // the arrow and the chevron point the way the text reads, so they turn round for right-to-left languages
+      className={name === "arrow" || name === "chevron" ?`rtl:-scale-x-100 ${className}` : className}
       aria-hidden="true"
     >
       {paths[name]}

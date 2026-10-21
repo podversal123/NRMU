@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
+  check,
   customType,
   date,
   index,
@@ -566,6 +567,170 @@ export const grievanceEvents = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("grievance_events_idx").on(t.grievanceId, t.createdAt)],
+);
+
+/* --------------------------------- Feed -------------------------------- */
+
+/**
+ * What a feed item is. "order" is a row of `posts` (orders and circulars published by the union);
+ * "member" is a row of `member_posts`. Likes, comments and reports point at an item by these two values.
+ */
+export type FeedTarget = "order" | "member";
+
+/** Subjects a member can post under (a grievance, a suggestion, ...). Edited in the admin panel, never hard-coded. */
+export const feedTopics = pgTable("feed_topics", {
+  id: serial("id").primaryKey(),
+  nameEn: text("name_en").notNull(),
+  nameHi: text("name_hi"),
+  /** name of the icon shown on the topic's chip (one of components/Icon), chosen in the admin panel */
+  icon: text("icon").notNull().default("chat"),
+  sort: integer("sort").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+  /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+  i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
+});
+
+/**
+ * A post written by a member. It reaches the feed only after an admin approves it.
+ * status: pending | approved | rejected | removed. `anonymous` hides the name in the feed (admins always see it).
+ */
+export const memberPosts = pgTable(
+  "member_posts",
+  {
+    id: serial("id").primaryKey(),
+    memberId: integer("member_id")
+      .notNull()
+      .references(() => members.id, { onDelete: "cascade" }),
+    topicId: integer("topic_id").references(() => feedTopics.id, { onDelete: "set null" }),
+    body: text("body").notNull(),
+    anonymous: boolean("anonymous").notNull().default(false),
+    status: text("status").notNull().default("pending"),
+    /** Why it was not approved or was taken down; shown to the member who wrote it. */
+    reviewNote: text("review_note"),
+    reviewedBy: integer("reviewed_by").references(() => adminUsers.id, { onDelete: "set null" }),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    /** When it went into the feed (approval time); the feed is ordered by this. */
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("member_posts_feed_idx").on(t.status, t.publishedAt.desc(), t.id.desc()),
+    index("member_posts_member_idx").on(t.memberId, t.createdAt.desc()),
+    index("member_posts_queue_idx").on(t.status, t.createdAt),
+    check("member_posts_status_chk", sql`${t.status} in ('pending', 'approved', 'rejected', 'removed')`),
+  ],
+);
+
+/** Photos, videos and documents of a member's post. kind: image | video | file */
+export const memberPostMedia = pgTable(
+  "member_post_media",
+  {
+    id: serial("id").primaryKey(),
+    postId: integer("post_id")
+      .notNull()
+      .references(() => memberPosts.id, { onDelete: "cascade" }),
+    url: text("url").notNull(),
+    kind: text("kind").notNull(),
+    name: text("name"),
+    sort: integer("sort").notNull().default(0),
+  },
+  (t) => [index("member_post_media_post_idx").on(t.postId, t.sort), check("member_post_media_kind_chk", sql`${t.kind} in ('image', 'video', 'file')`)],
+);
+
+/**
+ * Running totals per feed item, kept beside the likes and comments so the feed never counts rows while a page is
+ * shown. Changed in the same statement as the like or comment itself.
+ */
+export const feedCounts = pgTable(
+  "feed_counts",
+  {
+    target: text("target").$type<FeedTarget>().notNull(),
+    targetId: integer("target_id").notNull(),
+    likes: integer("likes").notNull().default(0),
+    comments: integer("comments").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.target, t.targetId] }), check("feed_counts_target_chk", sql`${t.target} in ('order', 'member')`)],
+);
+
+/** One like per member per feed item. */
+export const feedLikes = pgTable(
+  "feed_likes",
+  {
+    target: text("target").$type<FeedTarget>().notNull(),
+    targetId: integer("target_id").notNull(),
+    memberId: integer("member_id")
+      .notNull()
+      .references(() => members.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.target, t.targetId, t.memberId] }), index("feed_likes_member_idx").on(t.memberId), check("feed_likes_target_chk", sql`${t.target} in ('order', 'member')`)],
+);
+
+/**
+ * Likes from visitors who are not signed in: one per browser per item. `visitor` is a one-way hash of a random id
+ * kept in that browser's cookie; no name, number or address is stored. Kept apart from members' likes on purpose.
+ */
+export const feedGuestLikes = pgTable(
+  "feed_guest_likes",
+  {
+    target: text("target").$type<FeedTarget>().notNull(),
+    targetId: integer("target_id").notNull(),
+    visitor: text("visitor").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.target, t.targetId, t.visitor] }), check("feed_guest_likes_target_chk", sql`${t.target} in ('order', 'member')`)],
+);
+
+/** Comments and suggestions under a feed item. kind: comment | suggestion. status: visible | hidden (by an admin) */
+export const feedComments = pgTable(
+  "feed_comments",
+  {
+    id: serial("id").primaryKey(),
+    target: text("target").$type<FeedTarget>().notNull(),
+    targetId: integer("target_id").notNull(),
+    memberId: integer("member_id")
+      .notNull()
+      .references(() => members.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull().default("comment"),
+    body: text("body").notNull(),
+    status: text("status").notNull().default("visible"),
+    hiddenBy: integer("hidden_by").references(() => adminUsers.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("feed_comments_target_idx").on(t.target, t.targetId, t.createdAt),
+    index("feed_comments_recent_idx").on(t.createdAt.desc()),
+    check("feed_comments_target_chk", sql`${t.target} in ('order', 'member')`),
+    check("feed_comments_kind_chk", sql`${t.kind} in ('comment', 'suggestion')`),
+    check("feed_comments_status_chk", sql`${t.status} in ('visible', 'hidden')`),
+  ],
+);
+
+/**
+ * A member flagging a post or a comment for an admin. target: order | member | comment.
+ * status: open | dismissed | actioned. One report per member per thing.
+ */
+export const feedReports = pgTable(
+  "feed_reports",
+  {
+    id: serial("id").primaryKey(),
+    target: text("target").notNull(),
+    targetId: integer("target_id").notNull(),
+    memberId: integer("member_id")
+      .notNull()
+      .references(() => members.id, { onDelete: "cascade" }),
+    reason: text("reason").notNull().default(""),
+    status: text("status").notNull().default("open"),
+    resolvedBy: integer("resolved_by").references(() => adminUsers.id, { onDelete: "set null" }),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("feed_reports_once_idx").on(t.target, t.targetId, t.memberId),
+    index("feed_reports_status_idx").on(t.status, t.createdAt),
+    check("feed_reports_target_chk", sql`${t.target} in ('order', 'member', 'comment')`),
+    check("feed_reports_status_chk", sql`${t.status} in ('open', 'dismissed', 'actioned')`),
+  ],
 );
 
 /** Page views per day, for the visitor counter shown in the footer. */

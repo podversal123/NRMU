@@ -1,0 +1,1 @@
+ALTER TABLE "feed_topics" ADD COLUMN "icon" text DEFAULT 'chat' NOT NULL;

@@ -47,7 +47,7 @@ export default async function EditPost({ params, searchParams }: { params: Promi
           <Field label="Content" hint="Type plain text (blank line = new paragraph) or paste HTML.">
             <textarea name="content" rows={16} defaultValue={post?.contentHtml} className={`${inputCls} font-mono text-base lg:text-sm`} />
           </Field>
-          <UploadField name="files" label="Attachments (PDF, Word, Excel, images)" kind="any" multiple folder="orders" initial={files.map((f) => f.url)} />
+          <UploadField name="files" label="Attachments (PDF, Word, Excel, photos, videos). Photos and videos also show in the feed." kind="any" multiple folder="orders" initial={files.map((f) => f.url)} />
         </Card>
         <div className="space-y-6">
           <Card className="space-y-5">

@@ -13,6 +13,7 @@ export const instant = false;
 const NAV: { href: string; label: string; roles: Role[] }[] = [
   { href: "/admin", label: "Dashboard", roles: ["super_admin", "editor", "division_admin"] },
   { href: "/admin/posts", label: "Orders & news", roles: ["super_admin", "editor"] },
+  { href: "/admin/feed", label: "Feed & moderation", roles: ["super_admin", "editor"] },
   { href: "/admin/pages", label: "Pages", roles: ["super_admin", "editor"] },
   { href: "/admin/gallery", label: "Photo gallery", roles: ["super_admin", "editor"] },
   { href: "/admin/officials", label: "Office bearers", roles: ["super_admin", "editor", "division_admin"] },
@@ -52,6 +53,17 @@ async function Shell({ children }: { children: React.ReactNode }) {
           ).rows?.[0]?.n ?? 0,
         );
   const meetingsToday = admin.role === "super_admin" ? (await getMeetingAlerts()).filter((a) => a.group !== "soon").length : 0;
+  // members' posts waiting for approval and reported things not looked at yet
+  const moderation =
+    admin.role === "division_admin"
+      ? 0
+      : Number(
+          (
+            (await getDb().execute(
+              sql`select (select count(*) from member_posts where status = 'pending') + (select count(*) from (select distinct target, target_id from feed_reports where status = 'open') r) as n`,
+            )) as unknown as { rows?: { n: number }[] }
+          ).rows?.[0]?.n ?? 0,
+        );
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
       <aside className="bg-coal text-light lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
@@ -68,6 +80,9 @@ async function Shell({ children }: { children: React.ReactNode }) {
               {n.label}
               {n.href === "/admin/members" && waiting > 0 && (
                 <span aria-label={`${waiting} waiting`} className="ml-2 inline-grid h-5 min-w-5 place-items-center rounded-full bg-signal px-1.5 text-xs font-bold text-ink">{waiting}</span>
+              )}
+              {n.href === "/admin/feed" && moderation > 0 && (
+                <span aria-label={`${moderation} to look at`} className="ml-2 inline-grid h-5 min-w-5 place-items-center rounded-full bg-signal px-1.5 text-xs font-bold text-ink">{moderation}</span>
               )}
               {n.href === "/admin/meetings" && meetingsToday > 0 && (
                 <span aria-label={`${meetingsToday} today`} className="ml-2 inline-grid h-5 min-w-5 place-items-center rounded-full bg-signal px-1.5 text-xs font-bold text-ink">{meetingsToday}</span>

@@ -2,6 +2,7 @@
 
 import { and, asc, eq, gte, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { getGrievanceTypes } from "@/lib/content";
 import { isLang, type UiKey } from "@/lib/i18n";
 import { clientKey, tooMany } from "@/lib/rate-limit";
 import { getSettings, setting } from "@/lib/queries";
@@ -27,8 +28,11 @@ export async function submitGrievance(_prev: SubmitState, form: FormData): Promi
   if (await tooMany("grievance-ip", await clientKey(), 20, 3600)) return { error: "errLimit", values };
   if (name.length < 2) return { error: "errName", values };
   if (!/^[6-9]\d{9}$/.test(mobile)) return { error: "errMobile", values };
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "errEmail", values };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "errEmail", values };
+  if (!employeeId) return { error: "errEmployeeId", values };
   if (!divisionId) return { error: "errDivision", values };
+  // a type is needed whenever the admin has set some up; with none there is nothing to choose
+  if (!typeId && (await getGrievanceTypes()).length > 0) return { error: "errType", values };
   if (subject.length < 3) return { error: "errSubject", values };
   if (details.length < 20) return { error: "errDetails", values };
 

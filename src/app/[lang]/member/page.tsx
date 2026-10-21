@@ -4,9 +4,12 @@ import { Suspense } from "react";
 import { eq } from "drizzle-orm";
 import PageHero from "@/components/PageHero";
 import { getDb, schema } from "@/db";
-import { intlLocale, isLang } from "@/lib/i18n";
+import Link from "next/link";
+import { getMyPosts } from "@/lib/feed";
+import { intlLocale, isLang, type Dict, type Lang } from "@/lib/i18n";
 import { getMember } from "@/lib/member-auth";
 import { getUi, pick } from "@/lib/queries";
+import { pickText } from "@/lib/text3";
 import ChangePasswordForm from "./ChangePasswordForm";
 import { memberLogout } from "./actions";
 import PrintButton from "./PrintButton";
@@ -104,6 +107,8 @@ async function Account({ params }: { params: Promise<{ lang: string }> }) {
               </form>
             </div>
 
+            <MyPosts lang={lang} memberId={m.id} ui={ui} />
+
             <div className="no-print">
               <ChangePasswordForm ui={ui} lang={lang} />
             </div>
@@ -111,5 +116,58 @@ async function Account({ params }: { params: Promise<{ lang: string }> }) {
         )}
       </div>
     </>
+  );
+}
+
+const STATUS_TONE: Record<string, string> = {
+  pending: "bg-signal/25 text-ink",
+  approved: "bg-green-100 text-green-800",
+  rejected: "bg-brand/10 text-brand",
+  removed: "bg-line/70 text-muted",
+};
+
+/** The member's own feed posts and where each one stands, with the admin's note when it was not approved. */
+async function MyPosts({ lang, memberId, ui }: { lang: Lang; memberId: number; ui: Dict }) {
+  const posts = await getMyPosts(memberId);
+  const when = (iso: string) => new Intl.DateTimeFormat(intlLocale(lang), { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" }).format(new Date(iso));
+  return (
+    <section aria-labelledby="my-posts" className="no-print rounded-md border border-line bg-white">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
+        <h2 id="my-posts" className="text-lg font-semibold">
+          {ui.fdMyPosts}
+        </h2>
+        <Link href={`/${lang}/feed`} className="inline-flex min-h-10 items-center rounded-full bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-deep">
+          {ui.fdShare}
+        </Link>
+      </div>
+      {posts.length === 0 ? (
+        <p className="px-5 py-6 text-muted">{ui.fdNoPosts}</p>
+      ) : (
+        <ul className="divide-y divide-line">
+          {posts.map((p) => (
+            <li key={p.id} className="px-5 py-4">
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className={`rounded-full px-2.5 py-0.5 font-bold ${STATUS_TONE[p.status] ?? STATUS_TONE.pending}`}>{ui[`fdSt_${p.status}` as keyof Dict] ?? p.status}</span>
+                {p.topic && <span className="font-medium text-brand">{pickText(lang, p.topic)}</span>}
+                <time dateTime={p.createdAt} className="ms-auto text-muted">
+                  {when(p.createdAt)}
+                </time>
+              </div>
+              <p className="mt-2 line-clamp-3 whitespace-pre-line break-words">{p.body}</p>
+              {p.reviewNote && (p.status === "rejected" || p.status === "removed") && (
+                <p className="mt-2 rounded-md bg-paper px-3 py-2 text-sm">
+                  <span className="font-semibold">{ui.fdAdminNote}:</span> {p.reviewNote}
+                </p>
+              )}
+              {p.status === "approved" && (
+                <Link href={`/${lang}/feed/post/${p.id}`} className="mt-2 inline-flex min-h-10 items-center text-sm font-semibold text-brand hover:underline">
+                  {ui.fdViewPost} →
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

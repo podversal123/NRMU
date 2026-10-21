@@ -19,7 +19,7 @@ export default async function JoinPage({ params }: { params: Promise<{ lang: str
   return (
     <>
       <PageHero lang={lang} title={title} sub={setting(s, "join.sub", lang)} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: title }]} />
-      <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-14">
+      <div className="mx-auto max-w-wrap px-5 pb-12 pt-6 sm:px-8 sm:pb-14">
         <JoinForm
           ui={ui}
           lang={lang}

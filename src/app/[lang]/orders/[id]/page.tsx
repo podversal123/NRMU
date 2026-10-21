@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import PageFallback from "@/components/PageFallback";
 import type { Metadata } from "next";
 import Icon from "@/components/Icon";
+import OrderFeedActions from "@/components/feed/OrderFeedActions";
 import PageHero from "@/components/PageHero";
 import PageTools from "@/components/PageTools";
 import SafeHtml from "@/components/SafeHtml";
@@ -54,18 +55,38 @@ async function OrderPageContent({ params }: Props) {
     <>
       <PageHero lang={lang} title={title} crumbs={[{ href: `/${lang}`, label: ui.home }, { href: `/${lang}/orders`, label: ordersTitle }, { label: formatDate(post.publishedAt, lang) }]} />
       <article className="mx-auto grid max-w-wrap gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="min-w-0 rounded-none border border-line bg-white p-6 sm:p-10">
-          <SafeHtml html={post.contentHtml} />
+        <div className="min-w-0 space-y-6">
+          <div className="rounded-none border border-line bg-white p-6 sm:p-10">
+            <SafeHtml html={post.contentHtml} />
+          </div>
+          {/* likes and comments are per visitor; the order above stays a pre-built page */}
+          <Suspense fallback={<div className="mt-2 h-28 border-t border-line" aria-busy="true" />}>
+            <OrderFeedActions lang={lang} id={post.id} />
+          </Suspense>
         </div>
         <aside className="space-y-5">
-          <div className="rounded-none border border-line bg-white p-5">
-            <p className="text-sm text-muted">{formatDate(post.publishedAt, lang)}</p>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {post.cats.map((c) => (
-                <Link key={c.id} href={`/${lang}/orders?cat=${c.slug}`} className="border border-line px-2.5 py-1 text-sm text-brand hover:border-brand">
-                  {pick(lang, c.nameEn, c.nameHi, c.i18n?.name)}
-                </Link>
-              ))}
+          {/* the order's details as label and value rows between hairlines, then the tools, then the way back */}
+          <div>
+            <dl className="border-t border-line">
+              <div className="flex justify-between gap-3 border-b border-line py-3.5">
+                <dt className="text-sm text-muted">{ui.issuedOn}</dt>
+                <dd className="text-right text-[0.95rem] font-medium">{formatDate(post.publishedAt, lang)}</dd>
+              </div>
+              {post.cats.length > 0 && (
+                <div className="flex justify-between gap-3 border-b border-line py-3.5">
+                  <dt className="text-sm text-muted">{ui.category}</dt>
+                  <dd className="flex flex-wrap justify-end gap-x-3 text-right text-[0.95rem] font-medium">
+                    {post.cats.map((c) => (
+                      <Link key={c.id} href={`/${lang}/orders?cat=${c.slug}`} className="text-brand hover:underline">
+                        {pick(lang, c.nameEn, c.nameHi, c.i18n?.name)}
+                      </Link>
+                    ))}
+                  </dd>
+                </div>
+              )}
+            </dl>
+            <div className="border-b border-line py-3.5 print:hidden">
+              <PageTools print={ui.print} share={ui.share} copied={ui.copied} />
             </div>
           </div>
           {post.files.length > 0 && (
@@ -86,9 +107,9 @@ async function OrderPageContent({ params }: Props) {
               </ul>
             </div>
           )}
-          <PageTools print={ui.print} share={ui.share} copied={ui.copied} />
-          <Link href={`/${lang}/orders`} className="block rounded-full border-2 border-brand px-5 py-2.5 text-center font-bold text-brand hover:bg-brand hover:text-white">
-            ← {ui.backToOrders}
+          <Link href={`/${lang}/orders`} className="-my-2 inline-flex min-h-11 items-center gap-2 font-semibold text-brand hover:underline print:hidden">
+            <Icon name="arrow" size={16} className="rotate-180" />
+            {ui.backToOrders}
           </Link>
         </aside>
       </article>

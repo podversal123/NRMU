@@ -25,61 +25,40 @@ export function calmTitle(s: string) {
 }
 const SMALL = new Set(["OF", "AND", "THE", "AT", "ON", "IN", "BY", "FOR", "TO", "A", "AN"]);
 
-/** The line under the page title plus one chip per section, which jumps to it and says how much is in it. */
-export function WingIntro({ sub, chips }: { sub: string; chips: { href: string; label: string; count?: number }[] }) {
+/** The line under the page title. */
+export function WingIntro({ sub }: { sub: string }) {
+  if (!sub) return null;
   return (
     <div className="mx-auto max-w-wrap px-5 sm:px-8">
-      {sub && <p className="mt-2 max-w-2xl text-lg text-muted">{sub}</p>}
-      <nav className="mt-6 flex flex-wrap gap-2.5">
-        {chips.map((c) => (
-          <a key={c.href} href={c.href} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-white px-4 text-sm font-medium text-ink shadow-sm transition-colors hover:border-brand hover:text-brand">
-            {c.count !== undefined && <span className="grid min-w-7 place-items-center rounded-full bg-signal/25 px-2 py-0.5 text-xs font-bold text-ink">{c.count}</span>}
-            {c.label}
-          </a>
-        ))}
-      </nav>
+      <p className="mt-2 max-w-2xl text-lg text-muted">{sub}</p>
     </div>
   );
 }
 
-/** Section title with the red rule above it and an optional count next to it. */
+/** Section title with an optional count after it in small grey figures. */
 export function WingHeading({ title, count }: { title: string; count?: number }) {
   return (
-    <div className="mb-6">
-      <h2 className="flex items-center gap-3 text-2xl font-semibold">
-        {title}
-        {count !== undefined && <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-sm font-bold text-brand">{count}</span>}
-      </h2>
-    </div>
+    <h2 className="mb-3.5 flex items-baseline gap-2.5 text-[1.375rem] font-semibold">
+      {title}
+      {count !== undefined && <span className="text-sm font-medium tabular-nums text-muted">{count}</span>}
+    </h2>
   );
 }
 
-/** Shown while a wing has no committee list yet: a calm placeholder card instead of a bare line of text. */
+/** Shown while a section has nothing in it yet: one quiet line between hairlines. */
 export function WingEmpty({ text }: { text: string }) {
-  return (
-    <div className="flex items-center gap-4 rounded-lg border border-dashed border-line bg-paper/60 px-5 py-6 sm:px-7">
-      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white text-brand shadow-sm">
-        <Icon name="people" />
-      </span>
-      <p className="text-muted">{text}</p>
-    </div>
-  );
+  return <p className="border-y border-line py-3.5 text-muted">{text}</p>;
 }
 
-/** Links to the committee pages of a wing, as horizontal cards. */
+/** Links to the committee pages of a wing: a list in two columns between hairlines, each a name and a chevron. */
 export function CommitteeLinks({ pages, lang, base }: { pages: { slug: string; titleEn: string; titleHi: string | null; i18n: I18n }[]; lang: Lang; base: string }) {
   return (
-    <ul className="grid gap-4 md:grid-cols-2">
+    <ul className="grid border-t border-line md:grid-cols-2 md:gap-x-10">
       {pages.map((p) => (
-        <li key={p.slug} className="min-w-0">
-          <Link href={`/${lang}/${base}/${p.slug}`} className="group flex h-full items-stretch overflow-hidden rounded-lg border border-line bg-white shadow-sm transition hover:shadow-lg">
-            <span className="grid w-16 shrink-0 place-items-center bg-gradient-to-br from-brand to-brand-deep text-signal sm:w-20">
-              <Icon name="people" size={26} />
-            </span>
-            <span className="flex min-w-0 flex-1 items-center justify-between gap-3 px-5 py-4">
-              <span className="min-w-0 break-words font-semibold leading-snug">{calmTitle(pick(lang, p.titleEn, p.titleHi, p.i18n?.title))}</span>
-              <Icon name="arrow" size={20} className="shrink-0 text-brand transition group-hover:translate-x-1" />
-            </span>
+        <li key={p.slug} className="min-w-0 border-b border-line">
+          <Link href={`/${lang}/${base}/${p.slug}`} className="group flex h-full items-center justify-between gap-3 py-3.5 font-medium">
+            <span className="min-w-0 break-words leading-snug group-hover:text-brand">{calmTitle(pick(lang, p.titleEn, p.titleHi, p.i18n?.title))}</span>
+            <Icon name="chevron" size={16} className="shrink-0 text-brand" />
           </Link>
         </li>
       ))}
@@ -115,7 +94,7 @@ export function CommitteeSideNav({ pages, lang, base, current, title, back }: { 
   );
 }
 
-/** Reports and events of a wing, newest first, grouped under their year, each with a date block. */
+/** Reports and events of a wing, newest first, in one column between hairlines, with the year above each group. */
 export function ActivityList({ rows, lang }: { rows: CardRow[]; lang: Lang }) {
   const years: { year: string; rows: CardRow[] }[] = [];
   for (const r of rows) {
@@ -124,28 +103,24 @@ export function ActivityList({ rows, lang }: { rows: CardRow[]; lang: Lang }) {
     if (!g) years.push((g = { year: y, rows: [] }));
     g.rows.push(r);
   }
-  const day = new Intl.DateTimeFormat(intlLocale(lang), { day: "2-digit" });
-  const month = new Intl.DateTimeFormat(intlLocale(lang), { month: "short" });
+  const dayMonth = new Intl.DateTimeFormat(intlLocale(lang), { day: "2-digit", month: "short" });
   const yearFmt = (y: string) => Number(y).toLocaleString(intlLocale(lang), { useGrouping: false });
   return (
-    <div className="space-y-8">
+    <div className="max-w-[55rem] border-t border-line">
       {years.map((g) => (
-        <div key={g.year} className="grid gap-4 md:grid-cols-[5rem_1fr]">
-          <p className="text-2xl font-bold text-brand/80 md:pt-3">{yearFmt(g.year)}</p>
-          <ul className="grid gap-3 lg:grid-cols-2">
+        <div key={g.year}>
+          <h3 className="pb-1.5 pt-[1.125rem] text-[0.8rem] font-semibold tracking-wide text-brand">{yearFmt(g.year)}</h3>
+          <ul>
             {g.rows.map((r) => {
               const d = new Date(r.publishedAt.slice(0, 10) + "T00:00:00");
               return (
-                <li key={r.id} className="min-w-0">
-                  <Link href={`/${lang}/orders/${r.id}`} className="group flex h-full items-stretch overflow-hidden rounded-lg border border-line bg-white shadow-sm transition hover:shadow-lg">
-                    <span className="flex w-16 shrink-0 flex-col items-center justify-center bg-paper text-center">
-                      <span className="text-2xl font-bold leading-none text-brand">{day.format(d)}</span>
-                      <span className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted">{month.format(d)}</span>
-                    </span>
-                    <span className="flex min-w-0 flex-1 items-center justify-between gap-3 px-4 py-3.5">
-                      <span className="line-clamp-2 min-w-0 font-medium leading-snug group-hover:text-brand">{calmTitle(pick(lang, r.titleEn, r.titleHi, r.i18n?.title))}</span>
-                      <Icon name="arrow" size={18} className="shrink-0 text-brand transition group-hover:translate-x-1" />
-                    </span>
+                <li key={r.id} className="border-b border-line">
+                  <Link href={`/${lang}/orders/${r.id}`} className="group grid grid-cols-[4.75rem_1fr_1rem] items-center gap-3 py-3.5">
+                    <time dateTime={r.publishedAt.slice(0, 10)} className="text-sm tabular-nums text-muted">
+                      {dayMonth.format(d)}
+                    </time>
+                    <span className="min-w-0 font-medium leading-snug group-hover:text-brand">{calmTitle(pick(lang, r.titleEn, r.titleHi, r.i18n?.title))}</span>
+                    <Icon name="chevron" size={16} className="text-brand" />
                   </Link>
                 </li>
               );

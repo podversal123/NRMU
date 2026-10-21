@@ -56,7 +56,9 @@ export const altLang = (lang: Lang): Lang => (lang === "en" ? "hi" : "en");
 
 export const UI_KEYS = [
   "skip", "textSize", "textSmaller", "textDefault", "textLarger", "textContrast", "tickerPause", "tickerPlay", "menu", "search", "popular", "viewAll",
-  "pdf", "home", "category", "allCategories", "subCategoryPick", "year", "allYears", "clear", "filters", "results", "result",
+  "phName", "phMobile", "phEmail", "phDesignation", "phEmployeeId", "phPassword", "phPassword2", "phLoginPassword", "phSubject", "phDetails",
+  "phTicket", "phCurrent", "phNew", "phNew2", "errDesignation", "errEmployeeId", "errType",
+  "pdf", "home", "category", "issuedOn", "allCategories", "subCategoryPick", "year", "allYears", "clear", "filters", "results", "result",
   "noResults", "noResultsHint", "download", "attachments", "previous", "next", "page", "of", "backToOrders",
   "call", "branches", "branchSecretaries", "noItems", "formName", "formMobile", "formEmail",
   "formDivision", "formDivisionPick", "formDesignation", "formEmployeeId", "formMessage", "submit", "submitting",
@@ -80,6 +82,12 @@ export const UI_KEYS = [
   // members
   "memBranch", "memBranchPick", "memDepartment", "memDepartmentPick", "memPassword", "memPasswordHint", "memPassword2", "memConsent", "memConsentLink", "memErrBranch", "memErrDepartment", "memErrPassword", "memErrPassword2", "memErrConsent", "memErrExists", "memThanksTitle", "memThanksText", "memHaveAccount", "memLoginTitle", "memLoginSub", "memLoginPassword", "memLoginButton", "memLoginWrong", "memLoginPending", "memLoginInactive", "memLoginLocked", "memNotMember", "memHeaderLogin", "memForgot", "memAccountTitle", "memJoinNow", "memCardTitle", "memNo", "memStatusLabel", "memActive", "memValid", "memOngoing", "memPrint", "memSignOut", "memChangeTitle", "memCurrent", "memNew", "memChangeButton", "memChanged", "memErrCurrent", "memMustChange",
   "memSecPersonal", "memSecWork", "memSecAccount", "pwShow", "pwHide",
+  // feed
+  "fdShare", "fdPlaceholder", "fdTopic", "fdTopicPick", "fdAddMedia", "fdMediaHint", "fdAnonymous", "fdSubmit", "fdSent", "fdAnonName", "fdAnonNoDiv",
+  "fdAll", "fdFromUnion", "fdFromMembers", "fdLike", "fdUnlike", "fdLikesCount", "fdComment", "fdComments", "fdCommentsCount", "fdSuggestion",
+  "fdWriteComment", "fdWriteSuggestion", "fdSend", "fdNoComments", "fdReport", "fdReportReason", "fdReportSend", "fdReported", "fdDelete", "fdCancel",
+  "fdSignInToAct", "fdOpenOrder", "fdLoadMore", "fdMyPosts", "fdSt_pending", "fdSt_approved", "fdSt_rejected", "fdSt_removed", "fdAdminNote",
+  "fdErrBody", "fdErrTopic", "fdErrFile", "fdErrTooMany", "fdErrGeneric", "fdUploading", "fdRemove", "fdViewPost", "fdNoPosts", "fdOfficial", "fdStart", "fdTopics", "fdShareBtn", "fdTagline",
 ] as const;
 export type UiKey = (typeof UI_KEYS)[number];
 export type Dict = Record<UiKey, string>;

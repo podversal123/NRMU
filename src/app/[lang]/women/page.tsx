@@ -25,17 +25,11 @@ export default async function WomenPage({ params }: { params: Promise<{ lang: st
     getCommittee("women"),
   ]);
 
-  const chips = [
-    { href: "#committee", label: t("wings.committee_title"), count: committee.length || undefined },
-    ...(pages.length ? [{ href: "#committees", label: t("women.pages_title"), count: pages.length }] : []),
-    ...(posts.length ? [{ href: "#reports", label: t("women.posts_title"), count: posts.length }] : []),
-  ];
-
   return (
     <>
       <PageHero lang={lang} title={title} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: title }]} />
-      <WingIntro sub={t("women.sub")} chips={chips} />
-      <div className="mx-auto max-w-wrap space-y-16 px-5 py-12 sm:px-8 sm:py-14">
+      <WingIntro sub={t("women.sub")} />
+      <div className="mx-auto max-w-wrap space-y-16 px-5 pb-12 pt-8 sm:px-8 sm:pb-14">
         <CommitteeSection people={committee} lang={lang} title={t("wings.committee_title")} centralLabel={t("wings.central")} pending={t("wings.committee_pending")} callLabel={ui.call} />
         {pages.length > 0 && (
           <section id="committees" className="scroll-mt-28">
