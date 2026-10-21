@@ -178,7 +178,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               <Panel title={navLabel(wingsMenu)}>
                 {wings.map((w) => (
                   <div key={w.href} className="border-b border-line last:border-b-0">
-                    <div className="flex items-baseline justify-between gap-3 bg-paper px-5 py-2.5">
+                    <div className="flex items-baseline justify-between gap-3 bg-white px-5 py-2.5">
                       <h3 className="text-sm font-semibold text-brand">{w.name}</h3>
                       <Link href={`/${lang}${w.href}`} className="shrink-0 text-sm font-medium text-brand hover:underline">
                         {ui.viewAll} →
