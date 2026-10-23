@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Breadcrumb from "@/components/Breadcrumb";
 import Composer from "@/components/feed/Composer";
 import FeedCard from "@/components/feed/FeedCard";
+import FilePreviewPane from "@/components/feed/FilePreviewPane";
 import { cardText, composerText, feedLabels } from "@/components/feed/labels";
 import { feedConfig, getFeedPage, getFeedState, getFeedTopics, type FeedFilter } from "@/lib/feed";
 import { isLang, type Lang } from "@/lib/i18n";
@@ -67,9 +68,10 @@ async function FeedBody({ lang, title, searchParams }: { lang: Lang; title: stri
   const bar = <span aria-hidden className="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-brand" />;
 
   return (
-    // laid out as on X: one column of posts between hairlines, opened by the tabs and topics; it keeps to the page's left edge
-    <div className="mx-auto mt-3 max-w-wrap pb-10 sm:px-8">
-      <section aria-label={title} className="min-w-0 max-w-[42rem] border-line bg-white sm:rounded-t-2xl sm:border-x sm:border-y">
+    // laid out as on X: one column of posts between hairlines, opened by the tabs and topics; it keeps to the page's left edge.
+    // On wide screens a PDF opened from a post shows in the room to its right.
+    <div className="mx-auto mt-3 max-w-wrap pb-10 sm:px-8 xl:flex xl:gap-6">
+      <section aria-label={title} className="min-w-0 max-w-[42rem] xl:w-[42rem] xl:shrink-0 border-line bg-white sm:rounded-t-2xl sm:border-x sm:border-y">
         <nav aria-label={title} className="sticky top-[var(--below-header,5.75rem)] z-10 border-b border-line bg-white transition-[top] duration-300 motion-reduce:transition-none sm:rounded-t-2xl lg:top-[var(--below-header,5.25rem)]">
           <ul className="flex">
             <li className="flex flex-1">
@@ -153,6 +155,7 @@ async function FeedBody({ lang, title, searchParams }: { lang: Lang; title: stri
           </div>
         )}
       </section>
+      <FilePreviewPane text={{ download: text.download, newTab: text.newTab, close: text.close }} />
     </div>
   );
 }

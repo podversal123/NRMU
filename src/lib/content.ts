@@ -176,6 +176,8 @@ export async function getOfficials() {
 
 export type OfficePerson = {
   id: number;
+  /** The kind of post (see office_bearers.scope); missing for wing committee members. */
+  scope?: string;
   nameEn: string;
   nameHi: string | null;
   i18n: I18n | null;
@@ -190,8 +192,9 @@ export type OfficePerson = {
 
 /**
  * All office bearers in the three parts the union asked for: central, divisional (a part for every division)
- * and branch (a part for every branch, grouped by division). Divisions and branches without a person are
- * kept, so the page can say that their details are still to come.
+ * and branch (a part for every branch, grouped by division). A division has its President and Secretary as
+ * `leaders` and the rest of its committee as `body`; a branch has its whole committee in `people`. Divisions
+ * and branches without a person are kept, so the page can say that their details are still to come.
  */
 export async function getOfficeBearerParts() {
   "use cache";
@@ -223,15 +226,16 @@ export async function getOfficeBearerParts() {
       .where(eq(officeBearers.active, true))
       .orderBy(asc(designations.sort), asc(officeBearers.sort), asc(officeBearers.id)),
   ]);
-  const strip = ({ id, nameEn, nameHi, i18n, designationEn, designationHi, designationI18n, placeLabel, addressEn, phone, photoUrl }: (typeof people)[number]): OfficePerson => ({ id, nameEn, nameHi, i18n, designationEn, designationHi, designationI18n, placeLabel, addressEn, phone, photoUrl });
+  const strip = ({ id, scope, nameEn, nameHi, i18n, designationEn, designationHi, designationI18n, placeLabel, addressEn, phone, photoUrl }: (typeof people)[number]): OfficePerson => ({ id, scope, nameEn, nameHi, i18n, designationEn, designationHi, designationI18n, placeLabel, addressEn, phone, photoUrl });
   return {
     central: people.filter((p) => p.scope === "central").map(strip),
     divisions: divs.map((d) => ({
       division: d,
       leaders: people.filter((p) => p.divisionId === d.id && (p.scope === "division_president" || p.scope === "division_secretary")).map(strip),
+      body: people.filter((p) => p.divisionId === d.id && p.scope === "division_body").map(strip),
       branches: branches
         .filter((b) => b.divisionId === d.id)
-        .map((b) => ({ branch: b, secretaries: people.filter((p) => p.scope === "branch_secretary" && p.branchId === b.id).map(strip) })),
+        .map((b) => ({ branch: b, people: people.filter((p) => p.scope.startsWith("branch_") && p.branchId === b.id).map(strip) })),
     })),
   };
 }
@@ -252,6 +256,7 @@ export async function getDivisionDetail(slug: string) {
       .select({
         id: officeBearers.id,
         scope: officeBearers.scope,
+        branchId: officeBearers.branchId,
         nameEn: officeBearers.nameEn,
         nameHi: officeBearers.nameHi,
         i18n: officeBearers.i18n,
@@ -543,9 +548,9 @@ export async function getLoosePhotos(limit: number): Promise<GalleryRow[]> {
 
 /* ------------------------------ Wing committees ------------------------------ */
 
-export type CommitteePerson = OfficePerson & { divisionId: number | null; divisionEn: string | null; divisionHi: string | null; divisionI18n: I18n | null };
+export type CommitteePerson = OfficePerson & { divisionId: number | null; divisionEn: string | null; divisionHi: string | null; divisionI18n: I18n | null; branchName: string | null };
 
-/** The committee of a wing (women or youth): central members first, then division by division. */
+/** The committee of a wing (women or youth): central members first, then division by division, each division's branch members after its own. */
 export async function getCommittee(wing: "women" | "youth"): Promise<CommitteePerson[]> {
   "use cache";
   cacheLife("hours");
@@ -553,11 +558,12 @@ export async function getCommittee(wing: "women" | "youth"): Promise<CommitteePe
   const rows = await getDb().execute(sql`
     select c.id, c.name_en as "nameEn", c.name_hi as "nameHi", c.designation_en as "designationEn", c.designation_hi as "designationHi",
            c.i18n, jsonb_build_object('name', c.i18n->'designation') as "designationI18n",
-           null::text as "placeLabel", null::text as "addressEn", c.phone, c.photo_url as "photoUrl",
-           c.division_id as "divisionId", d.name_en as "divisionEn", d.name_hi as "divisionHi", d.i18n as "divisionI18n"
+           c.branch_name as "placeLabel", null::text as "addressEn", c.phone, c.photo_url as "photoUrl",
+           c.division_id as "divisionId", d.name_en as "divisionEn", d.name_hi as "divisionHi", d.i18n as "divisionI18n",
+           c.branch_name as "branchName"
     from committee_members c left join divisions d on d.id = c.division_id
     where c.wing = ${wing} and c.active
-    order by (c.division_id is not null), d.sort nulls first, c.sort, c.id`);
+    order by (c.division_id is not null), d.sort nulls first, (c.branch_name is not null), c.sort, c.id`);
   return rowsOf<CommitteePerson>(rows);
 }
 

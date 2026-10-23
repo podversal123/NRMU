@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHero from "@/components/PageHero";
+import OfficeList from "@/components/OfficeList";
 import PersonCard from "@/components/PersonCard";
 import { getOfficeBearerParts } from "@/lib/content";
 import { isLang } from "@/lib/i18n";
@@ -13,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return { title: (await navTitle(lang, "/officials/divisional")) || setting(await getSettings(), "officials.card.divisional", lang) };
 }
 
-/** A part for every division, each with its President and Secretary. A division without them yet says so. */
+/** A part for every division: its President and Secretary as cards, the rest of its committee in a list under them. A division without them yet says so. */
 export default async function DivisionalOfficeBearers({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
@@ -46,12 +47,21 @@ export default async function DivisionalOfficeBearers({ params }: { params: Prom
                   {t("officials.division_page")}
                 </Link>
               </div>
-              {d.leaders.length ? (
-                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {d.leaders.map((p) => (
-                    <PersonCard key={p.id} p={p} lang={lang} callLabel={ui.call} flip />
-                  ))}
-                </div>
+              {d.leaders.length || d.body.length ? (
+                <>
+                  {d.leaders.length > 0 && (
+                    <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                      {d.leaders.map((p) => (
+                        <PersonCard key={p.id} p={p} lang={lang} callLabel={ui.call} />
+                      ))}
+                    </div>
+                  )}
+                  {d.body.length > 0 && (
+                    <div className="mt-4 overflow-hidden rounded-xl border border-line bg-white px-4 shadow-[0_2px_10px_-4px_rgba(111,26,23,0.18)] sm:px-5">
+                      <OfficeList people={d.body} lang={lang} callLabel={ui.call} columns />
+                    </div>
+                  )}
+                </>
               ) : (
                 <p className="mt-4 text-muted">{t("officials.pending")}</p>
               )}

@@ -1,0 +1,1 @@
+ALTER TABLE "committee_members" ADD COLUMN "branch_name" text;

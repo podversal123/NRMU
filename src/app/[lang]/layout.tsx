@@ -23,7 +23,7 @@ import { TEXT_SIZES } from "@/lib/text-size";
 import Footer from "@/components/Footer";
 import BackToTop from "@/components/BackToTop";
 import { altLang, isLang, isRtl } from "@/lib/i18n";
-import { getMenu, getSettings, pick, setting, getUi } from "@/lib/queries";
+import { getDivisionMenu, getMenu, getSettings, pick, setting, getUi, type MenuItem } from "@/lib/queries";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -71,18 +71,16 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   const { lang } = await params;
   if (!isLang(lang)) notFound();
   const t = await getUi(lang);
-  const [s, menuTree] = await Promise.all([getSettings(), getMenu()]);
+  const [s, menuTree, divisionMenu] = await Promise.all([getSettings(), getMenu(), getDivisionMenu()]);
 
-  const menu = menuTree.map((m) => ({
-    id: m.id,
+  // a "/divisions" entry with nothing under it opens every division, and each division its branches
+  type Node = { href: string; label: string; children: Node[] };
+  const node = (m: MenuItem): Node => ({
     href: m.href,
     label: pick(lang, m.labelEn, m.labelHi, m.i18n?.label),
-    children: m.children.map((c) => ({
-      href: c.href,
-      label: pick(lang, c.labelEn, c.labelHi, c.i18n?.label),
-      children: c.children.map((g) => ({ href: g.href, label: pick(lang, g.labelEn, g.labelHi, g.i18n?.label) })),
-    })),
-  }));
+    children: (m.href === "/divisions" && m.children.length === 0 ? divisionMenu : m.children).map(node),
+  });
+  const menu = menuTree.map((m) => ({ id: m.id, ...node(m) }));
   const other = altLang(lang);
 
   return (

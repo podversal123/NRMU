@@ -26,7 +26,7 @@ const initialsOf = (name: string) =>
     .slice(0, 2)
     .toUpperCase();
 
-export default function PersonCard({ p, lang, callLabel, flip = false }: { p: Person; lang: Lang; callLabel: string; flip?: boolean }) {
+export default function PersonCard({ p, lang, callLabel }: { p: Person; lang: Lang; callLabel: string }) {
   const body = (
     <>
       {p.photoUrl ? (
@@ -51,11 +51,10 @@ export default function PersonCard({ p, lang, callLabel, flip = false }: { p: Pe
       </div>
     </>
   );
-  if (flip)
-    return (
-      <article className="min-w-0">
-        <FlipCard className="flex gap-4 p-4 sm:p-5">{body}</FlipCard>
-      </article>
-    );
-  return <article className="flex min-w-0 gap-4 border border-line bg-white p-4 sm:p-5">{body}</article>;
+  // one look everywhere a person is shown: the rounded card that turns over on hover
+  return (
+    <article className="min-w-0">
+      <FlipCard className="flex gap-4 p-4 sm:p-5">{body}</FlipCard>
+    </article>
+  );
 }

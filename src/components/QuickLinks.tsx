@@ -18,7 +18,7 @@ const iconFor = (href: string) => ICONS.find(([re]) => re.test(href))?.[1] ?? "d
 export default function QuickLinks({ title, items, lang }: { title: string; items: { id: number; href: string; label: string }[]; lang: string }) {
   if (!items.length) return null;
   return (
-    <section aria-labelledby="quick-title" className="border-b border-line bg-white py-10 lg:py-12">
+    <section aria-labelledby="quick-title" className="bg-white py-10 lg:py-12">
       <div className="mx-auto max-w-wrap px-5 sm:px-8">
         <h2 id="quick-title" className="flex items-center gap-2.5 text-xl font-bold">
           <span aria-hidden className="h-5 w-1 rounded-full bg-brand" />

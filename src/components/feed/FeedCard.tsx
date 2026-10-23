@@ -26,6 +26,8 @@ export type CardText = {
   viewPost: string;
   pdf: string;
   download: string;
+  newTab: string;
+  close: string;
 };
 
 /**
@@ -59,15 +61,15 @@ export function Avatar({ item, size = "h-11 w-11" }: { item: FeedItem; size?: st
   );
 }
 
-/** The gold tick and word marking the union's own posts. */
-export function OfficialBadge({ label }: { label: string }) {
+/** The gold tick and word marking the union's own posts. `compact` keeps only the tick on phones, for narrow cards. */
+export function OfficialBadge({ label, compact = false }: { label: string; compact?: boolean }) {
   return (
     <span className="inline-flex shrink-0 items-center gap-1 text-[0.8rem] font-semibold text-[#8a6a1f]">
       <svg aria-hidden viewBox="0 0 24 24" className="size-4" fill="#c8a45a">
         <path d="M12 2l2.4 2.2 3.2-.4.9 3.1 2.9 1.5-1 3 1 3-2.9 1.5-.9 3.1-3.2-.4L12 22l-2.4-2.2-3.2.4-.9-3.1-2.9-1.5 1-3-1-3 2.9-1.5.9-3.1 3.2.4z" />
         <path d="m8.5 12 2.3 2.3 4.7-4.7" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-      {label}
+      {compact ? <span className="max-sm:sr-only">{label}</span> : label}
     </span>
   );
 }
@@ -148,7 +150,7 @@ export default function FeedCard({
 
         {media.length > 0 && (
           <div className="mt-3">
-            <FeedMedia media={media} alt={isOrder ? title : ""} fileLabel={T.pdf} downloadLabel={T.download} />
+            <FeedMedia media={media} alt={isOrder ? title : ""} fileLabel={T.pdf} fileText={{ download: T.download, newTab: T.newTab, close: T.close }} />
           </div>
         )}
 

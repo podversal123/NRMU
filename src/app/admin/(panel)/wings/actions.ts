@@ -26,6 +26,7 @@ function values(form: FormData) {
     designationHi: str(form, "designationHi") || null,
     i18n: readI18n(form, { name: 200, designation: 200 }),
     divisionId: Number(str(form, "divisionId", 10)) || null,
+    branchName: str(form, "branchName", 120) || null,
     phone: phoneOf(str(form, "phone", 30)),
     photoUrl: isOwnBlobUrl(photo) ? photo : null,
     sort: Number(str(form, "sort", 6)) || 0,

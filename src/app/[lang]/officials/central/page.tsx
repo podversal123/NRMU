@@ -29,7 +29,7 @@ export default async function CentralOfficeBearers({ params }: { params: Promise
         {parts.central.length ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {parts.central.map((p) => (
-              <PersonCard key={p.id} p={p} lang={lang} callLabel={ui.call} flip />
+              <PersonCard key={p.id} p={p} lang={lang} callLabel={ui.call} />
             ))}
           </div>
         ) : (

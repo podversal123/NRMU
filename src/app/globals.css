@@ -198,6 +198,25 @@ html[data-orders-pending] .orders-list { opacity: 0.45; pointer-events: none; }
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 .deck-nav:hover { background: var(--gold); color: var(--ink); box-shadow: 0 0 0 1px var(--gold); }
+/* a document opened from the wall: a panel down the right side of the screen, the whole screen on phones */
+.file-panel {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(52rem, 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: -24px 0 60px -20px rgba(21, 22, 26, 0.45);
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1), overlay 0.32s allow-discrete, display 0.32s allow-discrete;
+}
+.file-panel[open] { transform: none; }
+@starting-style { .file-panel[open] { transform: translateX(100%); } }
+.file-panel::backdrop { background: rgba(21, 22, 26, 0.5); }
+html:has(.file-panel[open]) { overflow: hidden; }
 /* the deck sits on the maroon divisions band, so the names are light with gold for the current one */
 .deck-name {
   position: relative;
@@ -618,6 +637,20 @@ html[data-orders-pending] .orders-list { opacity: 0.45; pointer-events: none; }
 .ticker:hover .ticker-track, .ticker:focus-within .ticker-track { animation-play-state: paused; }
 /* soft fade at both ends of the moving strip */
 .ticker-view { mask-image: linear-gradient(90deg, transparent, #000 2rem, #000 calc(100% - 2rem), transparent); }
+/* the home page's wall cards run past the same way, slower, with room below them for their shadow */
+.wall-track { display: flex; align-items: stretch; width: max-content; padding: 0.25rem 0 2.75rem; animation: ticker-move var(--wall-dur, 60s) linear infinite; }
+.wall-marquee { --fade: 1.5rem; mask-image: linear-gradient(90deg, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent); }
+@media (min-width: 768px) { .wall-marquee { --fade: 2.5rem; } }
+.wall-marquee:hover .wall-track, .wall-marquee:focus-within .wall-track { animation-play-state: paused; }
+/* a long menu flyout (a division's branches) scrolls with a thin, quiet bar and no arrow buttons */
+/* (Chrome ignores the ::-webkit rules once scrollbar-width is set, so the standard ones are only for browsers without them) */
+@supports not selector(::-webkit-scrollbar) {
+  .fly-scroll { scrollbar-width: thin; scrollbar-color: rgba(21, 22, 26, 0.28) transparent; }
+}
+.fly-scroll::-webkit-scrollbar { width: 6px; }
+.fly-scroll::-webkit-scrollbar-track { background: transparent; }
+.fly-scroll::-webkit-scrollbar-thumb { background: rgba(21, 22, 26, 0.28); border-radius: 99px; }
+.fly-scroll::-webkit-scrollbar-button { display: none; }
 @keyframes live-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 .live-dot { animation: live-dot 1.6s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .live-dot { animation: none; } }
@@ -663,3 +696,4 @@ html[data-contrast="high"] img { filter: contrast(1.1); }
 @layer base {
   button:not(:disabled), [role="button"]:not([aria-disabled="true"]), [role="option"], summary { cursor: pointer; }
 }
+

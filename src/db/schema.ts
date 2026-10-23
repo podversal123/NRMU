@@ -143,7 +143,11 @@ export const branches = pgTable(
   (t) => [index("branches_division_idx").on(t.divisionId)],
 );
 
-/** Titles held by office bearers. scope: central | division_president | division_secretary | branch_secretary */
+/**
+ * Titles held by office bearers. scope: central | division_president | division_secretary | division_body |
+ * branch_president | branch_secretary | branch_body. The body scopes hold the rest of a division's or a branch's
+ * committee (vice presidents, assistant secretaries, treasurer).
+ */
 export const designations = pgTable("designations", {
   id: serial("id").primaryKey(),
   scope: text("scope").notNull(),
@@ -154,7 +158,7 @@ export const designations = pgTable("designations", {
   i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
 });
 
-/** scope: central | division_president | division_secretary | branch_secretary */
+/** scope: central | division_president | division_secretary | division_body | branch_president | branch_secretary | branch_body */
 export const officeBearers = pgTable(
   "office_bearers",
   {
@@ -306,6 +310,8 @@ export const committeeMembers = pgTable(
     designationEn: text("designation_en"),
     designationHi: text("designation_hi"),
     divisionId: integer("division_id").references(() => divisions.id, { onDelete: "set null" }),
+    /** The branch a member speaks for, as printed in the union's list; empty for central and division-level members. */
+    branchName: text("branch_name"),
     phone: text("phone"),
     photoUrl: text("photo_url"),
     sort: integer("sort").notNull().default(0),

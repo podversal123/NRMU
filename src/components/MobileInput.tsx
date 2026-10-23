@@ -57,7 +57,9 @@ export default function MobileInput({
           onValue?.(d);
         }}
         // field-bare: the border shows focus, so the site-wide gold focus outline would only double it
-        className={`${className} field-bare pl-[4.25rem] pr-11 tabular-nums tracking-wide`}
+        // the right padding makes room for the tick only once it shows, and the placeholder keeps normal spacing, so
+        // the hint fits in a half-width column
+        className={`${className} field-bare pl-[4.25rem] ${ok ? "pr-11" : "pr-4"} tabular-nums tracking-wide placeholder:tracking-normal`}
       />
       {ok && (
         <svg aria-hidden viewBox="0 0 24 24" className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-green-700" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">

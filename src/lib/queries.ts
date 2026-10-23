@@ -191,6 +191,28 @@ export async function getUi(lang: Lang): Promise<Dict> {
 
 export type MenuItem = { id: number; labelEn: string; labelHi: string | null; i18n: I18n; href: string; children: MenuItem[] };
 
+/**
+ * Every division with its branches, as menu entries: a division opens its page, a branch opens the division page
+ * at that branch's committee. The header hangs this under a "/divisions" menu item that has no entries of its own,
+ * so the menu follows the divisions and branches in the admin without anyone keeping a copy of them.
+ */
+export async function getDivisionMenu(): Promise<MenuItem[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("divisions");
+  const [divs, branches] = await Promise.all([getDivisions(), getBranches()]);
+  return divs.map((d) => ({
+    id: -d.id,
+    labelEn: d.nameEn,
+    labelHi: d.nameHi,
+    i18n: { label: d.i18n?.name ?? {} },
+    href: `/divisions/${d.slug}`,
+    children: branches
+      .filter((b) => b.divisionId === d.id)
+      .map((b) => ({ id: -100000 - b.id, labelEn: b.nameEn, labelHi: b.nameHi, i18n: { label: b.i18n?.name ?? {} }, href: `/divisions/${d.slug}?branch=${b.id}`, children: [] })),
+  }));
+}
+
 /** Header menu as a tree: top-level items, each with its dropdown entries. */
 export async function getMenu(): Promise<MenuItem[]> {
   "use cache";

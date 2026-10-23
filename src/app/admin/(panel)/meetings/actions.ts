@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, notInArray, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
 import { getDb, schema } from "@/db";
@@ -245,7 +245,11 @@ export async function addOfficeBearers(form: FormData) {
   if (!meetingId) redirect("/admin/meetings");
   const group = str(form, "group", 12);
   const db = getDb();
-  const where = group === "central" ? and(eq(schema.officeBearers.active, true), eq(schema.officeBearers.scope, "central")) : and(eq(schema.officeBearers.active, true), eq(schema.officeBearers.divisionId, Number(group) || -1));
+  // a division's own committee and its branch secretaries; the rest of every branch committee would be hundreds of people
+  const where =
+    group === "central"
+      ? and(eq(schema.officeBearers.active, true), eq(schema.officeBearers.scope, "central"))
+      : and(eq(schema.officeBearers.active, true), eq(schema.officeBearers.divisionId, Number(group) || -1), notInArray(schema.officeBearers.scope, ["branch_president", "branch_body"]));
   const people = await db
     .select({ id: schema.officeBearers.id, name: schema.officeBearers.nameEn, phone: schema.officeBearers.phone, designation: schema.designations.nameEn })
     .from(schema.officeBearers)

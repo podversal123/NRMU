@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import FlipCard from "@/components/FlipCard";
+import BranchTable from "@/components/BranchTable";
 import PageHero from "@/components/PageHero";
 import { getOfficeBearerParts } from "@/lib/content";
 import { isLang } from "@/lib/i18n";
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return { title: (await navTitle(lang, "/officials/branch")) || setting(await getSettings(), "officials.card.branch", lang) };
 }
 
-/** A part for every branch (grouped by division), each showing its Secretary. */
+/** A table of branches for every division: a line per branch with its President and Secretary, the whole committee opening under it. */
 export default async function BranchOfficeBearers({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
@@ -47,30 +47,13 @@ export default async function BranchOfficeBearers({ params }: { params: Promise<
                   {t("officials.division_page")}
                 </Link>
               </div>
-              <ul className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {d.branches.map(({ branch, secretaries }) => (
-                  <li key={branch.id} className="min-w-0">
-                    <FlipCard className="p-4">
-                      <h3 className="break-words font-medium leading-snug">{pick(lang, branch.nameEn, branch.nameHi, branch.i18n?.name)}</h3>
-                      {secretaries.length ? (
-                        secretaries.map((p) => (
-                          <div key={p.id} className="mt-2 break-words">
-                            <p className="text-sm text-brand">{pick(lang, p.designationEn, p.designationHi, p.designationI18n?.name)}</p>
-                            <p className="font-medium">{pick(lang, p.nameEn, p.nameHi, p.i18n?.name)}</p>
-                            {p.phone && (
-                              <a href={`tel:${p.phone.replace(/\s/g, "")}`} aria-label={`${ui.call} ${p.phone}`} className="inline-flex min-h-11 items-center text-sm font-bold hover:text-brand">
-                                ☎ {p.phone}
-                              </a>
-                            )}
-                          </div>
-                        ))
-                      ) : (
-                        <p className="mt-2 text-sm text-muted">{t("officials.pending")}</p>
-                      )}
-                    </FlipCard>
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-6">
+                <BranchTable
+                  rows={d.branches.map(({ branch, people }) => ({ id: branch.id, name: pick(lang, branch.nameEn, branch.nameHi, branch.i18n?.name), people }))}
+                  lang={lang}
+                  labels={{ branch: ui.branches, phone: ui.cPhone, call: ui.call, pending: t("officials.pending") }}
+                />
+              </div>
             </section>
           ))}
         </div>

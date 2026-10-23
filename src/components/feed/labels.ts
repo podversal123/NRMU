@@ -47,6 +47,8 @@ export const cardText = (ui: Dict, org: string): CardText => ({
   viewPost: ui.fdViewPost,
   pdf: ui.pdf,
   download: ui.download,
+  newTab: ui.newTab,
+  close: ui.fdCancel,
 });
 
 export const composerText = (ui: Dict): ComposerText => ({

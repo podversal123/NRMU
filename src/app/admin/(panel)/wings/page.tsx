@@ -41,6 +41,7 @@ export default async function WingsAdmin({ searchParams }: { searchParams: Promi
           {divisions.map((d) => <option key={d.id} value={d.id}>{d.nameEn}</option>)}
         </select>
       </Field>
+      <Field label="Branch" hint="Only for a branch-level member; shown after the post."><input name="branchName" defaultValue={r?.branchName ?? ""} className={inputCls} /></Field>
       <Field label="Mobile"><input name="phone" inputMode="tel" defaultValue={r?.phone ?? ""} className={inputCls} /></Field>
       <Field label="Order" hint="Smaller numbers come first."><input type="number" name="sort" defaultValue={r?.sort ?? 0} className={inputCls} /></Field>
       <div className="lg:col-span-2"><UploadField name="photo" label="Photo (optional)" kind="image" folder="wings" initial={r?.photoUrl ? [r.photoUrl] : []} /></div>

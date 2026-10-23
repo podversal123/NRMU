@@ -135,13 +135,13 @@
     "group": "officials"
   },
   "officials.divisional.sub": {
-    "en": "The President and the Secretary of every division.",
-    "hi": "हर मंडल के अध्यक्ष और सचिव।",
+    "en": "Every division's committee: President, Secretary and the full body.",
+    "hi": "हर मंडल की समिति: अध्यक्ष, सचिव और पूरी कार्यकारिणी।",
     "group": "officials"
   },
   "officials.branch.sub": {
-    "en": "The Secretary of every branch, division by division.",
-    "hi": "हर शाखा के सचिव, मंडलवार।",
+    "en": "Every branch's committee, division by division.",
+    "hi": "हर शाखा की समिति, मंडलवार।",
     "group": "officials"
   },
   "officials.pending": {

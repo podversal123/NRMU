@@ -155,6 +155,13 @@
       "when": 1792412600711,
       "tag": "0021_nappy_invaders",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1792771515868,
+      "tag": "0022_cloudy_power_man",
+      "breakpoints": true
     }
   ]
 }

@@ -11,7 +11,10 @@ export const SCOPE_LABEL: Record<string, string> = {
   central: "Central",
   division_president: "Division president",
   division_secretary: "Division secretary",
+  division_body: "Division committee",
+  branch_president: "Branch president",
   branch_secretary: "Branch secretary",
+  branch_body: "Branch committee",
 };
 
 export default async function OfficialsAdmin({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {

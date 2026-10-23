@@ -166,7 +166,7 @@ export default function DivisionDeck({ items, labels }: { items: BoardItem[]; la
           <button type="button" onClick={() => step(-1)} aria-label={labels.previous} className="deck-nav">
             ←
           </button>
-          <p className="font-mono text-lg tabular-nums text-light/60">
+          <p className="font-mono text-lg tabular-nums text-light/55">
             <b className="text-2xl text-signal">{String(active + 1).padStart(2, "0")}</b> / {String(n).padStart(2, "0")}
           </p>
           <button type="button" onClick={() => step(1)} aria-label={labels.next} className="deck-nav">

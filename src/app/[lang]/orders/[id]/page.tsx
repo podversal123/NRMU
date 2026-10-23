@@ -10,6 +10,7 @@ import PageTools from "@/components/PageTools";
 import SafeHtml from "@/components/SafeHtml";
 import { isLang, locales } from "@/lib/i18n";
 import { getPost, getRecentPostIds } from "@/lib/content";
+import { downloadUrl, typeLabel } from "@/lib/download";
 import { formatDate, pick, getUi } from "@/lib/queries";
 import { navTitle } from "@/lib/nav";
 
@@ -90,20 +91,42 @@ async function OrderPageContent({ params }: Props) {
             </div>
           </div>
           {post.files.length > 0 && (
-            <div className="border border-line border-t-[3px] border-t-brand bg-white p-5">
+            // each file: the card opens it in a new tab, the round button on the right downloads it straight away
+            <div className="overflow-hidden rounded-xl border border-line border-t-[3px] border-t-brand bg-white p-5 shadow-[0_2px_10px_-4px_rgba(111,26,23,0.18)]">
               <h2 className="font-display text-lg font-semibold">{ui.attachments}</h2>
-              <ul className="mt-3 space-y-2">
-                {post.files.map((f) => (
-                  <li key={f.url}>
-                    <a href={f.url.replace(/^http:/, "https:")} target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 border border-line p-3 hover:border-brand hover:bg-paper">
-                      <Icon name="pdf" className="mt-0.5 shrink-0 text-brand" />
-                      <span className="min-w-0">
-                        <span className="line-clamp-2 break-words text-sm font-semibold group-hover:text-brand">{f.name || fileName(f.url)}</span>
-                        <span className="text-sm text-muted">{ui.download}</span>
-                      </span>
-                    </a>
-                  </li>
-                ))}
+              <ul className="mt-3 space-y-2.5">
+                {post.files.map((f) => {
+                  const url = f.url.replace(/^http:/, "https:");
+                  const name = f.name || fileName(url);
+                  return (
+                    <li key={f.url} className="relative">
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-start gap-3 rounded-lg border border-line bg-white p-3 pe-14 transition-colors hover:border-brand/40 hover:bg-[#fbf8f4]"
+                      >
+                        <span aria-hidden className="mt-0.5 shrink-0 rounded-md bg-brand px-1.5 py-1 text-[0.65rem] font-bold leading-none tracking-wide text-white">
+                          {typeLabel(url, ui.pdf)}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="line-clamp-2 break-words text-sm font-semibold leading-snug group-hover:text-brand">{name}</span>
+                          <span className="mt-0.5 block text-sm text-muted">{ui.download}</span>
+                        </span>
+                      </a>
+                      <a
+                        href={downloadUrl(url)}
+                        download
+                        aria-label={`${ui.download}: ${name}`}
+                        className="absolute end-3 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-brand text-white transition-colors hover:bg-brand-deep"
+                      >
+                        <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                          <path d="M12 4v12M6 11l6 6 6-6M5 20h14" />
+                        </svg>
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}

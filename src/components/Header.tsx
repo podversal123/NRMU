@@ -16,6 +16,12 @@ type Labels = {
 };
 
 const SIZES = TEXT_SIZES;
+// one hover group per flyout level (written out in full so the stylesheet has them)
+const FLY = [
+  { group: "group/fly", show: "group-hover/fly:block group-focus-within/fly:block" },
+  { group: "group/fly2", show: "group-hover/fly2:block group-focus-within/fly2:block" },
+  { group: "group/fly3", show: "group-hover/fly3:block group-focus-within/fly3:block" },
+];
 const read = (k: string) => {
   try {
     return localStorage.getItem(k);
@@ -67,8 +73,11 @@ export default function Header({
   const [mobileSub, setMobileSub] = useState<{ id: number; path: string } | null>(null);
   const openMobileSub = mobileSub && mobileSub.path === pathname ? mobileSub.id : null;
   const closeSub = () => setSub(null);
-  // Third level (a dropdown item with its own items): opens on hover or keyboard focus through CSS, or by tapping its arrow.
-  const [flyout, setFlyout] = useState<string | null>(null);
+  // Deeper levels (a dropdown item with its own items, and theirs): open on hover or keyboard focus through CSS, or by
+  // tapping an arrow. `flyout` is the path of items opened by tapping, one per level; `room` keeps, per item, whether
+  // its flyout would run off the right edge of the screen (it then opens to the left) and how tall it may be.
+  const [flyout, setFlyout] = useState<string[]>([]);
+  const [room, setRoom] = useState<Record<string, { left: boolean; height: number }>>({});
   const [size, setSize] = useState(1);
   // Page breakpoints are fixed in screen pixels, but text can be made larger. The full menu needs the room of a 1024px
   // screen at normal text, so with larger text it switches to the compact menu on wider screens too.
@@ -193,6 +202,76 @@ export default function Header({
     const p = href.split("?")[0];
     return p === "" ? pathname === `/${lang}` : pathname.startsWith(full(p));
   };
+  // The entries of a dropdown, and of every flyout under it, level by level (Office Bearers > Divisions > a division >
+  // its branches). Each level hovers on its own named group, so resting on an entry opens only its own flyout. A
+  // flyout of plain links (a division's branches) starts level with the top of the list it comes from, not with the
+  // entry, so the last division's branches get the whole height. It stops at the bottom of the screen and scrolls
+  // inside, with a thin scrollbar.
+  const flyItems = (items: Child[], depth: number, toLeft: boolean): React.ReactNode =>
+    items.map((c) => {
+      const fly = FLY[depth];
+      if (!c.children?.length || !fly)
+        return (
+          <li key={c.href}>
+            <Link href={full(c.href)} onClick={closeSub} className={`block px-5 py-2.5 text-[0.95rem] hover:bg-brand hover:text-white ${depth ? "whitespace-nowrap" : ""}`}>
+              {c.label}
+            </Link>
+          </li>
+        );
+      const left = toLeft || !!room[c.href]?.left;
+      const tapped = flyout[depth] === c.href;
+      const leaves = c.children.every((g) => !g.children?.length);
+      return (
+        <li
+          key={c.href}
+          // a flyout of plain links is placed against the whole list (the nearest positioned box), so the entry stays unpositioned
+          className={`${fly.group} ${leaves ? "" : "relative"}`}
+          onPointerEnter={(e) => {
+            // room for one more 16rem flyout to the right, and down to the bottom of the screen?
+            const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+            const box = e.currentTarget.getBoundingClientRect();
+            const top = leaves ? (e.currentTarget.parentElement ?? e.currentTarget).getBoundingClientRect().top : box.top;
+            const next = { left: box.right + 16 * rem > document.documentElement.clientWidth, height: Math.max(160, Math.floor(window.innerHeight - top - 12)) };
+            const now = room[c.href];
+            if (!now || now.left !== next.left || now.height !== next.height) setRoom((r) => ({ ...r, [c.href]: next }));
+          }}
+          onPointerLeave={() => setFlyout((p) => p.slice(0, depth))}
+        >
+          <div className="group/row flex items-stretch hover:bg-brand hover:text-white">
+            <Link href={full(c.href)} onClick={closeSub} className="block flex-1 whitespace-nowrap py-2.5 ps-5 pe-2 text-[0.95rem]">
+              {c.label}
+            </Link>
+            <button
+              type="button"
+              aria-label={c.label}
+              aria-expanded={tapped}
+              onClick={() => setFlyout((p) => (p[depth] === c.href ? p.slice(0, depth) : [...p.slice(0, depth), c.href]))}
+              className="grid w-10 shrink-0 place-items-center text-muted group-hover/row:text-white"
+            >
+              <Caret side />
+            </button>
+          </div>
+          {leaves ? (
+            // the white box is only as tall as its links; the clear box around it reaches the bottom of the list it
+            // comes from, so the pointer moving across from a lower entry is still inside and the flyout stays open
+            <div className={`absolute top-0 ${left ? "end-full" : "start-full"} z-50 -mt-0.5 min-h-full ${tapped ? "block" : `hidden ${fly.show}`}`}>
+              <ul
+                style={{ maxHeight: room[c.href]?.height ?? 480 }}
+                className="fly-scroll min-w-[16rem] overflow-y-auto overscroll-contain border border-line border-t-2 border-t-signal bg-white shadow-[0_12px_28px_rgba(0,0,0,0.18)]"
+              >
+                {flyItems(c.children, depth + 1, left)}
+              </ul>
+            </div>
+          ) : (
+            <ul
+              className={`absolute top-0 ${left ? "end-full" : "start-full"} z-50 -mt-0.5 min-w-[16rem] border border-line border-t-2 border-t-signal bg-white shadow-[0_12px_28px_rgba(0,0,0,0.18)] ${tapped ? "block" : `hidden ${fly.show}`}`}
+            >
+              {flyItems(c.children, depth + 1, left)}
+            </ul>
+          )}
+        </li>
+      );
+    });
   const sizeBtn = "grid h-[44px] min-w-[44px] place-items-center px-1 text-xs font-semibold text-light/85 hover:text-signal lg:h-6 lg:min-w-6";
   const locale = intlLocale(lang);
   const dateText = now ? new Intl.DateTimeFormat(locale, { dateStyle: "full", timeZone: "Asia/Kolkata" }).format(now) : "";
@@ -260,27 +339,28 @@ export default function Header({
             </span>
           </Link>
           <div className={`hidden shrink-0 items-center gap-3 ${compact ? "" : "lg:flex"}`}>
-            {/* a pill pair: sign in on soft cream with the person icon in a maroon dot, join in solid maroon with a gold arrow */}
+            {/* a pill pair: sign in on white with a fine maroon edge, join in deep maroon with a fine gold ring inside
+                and its arrow in a gold dot */}
             <Link
               href={full("/member")}
-              className="group inline-flex h-11 items-center gap-2.5 rounded-full border border-brand/15 bg-[#f7efdc] pl-1.5 pr-5 font-medium text-brand-deep transition hover:border-brand/40 hover:bg-[#f1e4c8] hover:shadow-[0_6px_16px_-10px_rgba(111,26,23,0.5)]"
+              className="group inline-flex h-11 items-center gap-2.5 rounded-full border-[1.5px] border-brand/70 bg-white pl-4 pr-5 font-semibold text-brand-deep transition hover:border-brand hover:bg-[#fbf6ec]"
             >
-              <span aria-hidden className="grid size-8 place-items-center rounded-full bg-brand text-white transition group-hover:bg-brand-deep">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M4 21a8 8 0 0 1 16 0" />
-                </svg>
-              </span>
+              <svg aria-hidden width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21a8 8 0 0 1 16 0" />
+              </svg>
               {labels.memberLogin}
             </Link>
             <Link
               href={full("/join")}
-              className="group inline-flex h-11 items-center gap-2 rounded-full border border-transparent bg-brand pl-6 pr-5 font-semibold text-white shadow-[0_6px_16px_-8px_rgba(111,26,23,0.6)] transition hover:bg-brand-deep hover:shadow-[0_10px_22px_-10px_rgba(111,26,23,0.75)]"
+              className="group inline-flex h-11 items-center gap-3 rounded-full bg-brand-deep pl-6 pr-1.5 font-semibold text-white shadow-[inset_0_0_0_1px_rgba(200,164,90,0.55),0_8px_18px_-10px_rgba(111,26,23,0.8)] transition hover:bg-brand"
             >
               {join}
-              <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-signal transition-transform group-hover:translate-x-0.5">
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+              <span aria-hidden className="grid size-8 place-items-center rounded-full bg-signal text-ink transition group-hover:translate-x-0.5">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </span>
             </Link>
           </div>
           <span className="sr-only">{orgShort}</span>
@@ -336,43 +416,7 @@ export default function Header({
                   )}
                   {kids && isOpen && (
                     <ul className={`absolute ${mi >= menu.length - 2 ? "end-0" : "start-0"} top-full z-50 min-w-[16rem] border border-line border-t-2 border-t-signal bg-white text-ink shadow-[0_12px_28px_rgba(0,0,0,0.18)]`}>
-                      {m.children.map((c) =>
-                        c.children?.length ? (
-                          <li key={c.href} className="group/fly relative" onPointerLeave={() => setFlyout(null)}>
-                            <div className="group/row flex items-stretch hover:bg-brand hover:text-white">
-                              <Link href={full(c.href)} onClick={closeSub} className="block flex-1 whitespace-nowrap py-2.5 ps-5 pe-2 text-[0.95rem]">
-                                {c.label}
-                              </Link>
-                              <button
-                                type="button"
-                                aria-label={c.label}
-                                aria-expanded={flyout === c.href}
-                                onClick={() => setFlyout(flyout === c.href ? null : c.href)}
-                                className="grid w-10 shrink-0 place-items-center text-muted group-hover/row:text-white"
-                              >
-                                <Caret side />
-                              </button>
-                            </div>
-                            <ul
-                              className={`absolute top-0 ${mi >= menu.length - 2 ? "end-full" : "start-full"} z-50 -mt-0.5 min-w-[16rem] border border-line border-t-2 border-t-signal bg-white shadow-[0_12px_28px_rgba(0,0,0,0.18)] ${flyout === c.href ? "block" : "hidden group-hover/fly:block group-focus-within/fly:block"}`}
-                            >
-                              {c.children.map((g) => (
-                                <li key={g.href}>
-                                  <Link href={full(g.href)} onClick={closeSub} className="block whitespace-nowrap px-5 py-2.5 text-[0.95rem] hover:bg-brand hover:text-white">
-                                    {g.label}
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          </li>
-                        ) : (
-                          <li key={c.href}>
-                            <Link href={full(c.href)} onClick={closeSub} className="block px-5 py-2.5 text-[0.95rem] hover:bg-brand hover:text-white">
-                              {c.label}
-                            </Link>
-                          </li>
-                        ),
-                      )}
+                      {flyItems(m.children, 0, mi >= menu.length - 2)}
                     </ul>
                   )}
                 </li>
