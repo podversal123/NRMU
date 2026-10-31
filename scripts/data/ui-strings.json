@@ -1030,5 +1030,121 @@
   "errType": {
     "en": "Please select a type.",
     "hi": "कृपया प्रकार चुनें।"
+  },
+  "plTitle": {
+    "en": "Polls and surveys",
+    "hi": "मतदान और सर्वेक्षण"
+  },
+  "plSub": {
+    "en": "Have your say on the issues that matter to railway employees.",
+    "hi": "रेल कर्मचारियों से जुड़े मुद्दों पर अपनी राय दें।"
+  },
+  "plOpenNow": {
+    "en": "Open for voting",
+    "hi": "मतदान जारी है"
+  },
+  "plClosedNow": {
+    "en": "Closed",
+    "hi": "बंद"
+  },
+  "plNone": {
+    "en": "There are no polls right now. Please check again soon.",
+    "hi": "अभी कोई मतदान नहीं है। कृपया जल्दी दोबारा देखें।"
+  },
+  "plVoteNow": {
+    "en": "Vote now",
+    "hi": "अभी मत दें"
+  },
+  "plSeeResults": {
+    "en": "See results",
+    "hi": "परिणाम देखें"
+  },
+  "plVoteBtn": {
+    "en": "Submit my vote",
+    "hi": "मेरा मत दें"
+  },
+  "plVotedMsg": {
+    "en": "Thank you. Your vote has been recorded.",
+    "hi": "धन्यवाद। आपका मत दर्ज हो गया है।"
+  },
+  "plAlready": {
+    "en": "You have already voted in this poll.",
+    "hi": "आप इस मतदान में पहले ही मत दे चुके हैं।"
+  },
+  "plSecret": {
+    "en": "Your vote is secret. Nobody can see what you chose.",
+    "hi": "आपका मत गोपनीय है। आपने क्या चुना, यह कोई नहीं देख सकता।"
+  },
+  "plPickOne": {
+    "en": "Choose one answer",
+    "hi": "एक उत्तर चुनें"
+  },
+  "plPickUpTo": {
+    "en": "Choose up to {n} answers",
+    "hi": "अधिकतम {n} उत्तर चुनें"
+  },
+  "plSignIn": {
+    "en": "Sign in as a member to vote.",
+    "hi": "मत देने के लिए सदस्य के रूप में साइन इन करें।"
+  },
+  "plSignInBtn": {
+    "en": "Member sign in",
+    "hi": "सदस्य साइन इन"
+  },
+  "plOtherDivision": {
+    "en": "This poll is only for members of another division.",
+    "hi": "यह मतदान केवल दूसरे मंडल के सदस्यों के लिए है।"
+  },
+  "plEnds": {
+    "en": "Voting closes",
+    "hi": "मतदान बंद होगा"
+  },
+  "plEnded": {
+    "en": "Voting is over.",
+    "hi": "मतदान समाप्त हो गया है।"
+  },
+  "plResults": {
+    "en": "Results",
+    "hi": "परिणाम"
+  },
+  "plResultsLater": {
+    "en": "The results will be shown when voting is over.",
+    "hi": "मतदान समाप्त होने पर परिणाम दिखाए जाएंगे।"
+  },
+  "plResultsHidden": {
+    "en": "The results of this poll are not shown to members.",
+    "hi": "इस मतदान के परिणाम सदस्यों को नहीं दिखाए जाते।"
+  },
+  "plVotersCount": {
+    "en": "members voted",
+    "hi": "सदस्यों ने मत दिया"
+  },
+  "plAllPolls": {
+    "en": "All polls",
+    "hi": "सभी मतदान"
+  },
+  "plForDivision": {
+    "en": "For members of",
+    "hi": "इनके सदस्यों के लिए"
+  },
+  "plAllMembers": {
+    "en": "For all members",
+    "hi": "सभी सदस्यों के लिए"
+  },
+  "plErrChoose": {
+    "en": "Please choose an answer.",
+    "hi": "कृपया एक उत्तर चुनें।"
+  },
+  "plErrMany": {
+    "en": "You chose too many answers.",
+    "hi": "आपने बहुत अधिक उत्तर चुने हैं।"
+  },
+  "plErrClosed": {
+    "en": "Voting on this poll is closed.",
+    "hi": "इस मतदान में मत देना बंद है।"
+  },
+  "plErrLimit": {
+    "en": "Too many attempts. Please wait a few minutes.",
+    "hi": "बहुत अधिक प्रयास। कृपया कुछ मिनट रुकें।"
   }
 }

@@ -94,6 +94,10 @@ export async function saveMeeting(form: FormData) {
   if (endsAt!.getTime() - startsAt!.getTime() > 12 * 3600 * 1000) redirect(`${back}?error=long`);
 
   const mode = one(str(form, "mode", 12), MODES, "online");
+  // Required so every meeting has what the invitees and the public page need.
+  if (!num(form, "typeId")) redirect(`${back}?error=type`);
+  if (!str(form, "agendaEn", 5000)) redirect(`${back}?error=agenda`);
+  if (mode !== "online" && !str(form, "venueEn")) redirect(`${back}?error=venue`);
   const values = {
     // The call link has its own form and button (saveMeetingLink), so saving this form never touches it, except that an in-person meeting has none.
     ...(mode === "in_person" ? { meetingLink: null } : {}),

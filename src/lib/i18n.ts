@@ -88,6 +88,8 @@ export const UI_KEYS = [
   "fdWriteComment", "fdWriteSuggestion", "fdSend", "fdNoComments", "fdReport", "fdReportReason", "fdReportSend", "fdReported", "fdDelete", "fdCancel",
   "fdSignInToAct", "fdOpenOrder", "fdLoadMore", "fdMyPosts", "fdSt_pending", "fdSt_approved", "fdSt_rejected", "fdSt_removed", "fdAdminNote",
   "fdErrBody", "fdErrTopic", "fdErrFile", "fdErrTooMany", "fdErrGeneric", "fdUploading", "fdRemove", "fdViewPost", "fdNoPosts", "fdOfficial", "fdStart", "fdTopics", "fdShareBtn", "fdTagline",
+  // polls
+  "plTitle", "plSub", "plOpenNow", "plClosedNow", "plNone", "plVoteNow", "plSeeResults", "plVoteBtn", "plVotedMsg", "plAlready", "plSecret", "plPickOne", "plPickUpTo", "plSignIn", "plSignInBtn", "plOtherDivision", "plEnds", "plEnded", "plResults", "plResultsLater", "plResultsHidden", "plVotersCount", "plAllPolls", "plForDivision", "plAllMembers", "plErrChoose", "plErrMany", "plErrClosed", "plErrLimit",
 ] as const;
 export type UiKey = (typeof UI_KEYS)[number];
 export type Dict = Record<UiKey, string>;

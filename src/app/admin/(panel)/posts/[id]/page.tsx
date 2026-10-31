@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
+import CategoryTree from "../../../CategoryTree";
 import UploadField from "../../../UploadField";
 import OtherLanguages from "../../../OtherLanguages";
 import { DeleteButton, SubmitButton } from "../../../SubmitButton";
@@ -29,9 +30,6 @@ export default async function EditPost({ params, searchParams }: { params: Promi
     isNew ? [] : db.select().from(schema.postFiles).where(eq(schema.postFiles.postId, Number(id))).orderBy(asc(schema.postFiles.sort)),
   ]);
   const selected = new Set(linked.map((l) => l.categoryId));
-  const byId = new Map(cats.map((c) => [c.id, c]));
-  const depth = (c: (typeof cats)[number]) => { let d = 0; let cur = c; while (cur.parentId && byId.get(cur.parentId)) { d++; cur = byId.get(cur.parentId)!; } return d; };
-  const ordered = [...cats].sort((a, b) => a.nameEn.localeCompare(b.nameEn));
 
   return (
     <>
@@ -58,11 +56,11 @@ export default async function EditPost({ params, searchParams }: { params: Promi
                 <option value="draft">Draft (hidden)</option>
               </select>
             </Field>
-            <Field label="Categories" hint="Hold Ctrl (or Cmd) to select several.">
-              <select name="categories" multiple size={12} defaultValue={[...selected].map(String)} className={inputCls}>
-                {ordered.map((c) => <option key={c.id} value={c.id}>{"- ".repeat(depth(c))}{c.nameEn}</option>)}
-              </select>
-            </Field>
+            <div>
+              <p className="text-sm font-semibold">Categories</p>
+              <p className="mb-2 mt-1 text-xs text-muted">Open a group to see what is inside it. Tick as many as apply.</p>
+              <CategoryTree name="categories" categories={cats.map((c) => ({ id: c.id, parentId: c.parentId, name: c.nameEn }))} selected={[...selected]} />
+            </div>
             <SubmitButton className="btn-primary w-full px-6 py-3">Save</SubmitButton>
           </Card>
         </div>

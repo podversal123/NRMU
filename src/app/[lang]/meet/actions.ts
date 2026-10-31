@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getDb, schema } from "@/db";
 import { isLang } from "@/lib/i18n";
@@ -8,6 +8,38 @@ import { limited } from "@/lib/rate-limit";
 
 const TOKEN = /^[0-9a-f]{64}$/;
 const ANSWERS = ["yes", "maybe", "no"] as const;
+
+/**
+ * The invitee presses "Join" on their own page. We note that they came (attended, and when) and then send them to the
+ * call link the super admin saved. A call held at Google Meet or Zoom cannot tell us who joined, so this is the record:
+ * it shows that the person pressed Join for this meeting, not how long they stayed.
+ */
+export async function joinMeeting(form: FormData) {
+  const lang = String(form.get("lang") ?? "");
+  const token = String(form.get("token") ?? "");
+  if (!isLang(lang) || !TOKEN.test(token)) redirect("/");
+  const back = `/${lang}/meet/${token}`;
+  if (await limited("join", { perAddress: 100, perSecret: { id: token, max: 30 }, windowSeconds: 600 })) redirect(back);
+
+  const db = getDb();
+  const [row] = await db
+    .select({ inviteeId: schema.meetingInvitees.id, meeting: schema.meetings })
+    .from(schema.meetingInvitees)
+    .innerJoin(schema.meetings, eq(schema.meetings.id, schema.meetingInvitees.meetingId))
+    .where(eq(schema.meetingInvitees.joinToken, token))
+    .limit(1);
+  const m = row?.meeting;
+  const now = Date.now();
+  // Same rule as the page: a meeting that is still on, held online, with a saved link, from 15 minutes before the start.
+  const open = m && m.status === "scheduled" && m.mode !== "in_person" && m.meetingLink && now >= m.startsAt.getTime() - 15 * 60 * 1000 && now <= m.endsAt.getTime();
+  if (!row || !open) redirect(back);
+
+  await db
+    .update(schema.meetingInvitees)
+    .set({ attended: true, joinedAt: sql`coalesce(${schema.meetingInvitees.joinedAt}, now())` })
+    .where(eq(schema.meetingInvitees.id, row.inviteeId));
+  redirect(m.meetingLink!);
+}
 
 /** An invitee answers from their own link. The link itself is the proof of who they are. */
 export async function answerInvitation(form: FormData) {

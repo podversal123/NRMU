@@ -169,6 +169,13 @@
       "when": 1793470685329,
       "tag": "0023_sad_gabe_jones",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793479542395,
+      "tag": "0024_clear_fallen_one",
+      "breakpoints": true
     }
   ]
 }

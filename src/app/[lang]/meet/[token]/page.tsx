@@ -8,7 +8,7 @@ import { getDb, schema } from "@/db";
 import { intlLocale, isLang } from "@/lib/i18n";
 import { meetingState } from "@/lib/meetings";
 import { getUi, pick } from "@/lib/queries";
-import { answerInvitation } from "../actions";
+import { answerInvitation, joinMeeting } from "../actions";
 import LocalTime from "./LocalTime";
 
 // A private page for one person: it depends on the link and the clock, so it is rendered per request.
@@ -111,9 +111,14 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
         )}
 
         {canJoinLink ? (
-          <a href={m.meetingLink!} target="_blank" rel="noopener noreferrer" className="btn-primary flex min-h-14 items-center justify-center text-lg sm:inline-flex sm:px-10">
-            {ui.mJoin}
-          </a>
+          // Pressing Join first notes that this person came, then sends them to the call.
+          <form action={joinMeeting}>
+            <input type="hidden" name="token" value={token} />
+            <input type="hidden" name="lang" value={lang} />
+            <button type="submit" className="btn-primary flex min-h-14 w-full items-center justify-center text-lg sm:inline-flex sm:w-auto sm:px-10">
+              {ui.mJoin}
+            </button>
+          </form>
         ) : canJoin ? (
           <Link href={`/${lang}/meet/${token}/call`} className="btn-primary flex min-h-14 items-center justify-center text-lg sm:inline-flex sm:px-10">
             {ui.mJoin}
