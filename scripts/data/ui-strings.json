@@ -1146,5 +1146,45 @@
   "plErrLimit": {
     "en": "Too many attempts. Please wait a few minutes.",
     "hi": "बहुत अधिक प्रयास। कृपया कुछ मिनट रुकें।"
+  },
+  "plResultsVote": {
+    "en": "Vote to see the results.",
+    "hi": "परिणाम देखने के लिए मत दें।"
+  },
+  "rlTitle": {
+    "en": "Reels",
+    "hi": "रील्स"
+  },
+  "rlSub": {
+    "en": "Short videos from the railway and the union. Swipe up and down to watch.",
+    "hi": "रेलवे और यूनियन के छोटे वीडियो। देखने के लिए ऊपर-नीचे स्वाइप करें।"
+  },
+  "rlNone": {
+    "en": "There are no reels yet. Please check again soon.",
+    "hi": "अभी कोई रील नहीं है। कृपया जल्दी दोबारा देखें।"
+  },
+  "rlSoundOn": {
+    "en": "Turn the sound on",
+    "hi": "आवाज़ चालू करें"
+  },
+  "rlSoundOff": {
+    "en": "Turn the sound off",
+    "hi": "आवाज़ बंद करें"
+  },
+  "rlHint": {
+    "en": "Swipe up for the next reel",
+    "hi": "अगली रील के लिए ऊपर स्वाइप करें"
+  },
+  "rlPlay": {
+    "en": "Play",
+    "hi": "चलाएं"
+  },
+  "rlPause": {
+    "en": "Pause",
+    "hi": "रोकें"
+  },
+  "rlOf": {
+    "en": "of",
+    "hi": "में से"
   }
 }

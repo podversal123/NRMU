@@ -810,3 +810,30 @@ export const pollVoters = pgTable(
   },
   (t) => [primaryKey({ columns: [t.pollId, t.memberId] }), index("poll_voters_member_idx").on(t.memberId)],
 );
+
+/* --------------------------------- Reels ------------------------------- */
+
+/**
+ * Short videos shown on the Reels page. The video itself lives at Cloudinary (`public_id`); only its name and a few
+ * facts are kept here. Shown when `published`; `credit` is the line of thanks some free licences ask for.
+ */
+export const reels = pgTable(
+  "reels",
+  {
+    id: serial("id").primaryKey(),
+    titleEn: text("title_en").notNull(),
+    titleHi: text("title_hi"),
+    /** Author or source line shown under the caption (for example the licence credit). */
+    credit: text("credit"),
+    publicId: text("public_id").notNull(),
+    seconds: integer("seconds").notNull().default(0),
+    bytes: integer("bytes").notNull().default(0),
+    sort: integer("sort").notNull().default(0),
+    published: boolean("published").notNull().default(true),
+    createdBy: integer("created_by").references(() => adminUsers.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
+  },
+  (t) => [uniqueIndex("reels_public_id_idx").on(t.publicId), index("reels_feed_idx").on(t.published, t.sort, t.createdAt.desc())],
+);

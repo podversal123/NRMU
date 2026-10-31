@@ -127,7 +127,9 @@ async function PollView({ params, searchParams }: { params: Promise<{ lang: stri
             <p className="mt-5 text-sm text-muted">{ui.plSecret}</p>
           </section>
         ) : (
-          <p className="text-sm text-muted">{poll.showResults === "admin_only" ? ui.plResultsHidden : ui.plResultsLater}</p>
+          <p className="text-sm text-muted">
+            {poll.showResults === "admin_only" ? ui.plResultsHidden : poll.showResults === "after_vote" && open && !voted ? ui.plResultsVote : ui.plResultsLater}
+          </p>
         )}
 
         <Link href={`/${lang}/polls`} className="inline-flex min-h-11 items-center font-medium text-brand underline underline-offset-4">{ui.plAllPolls}</Link>
