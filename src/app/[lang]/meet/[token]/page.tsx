@@ -119,7 +119,18 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
             {ui.mJoin}
           </Link>
         ) : (
-          !closed && m.mode !== "in_person" && <p className="text-muted">{ui.mVideoLater}</p>
+          !closed && m.mode !== "in_person" && (
+            <div className="space-y-1">
+              <p className="text-muted">{ui.mVideoLater}</p>
+              {(m.meetingLink || m.roomUrl) && (
+                <p className="font-semibold text-brand-deep">
+                  {lang === "hi"
+                    ? `जुड़ने का बटन ${time(new Date(m.startsAt.getTime() - 15 * 60 * 1000))} (IST) से दिखेगा`
+                    : `The Join button opens at ${time(new Date(m.startsAt.getTime() - 15 * 60 * 1000))} (IST)`}
+                </p>
+              )}
+            </div>
+          )
         )}
 
         {!closed && (

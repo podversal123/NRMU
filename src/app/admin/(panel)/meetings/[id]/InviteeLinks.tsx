@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 
 type Person = { name: string; token: string; mobile: string | null };
 
@@ -8,6 +8,16 @@ const base = "inline-flex min-h-11 items-center rounded-full border-2 px-4 text-
 
 /** The invitee's own page: /hi/meet/<token> when the meeting has a Hindi title, otherwise /en/meet/<token>. */
 const linkOf = (lang: string, token: string) => `${window.location.origin}/${lang}/meet/${token}`;
+
+/** The site's address as the browser knows it. Empty while the page is built on the server, where there is no `window`. */
+const noSubscribe = () => () => {};
+const useOrigin = () => useSyncExternalStore(noSubscribe, () => window.location.origin, () => "");
+
+/** What the invitee reads in WhatsApp: the meeting, the time, what to do, and their own link. */
+const invitation = (lang: string, title: string, when: string, link: string) =>
+  lang === "hi"
+    ? `${title}\n${when}\n\nअपना निजी लिंक खोलें और बताएं कि आप आएंगे या नहीं। बैठक शुरू होने से 15 मिनट पहले उसी पेज पर "वीडियो कॉल में जुड़ें" बटन दिखेगा।\n${link}`
+    : `${title}\n${when}\n\nOpen your personal link and tell us if you will attend. The "Join the video call" button appears on that page 15 minutes before the meeting starts.\n${link}`;
 
 async function copy(text: string) {
   try {
@@ -34,7 +44,7 @@ const whatsappNumber = (mobile: string) => {
 
 export function SendButtons({ person, lang, title, when }: { person: Person; lang: string; title: string; when: string }) {
   const [done, setDone] = useState(false);
-  const message = () => `${title}\n${when}\n${linkOf(lang, person.token)}`;
+  const origin = useOrigin();
   return (
     <div className="flex flex-wrap gap-2">
       <button
@@ -48,9 +58,9 @@ export function SendButtons({ person, lang, title, when }: { person: Person; lan
       >
         {done ? "Copied" : "Copy link"}
       </button>
-      {person.mobile && (
+      {person.mobile && origin && (
         <a
-          href={`https://wa.me/${whatsappNumber(person.mobile)}?text=${encodeURIComponent(message())}`}
+          href={`https://wa.me/${whatsappNumber(person.mobile)}?text=${encodeURIComponent(invitation(lang, title, when, `${origin}/${lang}/meet/${person.token}`))}`}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Send to ${person.name} on WhatsApp`}

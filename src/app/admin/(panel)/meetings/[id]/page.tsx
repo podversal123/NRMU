@@ -138,12 +138,12 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
               <a href={m.meetingLink} target="_blank" rel="noopener noreferrer" className="btn-primary inline-block px-6 py-3">Open the call as host</a>
             </div>
           ) : !videoConfigured() ? (
-            <p className="mt-3 text-muted">The video service is not connected on this site yet.</p>
+            <p className="mt-3 text-muted">To hold this meeting online, paste a Google Meet or Zoom link in the <strong>Meeting link</strong> field above and press <strong>Save</strong>. The Join button for invitees and the host button appear here after that.</p>
           ) : m.status !== "scheduled" && !m.roomName ? (
             <p className="mt-3 text-muted">{m.status === "cancelled" ? "This meeting is cancelled, so it has no video room." : "This meeting is completed."}</p>
           ) : !m.roomName && !videoOn ? (
             <p className="mt-3 text-muted">
-              Video calls are switched off for now, until the video account can take calls. When it is ready, set <strong>meetings.video_enabled</strong> to <strong>1</strong> under Site text, then come back here and press Create video room.
+              To hold this meeting online, paste a Google Meet or Zoom link in the <strong>Meeting link</strong> field above and press <strong>Save</strong>. The Join button for invitees and the host button appear here after that.
             </p>
           ) : !m.roomName ? (
             <form action={createVideoRoom} className="mt-3 space-y-3">
