@@ -68,7 +68,10 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
   const held = m.mode === "online" ? ui.mHeldOnline : m.mode === "hybrid" ? ui.mHeldHybrid : ui.mHeldInPerson;
   const replyLabel: Record<string, string> = { yes: ui.mYes, maybe: ui.mMaybe, no: ui.mNo, pending: ui.mNoReply };
   // The call opens 15 minutes before the start, for meetings that have a video room.
-  const canJoin = !closed && m.mode !== "in_person" && Boolean(m.roomUrl) && Date.now() >= m.startsAt.getTime() - 15 * 60 * 1000;
+  // A call link pasted by the super admin (Google Meet, Zoom...) opens at the provider; otherwise the room made here is used.
+  const opens = !closed && m.mode !== "in_person" && Date.now() >= m.startsAt.getTime() - 15 * 60 * 1000;
+  const canJoin = opens && !m.meetingLink && Boolean(m.roomUrl);
+  const canJoinLink = opens && Boolean(m.meetingLink);
   const note = state === "cancelled" ? ui.mCancelled : closed ? ui.mOver : state === "live" ? ui.mLive : null;
 
   return (
@@ -107,7 +110,11 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
           </section>
         )}
 
-        {canJoin ? (
+        {canJoinLink ? (
+          <a href={m.meetingLink!} target="_blank" rel="noopener noreferrer" className="btn-primary flex min-h-14 items-center justify-center text-lg sm:inline-flex sm:px-10">
+            {ui.mJoin}
+          </a>
+        ) : canJoin ? (
           <Link href={`/${lang}/meet/${token}/call`} className="btn-primary flex min-h-14 items-center justify-center text-lg sm:inline-flex sm:px-10">
             {ui.mJoin}
           </Link>

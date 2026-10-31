@@ -16,6 +16,16 @@ const num = (f: FormData, k: string) => Number(str(f, k, 10)) || null;
 const one = <T extends string>(v: string, allowed: readonly { value: T }[], fallback: T) => (allowed.some((a) => a.value === v) ? (v as T) : fallback);
 const STATUSES = ["scheduled", "completed", "cancelled"] as const;
 
+/** A pasted call link must be a plain https address; anything else (javascript:, data:, text) is refused. */
+const callLink = (v: string) => {
+  try {
+    const u = new URL(v);
+    return u.protocol === "https:" && u.hostname.includes(".") ? u.toString() : null;
+  } catch {
+    return null;
+  }
+};
+
 /** Meetings, their invitees and recordings are private to the super admin. */
 const guard = () => requireAdmin(["super_admin"]);
 
@@ -38,7 +48,8 @@ async function syncRoom(meetingId: number): Promise<"ok" | "skipped" | "failed" 
   if (!m) return "skipped";
   const clear = { roomName: null, roomUrl: null, roomRecording: false };
   try {
-    const wantsRoom = m.mode !== "in_person" && m.status === "scheduled";
+    // A call link pasted by hand replaces the video room.
+    const wantsRoom = m.mode !== "in_person" && m.status === "scheduled" && !m.meetingLink;
     if (wantsRoom) {
       if (m.endsAt.getTime() + 2 * 3600 * 1000 <= Date.now()) return "skipped"; // already over
       if (!m.roomName && !(await videoEnabled())) return "skipped"; // switched off: no new rooms
@@ -83,7 +94,11 @@ export async function saveMeeting(form: FormData) {
   if (endsAt!.getTime() - startsAt!.getTime() > 12 * 3600 * 1000) redirect(`${back}?error=long`);
 
   const mode = one(str(form, "mode", 12), MODES, "online");
+  const linkRaw = str(form, "meetingLink", 500);
+  const meetingLink = linkRaw ? callLink(linkRaw) : null;
+  if (linkRaw && !meetingLink) redirect(`${back}?error=link`);
   const values = {
+    meetingLink: mode === "in_person" ? null : meetingLink,
     titleEn,
     titleHi: str(form, "titleHi") || null,
     typeId: num(form, "typeId"),

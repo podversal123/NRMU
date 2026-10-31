@@ -162,6 +162,13 @@
       "when": 1792771515868,
       "tag": "0022_cloudy_power_man",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1793470685329,
+      "tag": "0023_sad_gabe_jones",
+      "breakpoints": true
     }
   ]
 }

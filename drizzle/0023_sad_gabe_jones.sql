@@ -1,0 +1,1 @@
+ALTER TABLE "meetings" ADD COLUMN "meeting_link" text;

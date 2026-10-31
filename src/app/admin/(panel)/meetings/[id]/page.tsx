@@ -20,6 +20,7 @@ const ERRORS: Record<string, string> = {
   required: "Title, start time and end time are required.",
   time: "The meeting must end after it starts.",
   long: "A meeting can be at most 12 hours long. For a longer event, schedule it in parts.",
+  link: "The meeting link must be a full web address starting with https://, for example https://meet.google.com/abc-defg-hij.",
   kept: "This meeting has minutes, a recording or attendance, so it is kept as a record. Set it to Cancelled or Completed instead of deleting it.",
 };
 
@@ -93,6 +94,9 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
           <label className="flex items-center gap-3 self-end pb-3 text-sm font-semibold">
             <input type="checkbox" name="recordingOn" defaultChecked={m?.recordingOn ?? true} className="h-6 w-6" /> Record the video call
           </label>
+          <Field label="Meeting link (Google Meet, Zoom...)" hint="Optional. Paste the call link here. Invitees see a Join button on their own page from 15 minutes before the start. Leave empty for an in-person meeting." className="sm:col-span-2">
+            <input type="url" name="meetingLink" defaultValue={m?.meetingLink ?? ""} placeholder="https://meet.google.com/abc-defg-hij" className={inputCls} />
+          </Field>
           <Field label="Venue (English)" hint="For in-person and both."><input name="venueEn" defaultValue={m?.venueEn ?? ""} className={inputCls} /></Field>
           <Field label="Venue (Hindi)"><input name="venueHi" defaultValue={m?.venueHi ?? ""} className={inputCls} /></Field>
           <Field label="Agenda (English)" hint="One point per line."><textarea name="agendaEn" rows={6} defaultValue={m?.agendaEn ?? ""} className={inputCls} /></Field>
@@ -128,7 +132,12 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
       {m && m.mode !== "in_person" && (
         <Card className="mt-8">
           <h2 id="video" className="font-display text-2xl font-bold">Video call</h2>
-          {!videoConfigured() ? (
+          {m.meetingLink ? (
+            <div className="mt-3 space-y-4">
+              <p className="text-muted">This meeting uses the call link you pasted above. Invitees join from 15 minutes before the start. Attendance and recording are not automatic for a pasted link; tick attendance below and paste the recording link in the record.</p>
+              <a href={m.meetingLink} target="_blank" rel="noopener noreferrer" className="btn-primary inline-block px-6 py-3">Open the call as host</a>
+            </div>
+          ) : !videoConfigured() ? (
             <p className="mt-3 text-muted">The video service is not connected on this site yet.</p>
           ) : m.status !== "scheduled" && !m.roomName ? (
             <p className="mt-3 text-muted">{m.status === "cancelled" ? "This meeting is cancelled, so it has no video room." : "This meeting is completed."}</p>

@@ -445,6 +445,8 @@ export const meetings = pgTable(
     roomUrl: text("room_url"),
     /** True when the room really was created with recording switched on (the video plan may not allow it). */
     roomRecording: boolean("room_recording").notNull().default(false),
+    /** A call link pasted by hand (Google Meet, Zoom...). When set it is used instead of a video room made here. */
+    meetingLink: text("meeting_link"),
     /** The finished recording at the video provider, and how long it is. Opened through a fresh temporary link each time. */
     recordingId: text("recording_id"),
     recordingSeconds: integer("recording_seconds"),
