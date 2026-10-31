@@ -10,7 +10,7 @@ import OtherLanguages from "../../../OtherLanguages";
 import { DeleteButton, SubmitButton } from "../../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls, td, th } from "../../../ui";
 import { CopyAll, SendButtons } from "./InviteeLinks";
-import { addInvitees, addOfficeBearers, checkRecording, createVideoRoom, deleteMeeting, removeInvitees, saveAttendance, saveMeeting, saveRecord } from "../actions";
+import { addInvitees, addOfficeBearers, checkRecording, createVideoRoom, deleteMeeting, removeInvitees, saveAttendance, saveMeeting, saveMeetingLink, saveRecord } from "../actions";
 
 // Always depends on the signed-in admin, so it is rendered per request.
 export const instant = false;
@@ -94,9 +94,6 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
           <label className="flex items-center gap-3 self-end pb-3 text-sm font-semibold">
             <input type="checkbox" name="recordingOn" defaultChecked={m?.recordingOn ?? true} className="h-6 w-6" /> Record the video call
           </label>
-          <Field label="Meeting link (Google Meet, Zoom...)" hint="Optional. Paste the call link here. Invitees see a Join button on their own page from 15 minutes before the start. Leave empty for an in-person meeting." className="sm:col-span-2">
-            <input type="url" name="meetingLink" defaultValue={m?.meetingLink ?? ""} placeholder="https://meet.google.com/abc-defg-hij" className={inputCls} />
-          </Field>
           <Field label="Venue (English)" hint="For in-person and both."><input name="venueEn" defaultValue={m?.venueEn ?? ""} className={inputCls} /></Field>
           <Field label="Venue (Hindi)"><input name="venueHi" defaultValue={m?.venueHi ?? ""} className={inputCls} /></Field>
           <Field label="Agenda (English)" hint="One point per line."><textarea name="agendaEn" rows={6} defaultValue={m?.agendaEn ?? ""} className={inputCls} /></Field>
@@ -125,25 +122,33 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
             </p>
           </div>
           <SubmitButton className="btn-primary w-full px-6 py-3">{isNew ? "Schedule meeting" : "Save"}</SubmitButton>
-          {isNew && <p className="text-sm text-muted">After saving you can invite people and, later, record the minutes.</p>}
+          {isNew && <p className="text-sm text-muted">After saving you can paste the Google Meet or Zoom link in the Video call box, invite people and, later, record the minutes.</p>}
         </Card>
       </form>
 
       {m && m.mode !== "in_person" && (
         <Card className="mt-8">
           <h2 id="video" className="font-display text-2xl font-bold">Video call</h2>
+          {/* Its own form and button, so pressing any other button on this page can never lose the link. */}
+          <form action={saveMeetingLink} className="mt-3 space-y-3">
+            <input type="hidden" name="id" value={m.id} />
+            <Field label="Meeting link (Google Meet, Zoom...)" hint="Paste the call link and press Save link. Invitees then see a Join button on their own page from 15 minutes before the start. Clear it and save to remove the link.">
+              <input type="url" name="meetingLink" defaultValue={m.meetingLink ?? ""} placeholder="https://meet.google.com/abc-defg-hij" className={inputCls} />
+            </Field>
+            <SubmitButton className="btn-primary px-6 py-2.5">Save link</SubmitButton>
+          </form>
           {m.meetingLink ? (
-            <div className="mt-3 space-y-4">
-              <p className="text-muted">This meeting uses the call link you pasted above. Invitees join from 15 minutes before the start. Attendance and recording are not automatic for a pasted link; tick attendance below and paste the recording link in the record.</p>
+            <div className="mt-5 space-y-4 border-t border-line pt-4">
+              <p className="text-muted">This meeting uses the call link saved above. Invitees join from 15 minutes before the start. Attendance and recording are not automatic for a pasted link; tick attendance below and paste the recording link in the record.</p>
               <a href={m.meetingLink} target="_blank" rel="noopener noreferrer" className="btn-primary inline-block px-6 py-3">Open the call as host</a>
             </div>
           ) : !videoConfigured() ? (
-            <p className="mt-3 text-muted">To hold this meeting online, paste a Google Meet or Zoom link in the <strong>Meeting link</strong> field above and press <strong>Save</strong>. The Join button for invitees and the host button appear here after that.</p>
+            <p className="mt-5 border-t border-line pt-4 text-muted">No call link is saved yet, so invitees will not see a Join button. Paste the link above and press <strong>Save link</strong>.</p>
           ) : m.status !== "scheduled" && !m.roomName ? (
             <p className="mt-3 text-muted">{m.status === "cancelled" ? "This meeting is cancelled, so it has no video room." : "This meeting is completed."}</p>
           ) : !m.roomName && !videoOn ? (
-            <p className="mt-3 text-muted">
-              To hold this meeting online, paste a Google Meet or Zoom link in the <strong>Meeting link</strong> field above and press <strong>Save</strong>. The Join button for invitees and the host button appear here after that.
+            <p className="mt-5 border-t border-line pt-4 text-muted">
+              No call link is saved yet, so invitees will not see a Join button. Paste the link above and press <strong>Save link</strong>.
             </p>
           ) : !m.roomName ? (
             <form action={createVideoRoom} className="mt-3 space-y-3">

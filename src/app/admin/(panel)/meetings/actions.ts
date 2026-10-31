@@ -94,11 +94,9 @@ export async function saveMeeting(form: FormData) {
   if (endsAt!.getTime() - startsAt!.getTime() > 12 * 3600 * 1000) redirect(`${back}?error=long`);
 
   const mode = one(str(form, "mode", 12), MODES, "online");
-  const linkRaw = str(form, "meetingLink", 500);
-  const meetingLink = linkRaw ? callLink(linkRaw) : null;
-  if (linkRaw && !meetingLink) redirect(`${back}?error=link`);
   const values = {
-    meetingLink: mode === "in_person" ? null : meetingLink,
+    // The call link has its own form and button (saveMeetingLink), so saving this form never touches it, except that an in-person meeting has none.
+    ...(mode === "in_person" ? { meetingLink: null } : {}),
     titleEn,
     titleHi: str(form, "titleHi") || null,
     typeId: num(form, "typeId"),
@@ -136,6 +134,21 @@ export async function saveMeeting(form: FormData) {
   updateTag("meetings");
   const video = await syncRoom(id);
   redirect(`/admin/meetings/${id}?saved=1${video === "failed" ? "&video=failed" : video === "limit" ? "&video=limit" : ""}`);
+}
+
+/** Saves (or, when left empty, removes) the call link pasted in the "Video call" box. Its own form, so no other button can lose it. */
+export async function saveMeetingLink(form: FormData) {
+  await guard();
+  const id = Number(form.get("id"));
+  if (!id) redirect("/admin/meetings");
+  const raw = str(form, "meetingLink", 500);
+  const link = raw ? callLink(raw) : null;
+  if (raw && !link) redirect(`/admin/meetings/${id}?error=link#video`);
+  const [updated] = await getDb().update(schema.meetings).set({ meetingLink: link, updatedAt: new Date() }).where(eq(schema.meetings.id, id)).returning({ id: schema.meetings.id });
+  if (!updated) redirect("/admin/meetings");
+  updateTag("meetings");
+  const video = await syncRoom(id); // a pasted link replaces the video room; removing it lets the room be made again
+  redirect(`/admin/meetings/${id}?saved=1${video === "failed" ? "&video=failed" : video === "limit" ? "&video=limit" : ""}#video`);
 }
 
 /** Retry button: makes the video room when it could not be made while saving. */
