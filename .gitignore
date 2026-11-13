@@ -49,3 +49,6 @@ next-env.d.ts
 
 # alternative build folder used for testing
 /.next-*/
+
+# browser-test scratch files (screenshots, snapshots, test videos); never commit
+/.playwright-mcp/

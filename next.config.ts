@@ -12,8 +12,23 @@ const nextConfig: NextConfig = {
     ],
   },
   partialPrefetching: true,
+  // Do not tell every visitor which framework this is.
+  poweredByHeader: false,
   async headers() {
     return [
+      {
+        // Pages that show one person's own data are never stored by the browser or by any shared cache.
+        source: "/admin/:path*",
+        headers: [{ key: "Cache-Control", value: "private, no-store" }],
+      },
+      {
+        source: "/:lang/member/:path*",
+        headers: [{ key: "Cache-Control", value: "private, no-store" }],
+      },
+      {
+        source: "/:lang/meet/:path*",
+        headers: [{ key: "Cache-Control", value: "private, no-store" }],
+      },
       {
         source: "/:path*",
         headers: [

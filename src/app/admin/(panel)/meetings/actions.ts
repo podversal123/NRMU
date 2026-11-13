@@ -16,6 +16,16 @@ const num = (f: FormData, k: string) => Number(str(f, k, 10)) || null;
 const one = <T extends string>(v: string, allowed: readonly { value: T }[], fallback: T) => (allowed.some((a) => a.value === v) ? (v as T) : fallback);
 const STATUSES = ["scheduled", "completed", "cancelled"] as const;
 
+/** A pasted call link must be a plain https address; anything else (javascript:, data:, text) is refused. */
+const callLink = (v: string) => {
+  try {
+    const u = new URL(v);
+    return u.protocol === "https:" && u.hostname.includes(".") ? u.toString() : null;
+  } catch {
+    return null;
+  }
+};
+
 /** Meetings, their invitees and recordings are private to the super admin. */
 const guard = () => requireAdmin(["super_admin"]);
 
@@ -38,7 +48,8 @@ async function syncRoom(meetingId: number): Promise<"ok" | "skipped" | "failed" 
   if (!m) return "skipped";
   const clear = { roomName: null, roomUrl: null, roomRecording: false };
   try {
-    const wantsRoom = m.mode !== "in_person" && m.status === "scheduled";
+    // A call link pasted by hand replaces the video room.
+    const wantsRoom = m.mode !== "in_person" && m.status === "scheduled" && !m.meetingLink;
     if (wantsRoom) {
       if (m.endsAt.getTime() + 2 * 3600 * 1000 <= Date.now()) return "skipped"; // already over
       if (!m.roomName && !(await videoEnabled())) return "skipped"; // switched off: no new rooms
@@ -83,7 +94,13 @@ export async function saveMeeting(form: FormData) {
   if (endsAt!.getTime() - startsAt!.getTime() > 12 * 3600 * 1000) redirect(`${back}?error=long`);
 
   const mode = one(str(form, "mode", 12), MODES, "online");
+  // Required so every meeting has what the invitees and the public page need.
+  if (!num(form, "typeId")) redirect(`${back}?error=type`);
+  if (!str(form, "agendaEn", 5000)) redirect(`${back}?error=agenda`);
+  if (mode !== "online" && !str(form, "venueEn")) redirect(`${back}?error=venue`);
   const values = {
+    // The call link has its own form and button (saveMeetingLink), so saving this form never touches it, except that an in-person meeting has none.
+    ...(mode === "in_person" ? { meetingLink: null } : {}),
     titleEn,
     titleHi: str(form, "titleHi") || null,
     typeId: num(form, "typeId"),
@@ -121,6 +138,21 @@ export async function saveMeeting(form: FormData) {
   updateTag("meetings");
   const video = await syncRoom(id);
   redirect(`/admin/meetings/${id}?saved=1${video === "failed" ? "&video=failed" : video === "limit" ? "&video=limit" : ""}`);
+}
+
+/** Saves (or, when left empty, removes) the call link pasted in the "Video call" box. Its own form, so no other button can lose it. */
+export async function saveMeetingLink(form: FormData) {
+  await guard();
+  const id = Number(form.get("id"));
+  if (!id) redirect("/admin/meetings");
+  const raw = str(form, "meetingLink", 500);
+  const link = raw ? callLink(raw) : null;
+  if (raw && !link) redirect(`/admin/meetings/${id}?error=link#video`);
+  const [updated] = await getDb().update(schema.meetings).set({ meetingLink: link, updatedAt: new Date() }).where(eq(schema.meetings.id, id)).returning({ id: schema.meetings.id });
+  if (!updated) redirect("/admin/meetings");
+  updateTag("meetings");
+  const video = await syncRoom(id); // a pasted link replaces the video room; removing it lets the room be made again
+  redirect(`/admin/meetings/${id}?saved=1${video === "failed" ? "&video=failed" : video === "limit" ? "&video=limit" : ""}#video`);
 }
 
 /** Retry button: makes the video room when it could not be made while saving. */

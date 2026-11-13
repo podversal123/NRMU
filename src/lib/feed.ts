@@ -136,21 +136,34 @@ export async function getFeedPage(filter: FeedFilter, before: string | null): Pr
   const members = filter.from !== "union";
   if (!orders && !members) return { items: [], next: null };
 
-  // An order dated today keeps the time it was saved; an older or back-dated one sorts at the start of its date (India time).
+  // Each kind is cut down to one page on its own, so the database never reads (or sorts) a whole growing table.
+  // The cursor means "after (at, target, id)" in the final order, and "order" sorts after "member" at the same instant,
+  // so inside each kind it becomes: orders after an order cursor compare (at, id), after a member cursor only at < cursor;
+  // members after a member cursor compare (at, id), after an order cursor at <= cursor.
+  // The member branch sorts NULLS LAST on purpose: that is how member_posts_feed_idx is built, and a different
+  // order makes Postgres ignore the index and read every row.
+  const take = cfg.pageSize + 1;
   const parts: SQL[] = [];
-  if (orders)
-    parts.push(sql`select 'order'::text as target, p.id, case when (p.created_at at time zone 'Asia/Kolkata')::date = p.published_at then p.created_at else (p.published_at::timestamp at time zone 'Asia/Kolkata') end as at
-      from posts p where p.status = 'published'`);
-  if (members)
-    parts.push(sql`select 'member'::text as target, m.id, m.published_at as at from member_posts m
-      where m.status = 'approved' and m.published_at is not null ${filter.topic ? sql`and m.topic_id = ${filter.topic}` : sql``}`);
+  // An order dated today keeps the time it was saved; an older or back-dated one sorts at the start of its date (India time).
+  if (orders) {
+    const after = !cur ? sql`` : cur.target === "order" ? sql`where (o.at, o.id) < (${cur.at}::timestamptz, ${cur.id})` : sql`where o.at < ${cur.at}::timestamptz`;
+    parts.push(sql`(select * from (
+        select 'order'::text as target, p.id, case when (p.created_at at time zone 'Asia/Kolkata')::date = p.published_at then p.created_at else (p.published_at::timestamp at time zone 'Asia/Kolkata') end as at
+        from posts p where p.status = 'published') o
+      ${after} order by o.at desc, o.id desc limit ${take})`);
+  }
+  if (members) {
+    const after = !cur ? sql`` : cur.target === "member" ? sql`and (m.published_at, m.id) < (${cur.at}::timestamptz, ${cur.id})` : sql`and m.published_at <= ${cur.at}::timestamptz`;
+    parts.push(sql`(select 'member'::text as target, m.id, m.published_at as at from member_posts m
+      where m.status = 'approved' and m.published_at is not null ${filter.topic ? sql`and m.topic_id = ${filter.topic}` : sql``} ${after}
+      order by m.published_at desc nulls last, m.id desc nulls last limit ${take})`);
+  }
 
   const list = rowsOf<{ target: FeedTarget; id: number; at: string }>(
     await db.execute(sql`
       select x.target, x.id, ${iso(sql`x.at`)} as at from (${sql.join(parts, sql` union all `)}) x
-      ${cur ? sql`where (x.at, x.target, x.id) < (${cur.at}::timestamptz, ${cur.target}, ${cur.id})` : sql``}
       order by x.at desc, x.target desc, x.id desc
-      limit ${cfg.pageSize + 1}`),
+      limit ${take}`),
   );
   const more = list.length > cfg.pageSize;
   const page = list.slice(0, cfg.pageSize);

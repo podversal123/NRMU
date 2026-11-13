@@ -8,7 +8,7 @@ import { getDb, schema } from "@/db";
 import { intlLocale, isLang } from "@/lib/i18n";
 import { meetingState } from "@/lib/meetings";
 import { getUi, pick } from "@/lib/queries";
-import { answerInvitation } from "../actions";
+import { answerInvitation, joinMeeting } from "../actions";
 import LocalTime from "./LocalTime";
 
 // A private page for one person: it depends on the link and the clock, so it is rendered per request.
@@ -68,7 +68,10 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
   const held = m.mode === "online" ? ui.mHeldOnline : m.mode === "hybrid" ? ui.mHeldHybrid : ui.mHeldInPerson;
   const replyLabel: Record<string, string> = { yes: ui.mYes, maybe: ui.mMaybe, no: ui.mNo, pending: ui.mNoReply };
   // The call opens 15 minutes before the start, for meetings that have a video room.
-  const canJoin = !closed && m.mode !== "in_person" && Boolean(m.roomUrl) && Date.now() >= m.startsAt.getTime() - 15 * 60 * 1000;
+  // A call link pasted by the super admin (Google Meet, Zoom...) opens at the provider; otherwise the room made here is used.
+  const opens = !closed && m.mode !== "in_person" && Date.now() >= m.startsAt.getTime() - 15 * 60 * 1000;
+  const canJoin = opens && !m.meetingLink && Boolean(m.roomUrl);
+  const canJoinLink = opens && Boolean(m.meetingLink);
   const note = state === "cancelled" ? ui.mCancelled : closed ? ui.mOver : state === "live" ? ui.mLive : null;
 
   return (
@@ -107,12 +110,32 @@ async function Invitation({ params, searchParams }: { params: Promise<{ lang: st
           </section>
         )}
 
-        {canJoin ? (
+        {canJoinLink ? (
+          // Pressing Join first notes that this person came, then sends them to the call.
+          <form action={joinMeeting}>
+            <input type="hidden" name="token" value={token} />
+            <input type="hidden" name="lang" value={lang} />
+            <button type="submit" className="btn-primary flex min-h-14 w-full items-center justify-center text-lg sm:inline-flex sm:w-auto sm:px-10">
+              {ui.mJoin}
+            </button>
+          </form>
+        ) : canJoin ? (
           <Link href={`/${lang}/meet/${token}/call`} className="btn-primary flex min-h-14 items-center justify-center text-lg sm:inline-flex sm:px-10">
             {ui.mJoin}
           </Link>
         ) : (
-          !closed && m.mode !== "in_person" && <p className="text-muted">{ui.mVideoLater}</p>
+          !closed && m.mode !== "in_person" && (
+            <div className="space-y-1">
+              <p className="text-muted">{ui.mVideoLater}</p>
+              {(m.meetingLink || m.roomUrl) && (
+                <p className="font-semibold text-brand-deep">
+                  {lang === "hi"
+                    ? `जुड़ने का बटन ${time(new Date(m.startsAt.getTime() - 15 * 60 * 1000))} (IST) से दिखेगा`
+                    : `The Join button opens at ${time(new Date(m.startsAt.getTime() - 15 * 60 * 1000))} (IST)`}
+                </p>
+              )}
+            </div>
+          )
         )}
 
         {!closed && (

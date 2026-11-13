@@ -447,6 +447,8 @@ export const meetings = pgTable(
     roomUrl: text("room_url"),
     /** True when the room really was created with recording switched on (the video plan may not allow it). */
     roomRecording: boolean("room_recording").notNull().default(false),
+    /** A call link pasted by hand (Google Meet, Zoom...). When set it is used instead of a video room made here. */
+    meetingLink: text("meeting_link"),
     /** The finished recording at the video provider, and how long it is. Opened through a fresh temporary link each time. */
     recordingId: text("recording_id"),
     recordingSeconds: integer("recording_seconds"),
@@ -746,3 +748,94 @@ export const visitCounts = pgTable("visit_counts", {
   day: date("day").primaryKey(),
   visits: integer("visits").notNull().default(0),
 });
+
+/* --------------------------------- Polls ------------------------------- */
+
+/**
+ * A poll or survey question put to the members. status: draft | open | closed. A poll also closes by itself at `ends_at`.
+ * The ballot is secret: only the totals per answer are kept (poll_options.votes), never who chose what.
+ * `division_id` empty means every member may vote. `max_choices` 1 is "choose one"; more allows several answers.
+ * show_results: after_vote (a member sees the totals once they have voted) | after_close | admin_only.
+ */
+export const polls = pgTable(
+  "polls",
+  {
+    id: serial("id").primaryKey(),
+    titleEn: text("title_en").notNull(),
+    titleHi: text("title_hi"),
+    descriptionEn: text("description_en"),
+    descriptionHi: text("description_hi"),
+    status: text("status").notNull().default("draft"),
+    maxChoices: integer("max_choices").notNull().default(1),
+    showResults: text("show_results").notNull().default("after_vote"),
+    divisionId: integer("division_id").references(() => divisions.id, { onDelete: "set null" }),
+    startsAt: timestamp("starts_at", { withTimezone: true }),
+    endsAt: timestamp("ends_at", { withTimezone: true }),
+    /** How many members have voted; changed in the same statement as the vote itself. */
+    voters: integer("voters").notNull().default(0),
+    createdBy: integer("created_by").references(() => adminUsers.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
+  },
+  (t) => [
+    index("polls_status_idx").on(t.status, t.createdAt.desc()),
+    check("polls_status_chk", sql`${t.status} in ('draft', 'open', 'closed')`),
+    check("polls_show_chk", sql`${t.showResults} in ('after_vote', 'after_close', 'admin_only')`),
+    check("polls_choices_chk", sql`${t.maxChoices} between 1 and 10`),
+  ],
+);
+
+/** One answer of a poll, with its running total. */
+export const pollOptions = pgTable(
+  "poll_options",
+  {
+    id: serial("id").primaryKey(),
+    pollId: integer("poll_id").notNull().references(() => polls.id, { onDelete: "cascade" }),
+    labelEn: text("label_en").notNull(),
+    labelHi: text("label_hi"),
+    sort: integer("sort").notNull().default(0),
+    votes: integer("votes").notNull().default(0),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
+  },
+  (t) => [index("poll_options_poll_idx").on(t.pollId, t.sort)],
+);
+
+/** Who has voted in a poll (once each), kept apart from what they chose so the ballot stays secret. */
+export const pollVoters = pgTable(
+  "poll_voters",
+  {
+    pollId: integer("poll_id").notNull().references(() => polls.id, { onDelete: "cascade" }),
+    memberId: integer("member_id").notNull().references(() => members.id, { onDelete: "cascade" }),
+    votedAt: timestamp("voted_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.pollId, t.memberId] }), index("poll_voters_member_idx").on(t.memberId)],
+);
+
+/* --------------------------------- Reels ------------------------------- */
+
+/**
+ * Short videos shown on the Reels page. The video itself lives at Cloudinary (`public_id`); only its name and a few
+ * facts are kept here. Shown when `published`; `credit` is the line of thanks some free licences ask for.
+ */
+export const reels = pgTable(
+  "reels",
+  {
+    id: serial("id").primaryKey(),
+    titleEn: text("title_en").notNull(),
+    titleHi: text("title_hi"),
+    /** Author or source line shown under the caption (for example the licence credit). */
+    credit: text("credit"),
+    publicId: text("public_id").notNull(),
+    seconds: integer("seconds").notNull().default(0),
+    bytes: integer("bytes").notNull().default(0),
+    sort: integer("sort").notNull().default(0),
+    published: boolean("published").notNull().default(true),
+    createdBy: integer("created_by").references(() => adminUsers.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
+    i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
+  },
+  (t) => [uniqueIndex("reels_public_id_idx").on(t.publicId), index("reels_feed_idx").on(t.published, t.sort, t.createdAt.desc())],
+);

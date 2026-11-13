@@ -4,13 +4,13 @@ import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
 import { videoConfigured } from "@/lib/daily";
-import { fmtWhen, meetingState, MODES, relative, reminderOffsets, RSVPS, toIst, videoEnabled } from "@/lib/meetings";
+import { fmtTime, fmtWhen, meetingState, MODES, relative, reminderOffsets, RSVPS, toIst, videoEnabled } from "@/lib/meetings";
 import UploadField from "../../../UploadField";
 import OtherLanguages from "../../../OtherLanguages";
 import { DeleteButton, SubmitButton } from "../../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls, td, th } from "../../../ui";
 import { CopyAll, SendButtons } from "./InviteeLinks";
-import { addInvitees, addOfficeBearers, checkRecording, createVideoRoom, deleteMeeting, removeInvitees, saveAttendance, saveMeeting, saveRecord } from "../actions";
+import { addInvitees, addOfficeBearers, checkRecording, createVideoRoom, deleteMeeting, removeInvitees, saveAttendance, saveMeeting, saveMeetingLink, saveRecord } from "../actions";
 
 // Always depends on the signed-in admin, so it is rendered per request.
 export const instant = false;
@@ -20,6 +20,10 @@ const ERRORS: Record<string, string> = {
   required: "Title, start time and end time are required.",
   time: "The meeting must end after it starts.",
   long: "A meeting can be at most 12 hours long. For a longer event, schedule it in parts.",
+  type: "Choose the kind of meeting (for example Standing Committee).",
+  agenda: "The agenda is required. Write at least one point.",
+  venue: "A venue is required when the meeting is in person or both.",
+  link: "The meeting link must be a full web address starting with https://, for example https://meet.google.com/abc-defg-hij.",
   kept: "This meeting has minutes, a recording or attendance, so it is kept as a record. Set it to Cancelled or Completed instead of deleting it.",
 };
 
@@ -69,13 +73,13 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
       <form action={saveMeeting} className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <input type="hidden" name="id" value={isNew ? "" : id} />
         <Card className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <Field label="Title (English)"><input name="titleEn" required defaultValue={m?.titleEn} className={inputCls} /></Field>
+          <Field label="Title (English) *"><input name="titleEn" required maxLength={300} defaultValue={m?.titleEn} className={inputCls} /></Field>
           <Field label="Title (Hindi)"><input name="titleHi" defaultValue={m?.titleHi ?? ""} className={inputCls} /></Field>
-          <Field label="Starts (India time)"><input type="datetime-local" name="startsAt" required defaultValue={toIst(m?.startsAt ?? nextHour)} className={inputCls} /></Field>
-          <Field label="Ends (India time)"><input type="datetime-local" name="endsAt" required defaultValue={toIst(m?.endsAt ?? new Date(nextHour.getTime() + 3600000))} className={inputCls} /></Field>
-          <Field label="Kind of meeting">
-            <select name="typeId" defaultValue={m?.typeId ?? ""} className={inputCls}>
-              <option value="">Not specified</option>
+          <Field label="Starts (India time) *"><input type="datetime-local" name="startsAt" required defaultValue={toIst(m?.startsAt ?? nextHour)} className={inputCls} /></Field>
+          <Field label="Ends (India time) *"><input type="datetime-local" name="endsAt" required defaultValue={toIst(m?.endsAt ?? new Date(nextHour.getTime() + 3600000))} className={inputCls} /></Field>
+          <Field label="Kind of meeting *">
+            <select name="typeId" required defaultValue={m?.typeId ?? ""} className={inputCls}>
+              <option value="">Choose…</option>
               {types.map((t) => <option key={t.id} value={t.id}>{t.nameEn}</option>)}
             </select>
           </Field>
@@ -93,9 +97,9 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
           <label className="flex items-center gap-3 self-end pb-3 text-sm font-semibold">
             <input type="checkbox" name="recordingOn" defaultChecked={m?.recordingOn ?? true} className="h-6 w-6" /> Record the video call
           </label>
-          <Field label="Venue (English)" hint="For in-person and both."><input name="venueEn" defaultValue={m?.venueEn ?? ""} className={inputCls} /></Field>
+          <Field label="Venue (English)" hint="Required for in-person and both."><input name="venueEn" defaultValue={m?.venueEn ?? ""} className={inputCls} /></Field>
           <Field label="Venue (Hindi)"><input name="venueHi" defaultValue={m?.venueHi ?? ""} className={inputCls} /></Field>
-          <Field label="Agenda (English)" hint="One point per line."><textarea name="agendaEn" rows={6} defaultValue={m?.agendaEn ?? ""} className={inputCls} /></Field>
+          <Field label="Agenda (English) *" hint="One point per line."><textarea name="agendaEn" required rows={6} defaultValue={m?.agendaEn ?? ""} className={inputCls} /></Field>
           <Field label="Agenda (Hindi)"><textarea name="agendaHi" rows={6} defaultValue={m?.agendaHi ?? ""} className={inputCls} /></Field>
           <OtherLanguages
             className="sm:col-span-2"
@@ -121,20 +125,33 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
             </p>
           </div>
           <SubmitButton className="btn-primary w-full px-6 py-3">{isNew ? "Schedule meeting" : "Save"}</SubmitButton>
-          {isNew && <p className="text-sm text-muted">After saving you can invite people and, later, record the minutes.</p>}
+          {isNew && <p className="text-sm text-muted">After saving you can paste the Google Meet or Zoom link in the Video call box, invite people and, later, record the minutes.</p>}
         </Card>
       </form>
 
       {m && m.mode !== "in_person" && (
         <Card className="mt-8">
           <h2 id="video" className="font-display text-2xl font-bold">Video call</h2>
-          {!videoConfigured() ? (
-            <p className="mt-3 text-muted">The video service is not connected on this site yet.</p>
+          {/* Its own form and button, so pressing any other button on this page can never lose the link. */}
+          <form action={saveMeetingLink} className="mt-3 space-y-3">
+            <input type="hidden" name="id" value={m.id} />
+            <Field label="Meeting link (Google Meet, Zoom...)" hint="Paste the call link and press Save link. Invitees then see a Join button on their own page from 15 minutes before the start. Clear it and save to remove the link.">
+              <input type="url" name="meetingLink" defaultValue={m.meetingLink ?? ""} placeholder="https://meet.google.com/abc-defg-hij" className={inputCls} />
+            </Field>
+            <SubmitButton className="btn-primary px-6 py-2.5">Save link</SubmitButton>
+          </form>
+          {m.meetingLink ? (
+            <div className="mt-5 space-y-4 border-t border-line pt-4">
+              <p className="text-muted">This meeting uses the call link saved above. Invitees join from 15 minutes before the start. Anyone who presses Join on their own page is marked as attended (with the time) automatically. Recording is not automatic for a pasted link; paste the recording link in the record.</p>
+              <a href={m.meetingLink} target="_blank" rel="noopener noreferrer" className="btn-primary inline-block px-6 py-3">Open the call as host</a>
+            </div>
+          ) : !videoConfigured() ? (
+            <p className="mt-5 border-t border-line pt-4 text-muted">No call link is saved yet, so invitees will not see a Join button. Paste the link above and press <strong>Save link</strong>.</p>
           ) : m.status !== "scheduled" && !m.roomName ? (
             <p className="mt-3 text-muted">{m.status === "cancelled" ? "This meeting is cancelled, so it has no video room." : "This meeting is completed."}</p>
           ) : !m.roomName && !videoOn ? (
-            <p className="mt-3 text-muted">
-              Video calls are switched off for now, until the video account can take calls. When it is ready, set <strong>meetings.video_enabled</strong> to <strong>1</strong> under Site text, then come back here and press Create video room.
+            <p className="mt-5 border-t border-line pt-4 text-muted">
+              No call link is saved yet, so invitees will not see a Join button. Paste the link above and press <strong>Save link</strong>.
             </p>
           ) : !m.roomName ? (
             <form action={createVideoRoom} className="mt-3 space-y-3">
@@ -208,6 +225,7 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
                             <input type="hidden" name="ids" value={i.id} />
                             <p className="font-semibold">{i.name}</p>
                             {i.designation && <p className="text-sm text-muted">{i.designation}</p>}
+                            {i.joinedAt && <p className="text-sm font-semibold text-brand-deep">Pressed Join at {fmtTime(i.joinedAt)}</p>}
                           </td>
                           <td className={`${td} whitespace-nowrap text-sm`}>{i.mobile ?? <span className="text-muted">-</span>}</td>
                           <td className={td}>
