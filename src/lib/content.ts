@@ -402,7 +402,7 @@ export async function getGrievanceTypes() {
 
 /* ------------------------- Public meetings ------------------------- */
 
-export type PublicMeetingType = { id: number; nameEn: string; nameHi: string | null; i18n: I18n; count: number };
+export type PublicMeetingType = { id: number; nameEn: string; nameHi: string | null; i18n: I18n; count: number; parentId: number | null };
 
 /**
  * The public Meetings page lists these kinds as its headings. Only meetings the super admin marked public
@@ -413,7 +413,7 @@ export async function getPublicMeetingTypes(): Promise<PublicMeetingType[]> {
   cacheLife("minutes");
   cacheTag("meetings");
   const rows = await getDb().execute(sql`
-    select t.id, t.name_en as "nameEn", t.name_hi as "nameHi", t.i18n,
+    select t.id, t.name_en as "nameEn", t.name_hi as "nameHi", t.i18n, t.parent_id as "parentId",
            (select count(*)::int from meetings m where m.type_id = t.id and m.is_public and m.status <> 'cancelled') as count
     from meeting_types t where t.active and t.show_public order by t.sort, t.id`);
   return rowsOf<PublicMeetingType>(rows);

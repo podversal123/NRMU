@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import MeetingFan from "@/components/MeetingFan";
 import PageFallback from "@/components/PageFallback";
 import PageHero from "@/components/PageHero";
 import { getPublicMeetings, getPublicMeetingTypes } from "@/lib/content";
 import { isLang } from "@/lib/i18n";
+import { fanItems } from "@/lib/meeting-fan";
 import { navTitle } from "@/lib/nav";
 import { getSettings, getUi, pick, setting } from "@/lib/queries";
 import { whenIst } from "@/lib/when";
@@ -35,10 +37,19 @@ async function Content({ params }: Props) {
   const [ui, s, parent, rows] = await Promise.all([getUi(lang), getSettings(), navTitle(lang, "/meetings"), getPublicMeetings(kind.id)]);
   const t = (k: string) => setting(s, k, lang);
   const title = pick(lang, kind.nameEn, kind.nameHi, kind.i18n?.name);
+  // kinds inside this one (Opening Speech, Regular Agenda Meeting, Informal Meeting inside PNM), and the kind this one sits inside
+  const subs = kinds.filter((x) => x.parentId === kind.id);
+  const up = kind.parentId ? kinds.find((x) => x.id === kind.parentId) : undefined;
+  const upCrumb = up ? [{ href: `/${lang}/meetings/${up.id}`, label: pick(lang, up.nameEn, up.nameHi, up.i18n?.name) }] : [];
   return (
     <>
-      <PageHero lang={lang} title={title} sub={t("meetings.sub")} crumbs={[{ href: `/${lang}`, label: ui.home }, { href: `/${lang}/meetings`, label: parent }, { label: title }]} />
+      <PageHero lang={lang} title={title} sub={t("meetings.sub")} crumbs={[{ href: `/${lang}`, label: ui.home }, { href: `/${lang}/meetings`, label: parent }, ...upCrumb, { label: title }]} />
       <div className="mx-auto max-w-wrap px-5 py-12 sm:px-8 sm:py-14">
+        {subs.length > 0 && (
+          <div className="mb-10">
+            <MeetingFan items={fanItems(lang, subs, kinds, t("meetings.unit"))} open={t("meetings.open")} />
+          </div>
+        )}
         {rows.length ? (
           <ul className="divide-y divide-line border-y border-line">
             {rows.map((m) => (
@@ -51,7 +62,7 @@ async function Content({ params }: Props) {
               </li>
             ))}
           </ul>
-        ) : (
+        ) : subs.length ? null : (
           <p className="text-muted">{t("meetings.empty")}</p>
         )}
       </div>

@@ -95,7 +95,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       <section className="bg-white">
         <h1 className="sr-only">{t("org.name")}</h1>
         <Image
-          src="/banners/leaders-banner-indian-railways.png"
+          src="/banners/leaders-banner-full-names.png"
           alt={leaders.map((l) => `${pick(lang, l.nameEn, l.nameHi, l.i18n?.name)}, ${pick(lang, l.designationEn, l.designationHi, l.designationI18n?.name)}`).join("; ")}
           width={2061}
           height={763}

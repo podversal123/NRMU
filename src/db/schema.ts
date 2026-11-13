@@ -413,6 +413,8 @@ export const meetingTypes = pgTable("meeting_types", {
   showPublic: boolean("show_public").notNull().default(false),
   sort: integer("sort").notNull().default(0),
   active: boolean("active").notNull().default(true),
+  /** A kind with a parent is shown inside that kind's page (e.g. Opening Speech inside PNM), not as its own card. */
+  parentId: integer("parent_id").references((): AnyPgColumn => meetingTypes.id, { onDelete: "set null" }),
   /** Text in the languages other than English and Hindi (see lib/i18n.ts). */
   i18n: jsonb("i18n").$type<I18n>().notNull().default({}),
 });
