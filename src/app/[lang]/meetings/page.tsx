@@ -23,7 +23,7 @@ export default async function MeetingsPage({ params }: { params: Promise<{ lang:
   return (
     <>
       <PageHero lang={lang} title={title} sub={t("meetings.sub")} crumbs={[{ href: `/${lang}`, label: ui.home }, { label: title }]} />
-      <div className="mx-auto max-w-wrap px-5 py-12 sm:px-8 sm:py-14">
+      <div className="mx-auto max-w-wrap px-5 pb-6 pt-2 sm:px-8">
         {items.length ? <MeetingFan items={items} open={t("meetings.open")} /> : <p className="text-muted">{t("meetings.empty")}</p>}
       </div>
     </>

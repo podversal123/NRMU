@@ -44,7 +44,7 @@ async function Content({ params }: Props) {
   return (
     <>
       <PageHero lang={lang} title={title} sub={t("meetings.sub")} crumbs={[{ href: `/${lang}`, label: ui.home }, { href: `/${lang}/meetings`, label: parent }, ...upCrumb, { label: title }]} />
-      <div className="mx-auto max-w-wrap px-5 py-12 sm:px-8 sm:py-14">
+      <div className="mx-auto max-w-wrap px-5 pb-6 pt-2 sm:px-8">
         {subs.length > 0 && (
           <div className="mb-10">
             <MeetingFan items={fanItems(lang, subs, kinds, t("meetings.unit"))} open={t("meetings.open")} />

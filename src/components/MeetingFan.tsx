@@ -16,6 +16,9 @@ const SLOT: Record<number, { x: number; y: number; r: number; s: number }> = {
 const STAGE_W = 1160;
 const CARD_W = 280;
 const CARD_H = 420;
+const STAGE_H = CARD_H + 140; // room for the tilted side cards and the shadow, no more
+const TOP = 12;
+const ARROWS = 76; // the arrow row under the fan plus the page's bottom padding
 
 /**
  * The meeting kinds as a fan of cards: the one in the middle is open to read and click, the rest lean away on both sides.
@@ -28,15 +31,26 @@ export default function MeetingFan({ items, open }: { items: FanItem[]; open: st
   const wrap = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; moved: boolean } | null>(null);
 
-  // the whole fan is drawn 1160px wide and scaled down to fit a narrow screen
+  const [width, setWidth] = useState(STAGE_W);
+
+  // the whole fan is drawn 1160px wide and scaled down so it fits the width AND the height of the window: cards and arrows in one screen
   useEffect(() => {
     const el = wrap.current;
     if (!el) return;
-    const fit = () => setScale(Math.min(1, el.clientWidth / STAGE_W));
+    const fit = () => {
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      const byHeight = (window.innerHeight - top - ARROWS) / STAGE_H;
+      setWidth(el.clientWidth);
+      setScale(Math.min(1, el.clientWidth / STAGE_W, Math.max(0.6, byHeight)));
+    };
     fit();
     const ro = new ResizeObserver(fit);
     ro.observe(el);
-    return () => ro.disconnect();
+    window.addEventListener("resize", fit);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", fit);
+    };
   }, []);
 
   const go = (by: number) => setActive((a) => (((a + by) % n) + n) % n);
@@ -85,9 +99,9 @@ export default function MeetingFan({ items, open }: { items: FanItem[]; open: st
         onPointerUp={onUp}
         onPointerCancel={onUp}
         className="relative mx-auto w-full max-w-[1160px] cursor-grab touch-pan-y select-none overflow-hidden rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-signal active:cursor-grabbing"
-        style={{ height: (CARD_H + 200) * scale }}
+        style={{ height: STAGE_H * scale }}
       >
-        <div className="absolute left-0 top-0 origin-top-left" style={{ width: STAGE_W, height: CARD_H + 200, transform: `scale(${scale})` }}>
+        <div className="absolute top-0 origin-top-left" style={{ left: Math.max(0, (width - STAGE_W * scale) / 2), width: STAGE_W, height: STAGE_H, transform: `scale(${scale})` }}>
           {items.map((it, i) => {
             const d = dist(i);
             const slot = SLOT[Math.abs(d)];
@@ -98,7 +112,7 @@ export default function MeetingFan({ items, open }: { items: FanItem[]; open: st
               width: CARD_W,
               height: CARD_H,
               left: STAGE_W / 2 - CARD_W / 2,
-              top: 20,
+              top: TOP,
               zIndex: 10 - Math.abs(d),
               opacity: visible ? 1 : 0,
               pointerEvents: visible ? "auto" : "none",
