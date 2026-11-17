@@ -441,17 +441,6 @@ export const meetings = pgTable(
     agendaEn: text("agenda_en"),
     agendaHi: text("agenda_hi"),
     status: text("status").notNull().default("scheduled"), // scheduled | completed | cancelled
-    recordingOn: boolean("recording_on").notNull().default(true),
-    /** Name and address of the video room at the video provider; set when the room is created. */
-    roomName: text("room_name"),
-    roomUrl: text("room_url"),
-    /** True when the room really was created with recording switched on (the video plan may not allow it). */
-    roomRecording: boolean("room_recording").notNull().default(false),
-    /** A call link pasted by hand (Google Meet, Zoom...). When set it is used instead of a video room made here. */
-    meetingLink: text("meeting_link"),
-    /** The finished recording at the video provider, and how long it is. Opened through a fresh temporary link each time. */
-    recordingId: text("recording_id"),
-    recordingSeconds: integer("recording_seconds"),
     /** A link pasted by hand (for example a recording made elsewhere). */
     recordingUrl: text("recording_url"),
     minutesUrl: text("minutes_url"),

@@ -9,9 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@daily-co/daily-js": "^0.93.0",
     "@neondatabase/serverless": "^1.2.0",
     "@vercel/blob": "^2.8.1",
+    "agora-rtc-sdk-ng": "4.24.10",
+    "agora-token": "2.0.7",
     "drizzle-orm": "^0.45.3",
     "next": "16.4.2",
     "react": "19.3.0",

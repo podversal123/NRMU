@@ -1,7 +1,8 @@
 import "server-only";
 import { cache } from "react";
-import { sql } from "drizzle-orm";
-import { getDb } from "@/db";
+import { and, eq, sql } from "drizzle-orm";
+import { getDb, schema } from "@/db";
+import { hostUid, inviteeUid } from "@/lib/agora";
 
 export const MODES = [
   { value: "online", label: "Online (video call)" },
@@ -51,10 +52,17 @@ export function relative(target: Date, now: Date) {
   return rtf.format(Math.round(mins / 1440), "day");
 }
 
-/** The "meetings.video_enabled" setting: video rooms are only made when it is "1". It stays "0" until the video account can take calls. */
-export async function videoEnabled() {
-  const r = (await getDb().execute(sql`select value_en as v from site_settings where key = 'meetings.video_enabled'`)) as unknown as { rows?: { v: string }[] } & { v: string }[];
-  return (r.rows ?? r)[0]?.v?.trim() === "1";
+/** Who is who in a meeting's video call, by call id: the invitees, and the super admins who can host it. */
+export async function callNames(meetingId: number): Promise<Record<number, string>> {
+  const db = getDb();
+  const [invitees, hosts] = await Promise.all([
+    db.select({ id: schema.meetingInvitees.id, name: schema.meetingInvitees.name }).from(schema.meetingInvitees).where(eq(schema.meetingInvitees.meetingId, meetingId)),
+    db.select({ id: schema.adminUsers.id, name: schema.adminUsers.name }).from(schema.adminUsers).where(and(eq(schema.adminUsers.role, "super_admin"), eq(schema.adminUsers.active, true))),
+  ]);
+  const names: Record<number, string> = {};
+  for (const i of invitees) names[inviteeUid(i.id)] = i.name;
+  for (const h of hosts) names[hostUid(h.id)] = h.name;
+  return names;
 }
 
 /** Reminder offsets in minutes, from the "meetings.reminder_minutes" setting (e.g. "1440,60,15"). */

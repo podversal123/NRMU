@@ -3,14 +3,14 @@ import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { requireAdmin } from "@/lib/auth";
-import { videoConfigured } from "@/lib/daily";
-import { fmtTime, fmtWhen, meetingState, MODES, relative, reminderOffsets, RSVPS, toIst, videoEnabled } from "@/lib/meetings";
+import { videoConfigured } from "@/lib/agora";
+import { fmtTime, fmtWhen, meetingState, MODES, relative, reminderOffsets, RSVPS, toIst } from "@/lib/meetings";
 import UploadField from "../../../UploadField";
 import OtherLanguages from "../../../OtherLanguages";
 import { DeleteButton, SubmitButton } from "../../../SubmitButton";
 import { Card, Field, Notice, PageTitle, inputCls, td, th } from "../../../ui";
 import { CopyAll, SendButtons } from "./InviteeLinks";
-import { addInvitees, addOfficeBearers, checkRecording, createVideoRoom, deleteMeeting, removeInvitees, saveAttendance, saveMeeting, saveMeetingLink, saveRecord } from "../actions";
+import { addInvitees, addOfficeBearers, deleteMeeting, removeInvitees, saveAttendance, saveMeeting, saveRecord } from "../actions";
 
 // Always depends on the signed-in admin, so it is rendered per request.
 export const instant = false;
@@ -23,8 +23,7 @@ const ERRORS: Record<string, string> = {
   type: "Choose the kind of meeting (for example Standing Committee).",
   agenda: "The agenda is required. Write at least one point.",
   venue: "A venue is required when the meeting is in person or both.",
-  link: "The meeting link must be a full web address starting with https://, for example https://meet.google.com/abc-defg-hij.",
-  kept: "This meeting has minutes, a recording or attendance, so it is kept as a record. Set it to Cancelled or Completed instead of deleting it.",
+  kept: "This meeting has minutes, a recording link or attendance, so it is kept as a record. Set it to Cancelled or Completed instead of deleting it.",
 };
 
 const minutesLabel = (m: number) => (m % 1440 === 0 ? `${m / 1440} day${m === 1440 ? "" : "s"}` : m % 60 === 0 ? `${m / 60} hour${m === 60 ? "" : "s"}` : `${m} minutes`);
@@ -39,12 +38,11 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
   const [m] = isNew ? [] : await db.select().from(schema.meetings).where(eq(schema.meetings.id, Number(id))).limit(1);
   if (!isNew && !m) notFound();
 
-  const [types, divisions, invitees, offsets, videoOn] = await Promise.all([
+  const [types, divisions, invitees, offsets] = await Promise.all([
     db.select().from(schema.meetingTypes).where(eq(schema.meetingTypes.active, true)).orderBy(asc(schema.meetingTypes.sort)),
     db.select().from(schema.divisions).orderBy(asc(schema.divisions.sort)),
     isNew ? [] : db.select().from(schema.meetingInvitees).where(eq(schema.meetingInvitees.meetingId, Number(id))).orderBy(asc(schema.meetingInvitees.id)),
     reminderOffsets(),
-    videoEnabled(),
   ]);
   const now = new Date();
   const state = m ? meetingState(m, now) : null;
@@ -66,9 +64,6 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
       {sp.saved && <Notice>Saved.</Notice>}
       {sp.added && <Notice>{Number(sp.added) ? `${sp.added} ${Number(sp.added) === 1 ? "person" : "people"} added.` : "Nobody new to add. They are already in the list."}</Notice>}
       {sp.error && <Notice kind="err">{ERRORS[sp.error] ?? "Please check the form."}</Notice>}
-      {sp.video === "failed" && <Notice kind="err">The meeting is saved, but the video service did not answer. Use "Create video room" below to try again.</Notice>}
-      {sp.video === "limit" && <Notice kind="err">The meeting is saved, but 40 video rooms are already open, which is the safety limit. Finish or cancel an old meeting first.</Notice>}
-      {sp.norecording && <Notice>No finished recording yet. It can take a few minutes after the call ends.</Notice>}
 
       <form action={saveMeeting} className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <input type="hidden" name="id" value={isNew ? "" : id} />
@@ -94,9 +89,6 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
               {MODES.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </Field>
-          <label className="flex items-center gap-3 self-end pb-3 text-sm font-semibold">
-            <input type="checkbox" name="recordingOn" defaultChecked={m?.recordingOn ?? true} className="h-6 w-6" /> Record the video call
-          </label>
           <Field label="Venue (English)" hint="Required for in-person and both."><input name="venueEn" defaultValue={m?.venueEn ?? ""} className={inputCls} /></Field>
           <Field label="Venue (Hindi)"><input name="venueHi" defaultValue={m?.venueHi ?? ""} className={inputCls} /></Field>
           <Field label="Agenda (English) *" hint="One point per line."><textarea name="agendaEn" required rows={6} defaultValue={m?.agendaEn ?? ""} className={inputCls} /></Field>
@@ -125,64 +117,26 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
             </p>
           </div>
           <SubmitButton className="btn-primary w-full px-6 py-3">{isNew ? "Schedule meeting" : "Save"}</SubmitButton>
-          {isNew && <p className="text-sm text-muted">After saving you can paste the Google Meet or Zoom link in the Video call box, invite people and, later, record the minutes.</p>}
+          {isNew && <p className="text-sm text-muted">After saving you can invite people. Online meetings get a built-in video call; invitees join from their own link.</p>}
         </Card>
       </form>
 
       {m && m.mode !== "in_person" && (
         <Card className="mt-8">
           <h2 id="video" className="font-display text-2xl font-bold">Video call</h2>
-          {/* Its own form and button, so pressing any other button on this page can never lose the link. */}
-          <form action={saveMeetingLink} className="mt-3 space-y-3">
-            <input type="hidden" name="id" value={m.id} />
-            <Field label="Meeting link (Google Meet, Zoom...)" hint="Paste the call link and press Save link. Invitees then see a Join button on their own page from 15 minutes before the start. Clear it and save to remove the link.">
-              <input type="url" name="meetingLink" defaultValue={m.meetingLink ?? ""} placeholder="https://meet.google.com/abc-defg-hij" className={inputCls} />
-            </Field>
-            <SubmitButton className="btn-primary px-6 py-2.5">Save link</SubmitButton>
-          </form>
-          {m.meetingLink ? (
-            <div className="mt-5 space-y-4 border-t border-line pt-4">
-              <p className="text-muted">This meeting uses the call link saved above. Invitees join from 15 minutes before the start. Anyone who presses Join on their own page is marked as attended (with the time) automatically. Recording is not automatic for a pasted link; paste the recording link in the record.</p>
-              <a href={m.meetingLink} target="_blank" rel="noopener noreferrer" className="btn-primary inline-block px-6 py-3">Open the call as host</a>
-            </div>
-          ) : !videoConfigured() ? (
-            <p className="mt-5 border-t border-line pt-4 text-muted">No call link is saved yet, so invitees will not see a Join button. Paste the link above and press <strong>Save link</strong>.</p>
-          ) : m.status !== "scheduled" && !m.roomName ? (
-            <p className="mt-3 text-muted">{m.status === "cancelled" ? "This meeting is cancelled, so it has no video room." : "This meeting is completed."}</p>
-          ) : !m.roomName && !videoOn ? (
-            <p className="mt-5 border-t border-line pt-4 text-muted">
-              No call link is saved yet, so invitees will not see a Join button. Paste the link above and press <strong>Save link</strong>.
-            </p>
-          ) : !m.roomName ? (
-            <form action={createVideoRoom} className="mt-3 space-y-3">
-              <input type="hidden" name="id" value={m.id} />
-              <p className="text-muted">There is no video room for this meeting yet.</p>
-              <SubmitButton className="btn-primary px-6 py-2.5">Create video room</SubmitButton>
-            </form>
+          {!videoConfigured() ? (
+            <p className="mt-3 text-muted">The video service is not set up on this site yet, so there is no call.</p>
+          ) : m.status !== "scheduled" ? (
+            <p className="mt-3 text-muted">{m.status === "cancelled" ? "This meeting is cancelled, so the call is closed." : "This meeting is completed, so the call is closed."}</p>
           ) : (
             <div className="mt-3 space-y-4">
-              <p className="text-muted">The room opens an hour before the start for you, and invitees can come in 15 minutes before. People you have not invited wait at the door until you let them in.</p>
-              <p className="text-sm font-semibold">
-                {!m.recordingOn
-                  ? "Recording is off for this meeting."
-                  : m.roomRecording
-                    ? "Recording starts by itself when you join as host."
-                    : "Recording is not available on the video plan you have now, so this call will not be recorded."}
+              <p className="text-muted">
+                The call opens for you an hour before the start, and invitees can come in 15 minutes before. Only people with their own invitation link can join. Everyone who joins is marked as attended, with the time they came in and left.
               </p>
+              <p className="text-sm text-muted">The call is not recorded by the site. To keep a recording, record the call on your own device and paste its link in the record below.</p>
               <a href={`/admin/meetings/${m.id}/room`} className="btn-primary inline-block px-6 py-3">Join as host</a>
             </div>
           )}
-          {m.recordingId ? (
-            <p className="mt-5 border-t border-line pt-4">
-              <a href={`/admin/meetings/${m.id}/recording`} target="_blank" rel="noopener noreferrer" className="font-semibold text-brand underline-offset-2 hover:underline">Watch the recording</a>
-              {m.recordingSeconds ? <span className="text-muted"> ({Math.max(1, Math.round(m.recordingSeconds / 60))} minutes)</span> : null}
-            </p>
-          ) : m.roomName && m.roomRecording ? (
-            <form action={checkRecording} className="mt-5 border-t border-line pt-4">
-              <input type="hidden" name="id" value={m.id} />
-              <SubmitButton className="rounded-full border-2 border-ink px-5 py-2.5 text-sm font-semibold hover:bg-ink hover:text-white">Check for the recording</SubmitButton>
-            </form>
-          ) : null}
         </Card>
       )}
 
@@ -261,7 +215,7 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
                   <option value="cancelled">Cancelled</option>
                 </select>
               </Field>
-              <Field label="Link to the recording" hint="Filled in automatically once video calls are connected; you can also paste a link."><input name="recordingUrl" defaultValue={m.recordingUrl ?? ""} className={inputCls} /></Field>
+              <Field label="Link to the recording" hint="Paste the link to a recording made elsewhere."><input name="recordingUrl" defaultValue={m.recordingUrl ?? ""} className={inputCls} /></Field>
               <div className="sm:col-span-2"><UploadField name="minutes" label="Minutes (PDF or Word)" kind="document" folder="meetings" initial={m.minutesUrl ? [m.minutesUrl] : []} /></div>
               <Field label="Minutes in text" className="sm:col-span-2"><textarea name="minutesText" rows={8} defaultValue={m.minutesText ?? ""} className={inputCls} /></Field>
               <Field label="Resolutions (English)" hint="One resolution per line. Shown publicly only when the meeting is public."><textarea name="resolutionsEn" rows={5} defaultValue={m.resolutionsEn ?? ""} className={inputCls} /></Field>

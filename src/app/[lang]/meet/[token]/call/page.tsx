@@ -4,10 +4,10 @@ import { Suspense } from "react";
 import { eq } from "drizzle-orm";
 import VideoCall from "@/components/VideoCall";
 import { getDb, schema } from "@/db";
-import { createToken, DailyError } from "@/lib/daily";
+import { agoraAppId, channelFor, createCallToken, inviteeUid, videoConfigured } from "@/lib/agora";
 import { isLang } from "@/lib/i18n";
 import { limited } from "@/lib/rate-limit";
-import { meetingState } from "@/lib/meetings";
+import { callNames, meetingState } from "@/lib/meetings";
 import { getUi, pick } from "@/lib/queries";
 
 // A private page for one person: it depends on the link and the clock, so it is rendered per request.
@@ -42,16 +42,15 @@ async function Call({ params }: { params: Promise<{ lang: string; token: string 
     .innerJoin(schema.meetings, eq(schema.meetings.id, schema.meetingInvitees.meetingId))
     .where(eq(schema.meetingInvitees.joinToken, token))
     .limit(1);
-  // Not a valid link, no video room, an in-person meeting, or a meeting that is over: back to the invitation page, which explains.
-  if (!row || !row.meeting.roomName || !row.meeting.roomUrl || row.meeting.mode === "in_person") redirect(back);
+  // Not a valid link, video not set up, an in-person meeting, or a meeting that is over: back to the invitation page, which explains.
+  if (!row || !videoConfigured() || row.meeting.mode === "in_person") redirect(back);
   const { invitee, meeting: m } = row;
   const state = meetingState(m, new Date());
   if (state === "cancelled" || state === "completed" || state === "ended") redirect(back);
   if (Date.now() < m.startsAt.getTime() - 15 * 60 * 1000) redirect(back);
 
   const ui = await getUi(lang);
-  // Every opening of the call asks the video service for a new way in, which counts towards the bill.
-  // A person opens it a handful of times at most; a leaked link used by a crowd or a script is slowed down here.
+  // A person opens the call a handful of times at most; a leaked link used by a crowd or a script is slowed down here.
   if (await limited("call", { perAddress: 80, perSecret: { id: token, max: 12 }, windowSeconds: 600 })) {
     return (
       <div className="mx-auto max-w-3xl px-5 py-16 text-center sm:px-8">
@@ -60,25 +59,20 @@ async function Call({ params }: { params: Promise<{ lang: string; token: string 
       </div>
     );
   }
-  let callToken: string;
-  try {
-    callToken = await createToken({ room: m.roomName!, name: invitee.name, userId: `i${invitee.id}`, owner: false, startsAt: m.startsAt, endsAt: m.endsAt, record: false });
-  } catch (e) {
-    console.error("Guest token failed", e instanceof DailyError ? `${e.status} ${e.info}` : e);
-    return (
-      <div className="mx-auto max-w-3xl px-5 py-16 text-center sm:px-8">
-        <p role="alert" className="text-lg font-medium">{ui.mCallError}</p>
-        <a href={back} className="mt-6 inline-flex min-h-12 items-center rounded border-2 border-brand px-6 font-medium text-brand hover:bg-brand hover:text-white">{ui.mCallBack}</a>
-      </div>
-    );
-  }
+  const callToken = createCallToken({ meetingId: m.id, uid: inviteeUid(invitee.id), endsAt: m.endsAt });
+  const names = await callNames(m.id);
 
   return (
     <div className="mx-auto max-w-6xl space-y-4 px-3 py-6 sm:px-6">
       <h1 className="px-2 text-xl font-medium sm:text-2xl">{pick(lang, m.titleEn, m.titleHi, m.i18n?.title)}</h1>
       <VideoCall
-        url={m.roomUrl!}
+        appId={agoraAppId()}
+        channel={channelFor(m.id)}
         token={callToken}
+        uid={inviteeUid(invitee.id)}
+        selfName={invitee.name}
+        names={names}
+        lang={lang}
         backHref={back}
         presenceToken={token}
         labels={{ loading: ui.mCallLoading, left: ui.mCallLeft, again: ui.mCallAgain, back: ui.mCallBack, error: ui.mCallError }}
