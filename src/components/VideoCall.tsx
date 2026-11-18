@@ -10,7 +10,7 @@ const WORDS = {
   en: {
     join: "Join now",
     ready: "Ready to join?",
-    readyHint: "Your camera and microphone are asked for when you press the button.",
+    readyHint: "The call opens in full screen. Your camera and microphone are asked for when you press the button.",
     mic: "Microphone",
     cam: "Camera",
     on: "on",
@@ -18,6 +18,8 @@ const WORDS = {
     share: "Share screen",
     stopShare: "Stop sharing",
     leave: "Leave",
+    full: "Full screen",
+    exitFull: "Exit full screen",
     you: "You",
     host: "Host",
     guest: "Guest",
@@ -32,7 +34,7 @@ const WORDS = {
   hi: {
     join: "अभी जुड़ें",
     ready: "जुड़ने के लिए तैयार?",
-    readyHint: "बटन दबाने पर कैमरा और माइक्रोफ़ोन की अनुमति माँगी जाएगी।",
+    readyHint: "कॉल पूरी स्क्रीन पर खुलेगी। बटन दबाने पर कैमरा और माइक्रोफ़ोन की अनुमति माँगी जाएगी।",
     mic: "माइक्रोफ़ोन",
     cam: "कैमरा",
     on: "चालू",
@@ -40,6 +42,8 @@ const WORDS = {
     share: "स्क्रीन साझा करें",
     stopShare: "साझा करना रोकें",
     leave: "बाहर निकलें",
+    full: "पूरी स्क्रीन",
+    exitFull: "पूरी स्क्रीन बंद करें",
     you: "आप",
     host: "संचालक",
     guest: "अतिथि",
@@ -124,6 +128,8 @@ export default function VideoCall({
   const [shareProblem, setShareProblem] = useState(false);
   const [audioBlocked, setAudioBlocked] = useState(false);
   const [reason, setReason] = useState("");
+  const [full, setFull] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
 
   const client = useRef<IAgoraRTCClient | null>(null);
   // The tracks live in a ref (so cleanup can reach them) and in state (so the screen follows them).
@@ -135,6 +141,20 @@ export default function VideoCall({
   }, []);
   const joined = useRef(false);
   const alive = useRef(true);
+
+  /** Full screen: the browser's own full screen where it exists; otherwise (iPhone) the call simply covers the whole window. */
+  const enterFull = useCallback(() => {
+    setFull(true);
+    try {
+      void root.current?.requestFullscreen?.().catch(() => {});
+    } catch {}
+  }, []);
+  const exitFull = useCallback(() => {
+    setFull(false);
+    try {
+      if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
+    } catch {}
+  }, []);
 
   const ping = useCallback(
     (event: "joined" | "left") => {
@@ -172,15 +192,23 @@ export default function VideoCall({
     const onHide = () => {
       if (joined.current) ping("left");
     };
+    // Pressing Esc leaves the browser's full screen; keep the screen in step with it.
+    const onFull = () => {
+      if (!document.fullscreenElement) setFull(false);
+    };
     window.addEventListener("pagehide", onHide);
+    document.addEventListener("fullscreenchange", onFull);
     return () => {
       alive.current = false;
       window.removeEventListener("pagehide", onHide);
+      document.removeEventListener("fullscreenchange", onFull);
+      if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
       void hangUp();
     };
   }, [hangUp, ping]);
 
   const start = useCallback(async () => {
+    enterFull(); // runs on the Join click, which is what lets the browser allow full screen
     setState("joining");
     setReason("");
     setDeviceProblem(false);
@@ -210,7 +238,11 @@ export default function VideoCall({
       c.on("connection-state-change", (now, _prev, why) => {
         if (now === "DISCONNECTED" && joined.current && why !== "LEAVE") {
           // the token ran out or the person was removed: the call is over for them
-          void hangUp().then(() => alive.current && setState("left"));
+          void hangUp().then(() => {
+            if (!alive.current) return;
+            exitFull();
+            setState("left");
+          });
         }
       });
       await c.join(appId, channel, token, uid);
@@ -244,10 +276,11 @@ export default function VideoCall({
       const code = (e as { code?: string } | undefined)?.code ?? "";
       await hangUp();
       if (!alive.current) return;
+      exitFull();
       setReason(code === "INVALID_VENDOR_KEY" || code === "INVALID_OPERATION" || /token|appid/i.test(code) ? w.badKey : "");
       setState("error");
     }
-  }, [appId, channel, token, uid, hangUp, ping, setTracks, w.badKey]);
+  }, [appId, channel, token, uid, hangUp, ping, setTracks, enterFull, exitFull, w.badKey]);
 
   const toggleMic = async () => {
     const track = tracks.current.mic;
@@ -306,6 +339,7 @@ export default function VideoCall({
   };
 
   const leave = async () => {
+    exitFull();
     await hangUp();
     setState("left");
   };
@@ -314,7 +348,7 @@ export default function VideoCall({
   const over = state === "left" || state === "error";
 
   return (
-    <div className="relative flex h-[78svh] min-h-[28rem] w-full flex-col overflow-hidden bg-ink text-white">
+    <div ref={root} className={`relative flex w-full flex-col overflow-hidden bg-ink text-white ${full ? "fixed inset-0 z-[100] h-dvh" : "h-[78svh] min-h-[28rem]"}`}>
       {state === "ready" && (
         <div className="grid flex-1 place-items-center p-6 text-center">
           <div>
@@ -366,6 +400,9 @@ export default function VideoCall({
             </button>
             <button type="button" onClick={toggleShare} aria-pressed={sharing} className="min-h-12 rounded border-2 border-white/40 px-4 font-medium hover:bg-white/10">
               {sharing ? w.stopShare : w.share}
+            </button>
+            <button type="button" onClick={full ? exitFull : enterFull} aria-pressed={full} className="min-h-12 rounded border-2 border-white/40 px-4 font-medium hover:bg-white/10">
+              {full ? w.exitFull : w.full}
             </button>
             <button type="button" onClick={leave} className="min-h-12 rounded bg-red-600 px-6 font-semibold hover:bg-red-700">
               {w.leave}

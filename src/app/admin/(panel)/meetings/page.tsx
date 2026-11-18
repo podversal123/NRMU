@@ -70,8 +70,11 @@ export default async function MeetingsAdmin({ searchParams }: { searchParams: Pr
             {todays.map((a) => (
               <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
                 <Link href={`/admin/meetings/${a.id}`} className="font-semibold hover:text-brand">{a.titleEn}</Link>
-                <span className="text-sm text-muted">
+                <span className="flex flex-wrap items-center gap-3 text-sm text-muted">
                   {a.group === "live" ? "Live now" : `${fmtTime(a.startsAt)}, ${relative(a.startsAt, now)}`}
+                  {a.mode !== "in_person" && a.group === "live" && (
+                    <a href={`/admin/meetings/${a.id}/room`} className="btn-primary inline-flex min-h-11 items-center px-5 text-base">▶ Join video call</a>
+                  )}
                 </span>
               </li>
             ))}

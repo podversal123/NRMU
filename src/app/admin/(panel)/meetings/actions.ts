@@ -83,13 +83,6 @@ export async function deleteMeeting(form: FormData) {
   await guard();
   const id = Number(form.get("id"));
   if (id) {
-    // Minutes, a recording or attendance are the union's record. Such a meeting can be cancelled but not deleted.
-    const [kept] = await getDb()
-      .select({ id: schema.meetings.id })
-      .from(schema.meetings)
-      .where(and(eq(schema.meetings.id, id), sql`(minutes_url is not null or minutes_text is not null or recording_url is not null or resolutions_en is not null or resolutions_hi is not null or exists (select 1 from meeting_invitees i where i.meeting_id = meetings.id and i.attended))`))
-      .limit(1);
-    if (kept) redirect(`/admin/meetings/${id}?error=kept`);
     const [row] = await getDb().delete(schema.meetings).where(eq(schema.meetings.id, id)).returning({ minutesUrl: schema.meetings.minutesUrl, noticeUrl: schema.meetings.noticeUrl });
     await deleteBlobs([row?.minutesUrl, row?.noticeUrl]);
     updateTag("meetings");

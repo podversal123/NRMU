@@ -23,7 +23,6 @@ const ERRORS: Record<string, string> = {
   type: "Choose the kind of meeting (for example Standing Committee).",
   agenda: "The agenda is required. Write at least one point.",
   venue: "A venue is required when the meeting is in person or both.",
-  kept: "This meeting has minutes, a recording link or attendance, so it is kept as a record. Set it to Cancelled or Completed instead of deleting it.",
 };
 
 const minutesLabel = (m: number) => (m % 1440 === 0 ? `${m / 1440} day${m === 1440 ? "" : "s"}` : m % 60 === 0 ? `${m / 60} hour${m === 60 ? "" : "s"}` : `${m} minutes`);
@@ -54,24 +53,75 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
   const linkLang = m?.titleHi ? "hi" : "en";
   const whenText = m ? fmtWhen(m.startsAt) + " (IST, UTC+5:30)" : "";
 
+  const canHost = Boolean(m) && m!.mode !== "in_person" && m!.status === "scheduled" && videoConfigured() && now.getTime() >= m!.startsAt.getTime() - 3600000 && now.getTime() <= m!.endsAt.getTime() + 3600000;
+  const statusText = !m ? "" : state === "live" ? "Live now" : state === "upcoming" ? `Starts ${relative(m.startsAt, now)}` : state === "cancelled" ? "Cancelled" : state === "completed" ? "Completed" : "Time is over. Mark it completed in step 3.";
+  const section = "font-display text-2xl font-bold sm:col-span-2";
+  const step = "mb-3 mt-10 flex items-center gap-3 font-display text-2xl font-bold";
+  const stepNo = "grid h-9 w-9 shrink-0 place-items-center rounded-full bg-ink text-base text-light";
+
   return (
     <>
       <PageTitle
         title={isNew ? "Schedule a meeting" : m.titleEn}
-        sub={m ? `${fmtWhen(m.startsAt)} · ${state === "live" ? "Live now" : state === "upcoming" ? relative(m.startsAt, now) : state === "cancelled" ? "Cancelled" : state === "completed" ? "Completed" : "Time is over, mark it completed"}` : undefined}
+        sub={m ? fmtWhen(m.startsAt) : "Fill in the details below and press Schedule meeting."}
         action={<Link href="/admin/meetings" className="inline-block py-2 text-sm font-semibold text-brand">← All meetings</Link>}
       />
       {sp.saved && <Notice>Saved.</Notice>}
       {sp.added && <Notice>{Number(sp.added) ? `${sp.added} ${Number(sp.added) === 1 ? "person" : "people"} added.` : "Nobody new to add. They are already in the list."}</Notice>}
       {sp.error && <Notice kind="err">{ERRORS[sp.error] ?? "Please check the form."}</Notice>}
 
-      <form action={saveMeeting} className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      {m && (
+        <section aria-label="Meeting status" className={`mb-8 border-2 bg-white p-5 sm:p-6 ${state === "live" ? "border-brand" : "border-line"}`}>
+          <div className="flex flex-wrap items-center justify-between gap-5">
+            <div>
+              <p className={`inline-block rounded-full px-3 py-1 text-sm font-bold ${state === "live" ? "bg-brand text-white" : "bg-soft/60 text-ink"}`}>{statusText}</p>
+              <p className="mt-2 text-muted">
+                {invitees.length ? `${invitees.length} invited · ${count.yes} coming · ${count.attended} joined` : "Nobody is invited yet. Add people in step 2."}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              {canHost && (
+                <a href={`/admin/meetings/${m.id}/room`} className="btn-primary inline-flex min-h-14 items-center px-8 text-lg">
+                  ▶ Join video call
+                </a>
+              )}
+              <form action={deleteMeeting}>
+                <input type="hidden" name="id" value={m.id} />
+                <DeleteButton
+                  label="Delete meeting"
+                  confirmText={hasRecord ? "This meeting has minutes, a recording link or attendance. Deleting it removes all of that permanently. Delete it anyway?" : "Delete this meeting and its invitee list permanently?"}
+                />
+              </form>
+            </div>
+          </div>
+          {m.mode !== "in_person" && (
+            <p className="mt-4 text-sm text-muted">
+              {!videoConfigured()
+                ? "The video service is not set up on this site yet, so there is no call."
+                : m.status !== "scheduled"
+                  ? "The call is closed because the meeting is not scheduled any more."
+                  : canHost
+                    ? "Press Join video call to start. Invitees can come in from 15 minutes before the start, using their own link. The call is not recorded by the site."
+                    : "The Join video call button appears here an hour before the meeting starts. Invitees can join from 15 minutes before the start, using their own link."}
+            </p>
+          )}
+          <nav aria-label="Steps" className="mt-5 flex flex-wrap gap-2 border-t border-line pt-4 text-sm font-semibold">
+            <a href="#details" className="rounded-full border-2 border-line px-4 py-2 hover:border-ink">1. Details</a>
+            <a href="#people" className="rounded-full border-2 border-line px-4 py-2 hover:border-ink">2. Invitees</a>
+            <a href="#record" className="rounded-full border-2 border-line px-4 py-2 hover:border-ink">3. After the meeting</a>
+          </nav>
+        </section>
+      )}
+
+      <h2 id="details" className={step}>
+        {!isNew && <span className={stepNo}>1</span>} Meeting details
+      </h2>
+      <form action={saveMeeting}>
         <input type="hidden" name="id" value={isNew ? "" : id} />
         <Card className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <h3 className={section}>What is it</h3>
           <Field label="Title (English) *"><input name="titleEn" required maxLength={300} defaultValue={m?.titleEn} className={inputCls} /></Field>
           <Field label="Title (Hindi)"><input name="titleHi" defaultValue={m?.titleHi ?? ""} className={inputCls} /></Field>
-          <Field label="Starts (India time) *"><input type="datetime-local" name="startsAt" required defaultValue={toIst(m?.startsAt ?? nextHour)} className={inputCls} /></Field>
-          <Field label="Ends (India time) *"><input type="datetime-local" name="endsAt" required defaultValue={toIst(m?.endsAt ?? new Date(nextHour.getTime() + 3600000))} className={inputCls} /></Field>
           <Field label="Kind of meeting *">
             <select name="typeId" required defaultValue={m?.typeId ?? ""} className={inputCls}>
               <option value="">Choose…</option>
@@ -84,13 +134,20 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
               {divisions.map((d) => <option key={d.id} value={d.id}>{d.nameEn}</option>)}
             </select>
           </Field>
-          <Field label="How it is held">
+
+          <h3 className={`${section} border-t border-line pt-5`}>When and where</h3>
+          <Field label="Starts (India time) *"><input type="datetime-local" name="startsAt" required defaultValue={toIst(m?.startsAt ?? nextHour)} className={inputCls} /></Field>
+          <Field label="Ends (India time) *"><input type="datetime-local" name="endsAt" required defaultValue={toIst(m?.endsAt ?? new Date(nextHour.getTime() + 3600000))} className={inputCls} /></Field>
+          <Field label="How it is held" hint="Online meetings get a video call on this site.">
             <select name="mode" defaultValue={m?.mode ?? "online"} className={inputCls}>
               {MODES.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </Field>
-          <Field label="Venue (English)" hint="Required for in-person and both."><input name="venueEn" defaultValue={m?.venueEn ?? ""} className={inputCls} /></Field>
+          <div className="hidden sm:block" />
+          <Field label="Venue (English)" hint="Needed for in-person and both."><input name="venueEn" defaultValue={m?.venueEn ?? ""} className={inputCls} /></Field>
           <Field label="Venue (Hindi)"><input name="venueHi" defaultValue={m?.venueHi ?? ""} className={inputCls} /></Field>
+
+          <h3 className={`${section} border-t border-line pt-5`}>Agenda</h3>
           <Field label="Agenda (English) *" hint="One point per line."><textarea name="agendaEn" required rows={6} defaultValue={m?.agendaEn ?? ""} className={inputCls} /></Field>
           <Field label="Agenda (Hindi)"><textarea name="agendaHi" rows={6} defaultValue={m?.agendaHi ?? ""} className={inputCls} /></Field>
           <OtherLanguages
@@ -98,52 +155,30 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
             fields={[{ name: "title", label: "Title" }, { name: "venue", label: "Venue" }, { name: "agenda", label: "Agenda", rows: 4 }]}
             value={m?.i18n}
           />
-          <div className="border-t border-line pt-5 sm:col-span-2">
-            <label className="flex items-start gap-3 font-semibold">
-              <input type="checkbox" name="isPublic" defaultChecked={m?.isPublic ?? false} className="mt-0.5 h-6 w-6 shrink-0" />
-              <span>
-                Show on the public website
-                <span className="mt-1 block text-sm font-normal text-muted">Visitors then see the title, date, place, notice, agenda, resolutions and minutes under Meetings. The invitee list, attendance and recording always stay private. Leave this off for a private meeting.</span>
-              </span>
-            </label>
-          </div>
+
+          <h3 className={`${section} border-t border-line pt-5`}>Notice and website</h3>
           <div className="sm:col-span-2"><UploadField name="notice" label="Notice of the meeting (PDF or Word)" kind="document" folder="meetings" initial={m?.noticeUrl ? [m.noticeUrl] : []} /></div>
-        </Card>
-        <Card className="space-y-5 self-start">
-          <div>
-            <p className="text-sm font-semibold">Reminders</p>
-            <p className="mt-1 text-sm text-muted">
-              {offsets.length ? `Due ${offsets.map(minutesLabel).join(", ")} before the meeting.` : "No reminders are set."} You can change this in Site text.
+          <label className="flex items-start gap-3 font-semibold sm:col-span-2">
+            <input type="checkbox" name="isPublic" defaultChecked={m?.isPublic ?? false} className="mt-0.5 h-6 w-6 shrink-0" />
+            <span>
+              Show on the public website
+              <span className="mt-1 block text-sm font-normal text-muted">Visitors then see the title, date, place, notice, agenda, resolutions and minutes under Meetings. The invitee list and attendance always stay private. Leave this off for a private meeting.</span>
+            </span>
+          </label>
+
+          <div className="sticky bottom-0 -mx-5 -mb-5 flex flex-wrap items-center gap-4 border-t border-line bg-white px-5 py-4 sm:-mx-6 sm:-mb-6 sm:col-span-2 sm:px-6">
+            <SubmitButton className="btn-primary min-h-12 px-10 text-lg">{isNew ? "Schedule meeting" : "Save changes"}</SubmitButton>
+            <p className="text-sm text-muted">
+              {offsets.length ? `Reminders go out ${offsets.map(minutesLabel).join(", ")} before the meeting.` : "No reminders are set."}
             </p>
           </div>
-          <SubmitButton className="btn-primary w-full px-6 py-3">{isNew ? "Schedule meeting" : "Save"}</SubmitButton>
-          {isNew && <p className="text-sm text-muted">After saving you can invite people. Online meetings get a built-in video call; invitees join from their own link.</p>}
         </Card>
       </form>
 
-      {m && m.mode !== "in_person" && (
-        <Card className="mt-8">
-          <h2 id="video" className="font-display text-2xl font-bold">Video call</h2>
-          {!videoConfigured() ? (
-            <p className="mt-3 text-muted">The video service is not set up on this site yet, so there is no call.</p>
-          ) : m.status !== "scheduled" ? (
-            <p className="mt-3 text-muted">{m.status === "cancelled" ? "This meeting is cancelled, so the call is closed." : "This meeting is completed, so the call is closed."}</p>
-          ) : (
-            <div className="mt-3 space-y-4">
-              <p className="text-muted">
-                The call opens for you an hour before the start, and invitees can come in 15 minutes before. Only people with their own invitation link can join. Everyone who joins is marked as attended, with the time they came in and left.
-              </p>
-              <p className="text-sm text-muted">The call is not recorded by the site. To keep a recording, record the call on your own device and paste its link in the record below.</p>
-              <a href={`/admin/meetings/${m.id}/room`} className="btn-primary inline-block px-6 py-3">Join as host</a>
-            </div>
-          )}
-        </Card>
-      )}
-
       {m && (
         <>
-          <Card className="mt-8" >
-            <h2 id="people" className="font-display text-2xl font-bold">Invitees ({invitees.length})</h2>
+          <h2 id="people" className={step}><span className={stepNo}>2</span> Invitees ({invitees.length})</h2>
+          <Card>
             <p className="mt-1 text-sm text-muted">{count.yes} coming · {count.attended} attended</p>
 
             <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -207,7 +242,7 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
           <form action={saveRecord} className="mt-8">
             <input type="hidden" name="id" value={m.id} />
             <Card className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <h2 id="record" className="font-display text-2xl font-bold sm:col-span-2">Record of the meeting</h2>
+              <h2 id="record" className={`${step} sm:col-span-2`}><span className={stepNo}>3</span> After the meeting: minutes and record</h2>
               <Field label="What happened">
                 <select name="status" defaultValue={m.status} className={inputCls}>
                   <option value="scheduled">Scheduled</option>
@@ -226,14 +261,6 @@ export default async function EditMeeting({ params, searchParams }: { params: Pr
             </Card>
           </form>
 
-          {hasRecord ? (
-            <p className="mt-6 text-sm text-muted">This meeting has a record (minutes, recording or attendance), so it cannot be deleted. Use "Cancelled" or "Completed" above.</p>
-          ) : (
-            <form action={deleteMeeting} className="mt-6">
-              <input type="hidden" name="id" value={m.id} />
-              <DeleteButton label="Delete this meeting" confirmText="Delete this meeting and its invitee list permanently?" />
-            </form>
-          )}
         </>
       )}
     </>
