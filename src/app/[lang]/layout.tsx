@@ -75,10 +75,20 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
 
   // a "/divisions" entry with nothing under it opens every division, and each division its branches
   type Node = { href: string; label: string; children: Node[] };
+  // likewise "Divisional" and "Branch" under Office Bearers list every division, each opening only that division's own page
+  const officeKids = (base: string): MenuItem[] =>
+    divisionMenu.filter((d) => base !== "/officials/branch" || d.children.length > 0).map((d) => ({ ...d, href: d.href.replace("/divisions/", `${base}/`), children: [] }));
   const node = (m: MenuItem): Node => ({
     href: m.href,
     label: pick(lang, m.labelEn, m.labelHi, m.i18n?.label),
-    children: (m.href === "/divisions" && m.children.length === 0 ? divisionMenu : m.children).map(node),
+    children: (m.children.length > 0
+      ? m.children
+      : m.href === "/divisions"
+        ? divisionMenu
+        : m.href === "/officials/divisional" || m.href === "/officials/branch"
+          ? officeKids(m.href)
+          : m.children
+    ).map(node),
   });
   const menu = menuTree.map((m) => ({ id: m.id, ...node(m) }));
   const other = altLang(lang);
